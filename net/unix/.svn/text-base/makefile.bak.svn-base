@@ -1,0 +1,23 @@
+CC:=gcc
+LD:=ld
+
+TOPDIR=../..
+
+
+CFLAGS:= -g -fno-builtin -Wall
+INCLUDE:=-I./ -I$(TOPDIR)/include/ -I $(TOPDIR)/include/linux/
+
+SOURCES:=$(wildcard *.c)
+OBJS:=$(subst .c,.o,$(SOURCES))
+
+all:$(OBJS) 
+
+%.o:%.c
+	$(CC) -c $(CFLAGS) $< $(INCLUDE)
+
+
+clean:
+	rm -f *.o
+
+
+
