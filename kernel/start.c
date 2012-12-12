@@ -12,7 +12,6 @@
 #include "lib.h"
 #include "string_32.h"
 
-
 void cstart()
 {
     //	disp_str("\n\n\n\n\n\n\nWelcome to Pretty OS\n");

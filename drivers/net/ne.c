@@ -4,6 +4,6 @@
 
 int ne_probe(struct net_device *dev)
 {
-	ethdev_init(dev);
-	return 0;
+    ethdev_init(dev);
+    return 0;
 }

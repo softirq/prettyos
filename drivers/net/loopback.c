@@ -3,6 +3,6 @@
 
 int loopback_init(struct net_device *dev)
 {
-		dev->mtu = 2000;
-		return 0;
+    dev->mtu = 2000;
+    return 0;
 }

@@ -50,11 +50,11 @@ extern void	scroll_screen(CONSOLE* p_con, int direction);
 t_bool	is_current_console(CONSOLE* p_con);
 extern void select_console(int nr_console);
 /* syscall.asm 
-	void	sys_call();		
-	int	get_ticks();
-	void 	write(char *buf,int len);
-	void 	printx(char *buf,int len);
-*/
+   void	sys_call();		
+   int	get_ticks();
+   void 	write(char *buf,int len);
+   void 	printx(char *buf,int len);
+   */
 /* vsprintf.c */
 extern int vsprintf(char *buf,const char *fmt,va_list args);
 extern int sprintf(char *buf,const char *fmt,...);
@@ -63,7 +63,7 @@ extern int printf(const char *fmt,...);
 extern int printk(const char *fmt,...);
 
 /* sys.c */
-	int	sys_get_ticks();
+int	sys_get_ticks();
 // 	int 	sys_write(char *buf,int len,PROCESS *p_proc);
 
 /*	proc.c 	*/
@@ -86,6 +86,6 @@ extern void 	hd_open(int net_device);
 #define 	suser() (!current->euid == 0)
 
 #define container_of(ptr, type, memeber) ({ \
-				        const typeof((type *)0->member) *_mptr = ptr;\
-				        (type*)((char *)_mptr - offsetof(type,member));)}
+        const typeof((type *)0->member) *_mptr = ptr;\
+        (type*)((char *)_mptr - offsetof(type,member));)}
 

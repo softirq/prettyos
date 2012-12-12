@@ -118,54 +118,54 @@ unsigned short get_imap_bit(int dev)
 			else
 				return inode_nr;
 		}	
-	}
-	return inode_nr;
+    }
+    return inode_nr;
 }
 unsigned short get_zmap_bit(int dev)
 {
-	int i,j;
-	int ret = -1;
-	int block_nr = 0;
-	unsigned char ch;
-	struct super_block *sb = get_super_block(dev);
-	struct buffer_head *bh;
-	int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects;
-	for(i = 0;i < sb->s_nzmap_sects;i++)
-	{
-		bh = getblk(dev,blk_nr + i);
-		hd_rw(dev,blk_nr + i,1,ATA_READ,bh);
-		for(j = 0; j < SECTOR_SIZE;j++)
-		{
-			ch = (bh->b_data)[j];
-			if(ch == 0xff)
-				continue;
-			else
-			{
-				ch = ~ch;
-			//	ch =~(bh->b_data)[j] & 0xff;			
-				ret = find_first_zero(ch);
-				if(ret < 0 || ret > 7|| (i == 0 && ret == 0))	
-				{
-					disp_str("no block is free\n");
-				}
-				else
-				{
-					block_nr = (SECTOR_SIZE * i + j) * 8 + ret;
-					if(block_nr >= BITS_ZONE)
-					{
-						return 0;
-					}
-					(bh->b_data)[j] |= (1 << ret);
-					hd_rw(ROOT_DEV,blk_nr + i,1,ATA_WRITE,bh);
-					brelse(bh);
-					break;
-				}
-			}
-			if(block_nr < 1)
-				return 0;
-			else
-				return block_nr;
-		}
-	}
-	return 0;
+    int i,j;
+    int ret = -1;
+    int block_nr = 0;
+    unsigned char ch;
+    struct super_block *sb = get_super_block(dev);
+    struct buffer_head *bh;
+    int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects;
+    for(i = 0;i < sb->s_nzmap_sects;i++)
+    {
+        bh = getblk(dev,blk_nr + i);
+        hd_rw(dev,blk_nr + i,1,ATA_READ,bh);
+        for(j = 0; j < SECTOR_SIZE;j++)
+        {
+            ch = (bh->b_data)[j];
+            if(ch == 0xff)
+                continue;
+            else
+            {
+                ch = ~ch;
+                //	ch =~(bh->b_data)[j] & 0xff;			
+                ret = find_first_zero(ch);
+                if(ret < 0 || ret > 7|| (i == 0 && ret == 0))	
+                {
+                    disp_str("no block is free\n");
+                }
+                else
+                {
+                    block_nr = (SECTOR_SIZE * i + j) * 8 + ret;
+                    if(block_nr >= BITS_ZONE)
+                    {
+                        return 0;
+                    }
+                    (bh->b_data)[j] |= (1 << ret);
+                    hd_rw(ROOT_DEV,blk_nr + i,1,ATA_WRITE,bh);
+                    brelse(bh);
+                    break;
+                }
+            }
+            if(block_nr < 1)
+                return 0;
+            else
+                return block_nr;
+        }
+    }
+    return 0;
 }

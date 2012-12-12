@@ -3,7 +3,7 @@
 %ifdef	_BOOT_DEBUG_
 	org  0100h			
 %else
-	org  07c00h	;绝对地址
+	org  07c00h	        ;绝对地址
 %endif
 
 %ifdef	_BOOT_DEBUG_
@@ -192,7 +192,7 @@ LABEL_EVEN:
 	xor	dx, dx			
 	mov	bx, [BPB_BytsPerSec]
 	div	bx			
-					
+
 	push	dx
 	mov	bx, 0			
 	add	ax, SectorNoOfFAT1	

@@ -23,68 +23,69 @@ long memory_size = 0;
 
 void init()
 {
-	//	disp_str("init() is running ...\n");
-	pid_t pid;
-	
-	pid = fork();
-	if(pid != 0)
-	{
-		printk("parnet is running,parent pid = %d \n",getpid());
-	}
-	else
-	{
-		printk("child is running,child pid  = %d\n",getpid());
-	}
-//	current->state = TASK_WAITING;
-	while(1)
-	{
-	}
+    //	disp_str("init() is running ...\n");
+    pid_t pid;
+
+    pid = fork();
+    if(pid != 0)
+    {
+        printk("parnet is running,parent pid = %d \n",getpid());
+    }
+    else
+    {
+        printk("child is running,child pid  = %d\n",getpid());
+    }
+    //	current->state = TASK_WAITING;
+    while(1)
+    {
+    }
 }
 
 //init process pid = 0;
 static void start_kernel()
 {
-//	init_trap();// define in kernel/start.c
+    //	init_trap();// define in kernel/start.c
 
-	init_clock(); //clock interrupt init
+    init_clock(); //clock interrupt init
 
-	main_memory_end = (1<<20) + (EXT_MEM_K << 10);
-	main_memory_end &= 0xfffff000;
+    main_memory_end = (1<<20) + (EXT_MEM_K << 10);
+    main_memory_end &= 0xfffff000;
 
-	if(main_memory_end > 12 * 1024 * 1024)	//内存大于6M时
-	{
-		buffer_memory_start = 3 * 1024 * 1024;
-		buffer_memory_end = 4 * 1024 * 1024;
-	}
-	else 
-	{
-		buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;
-		buffer_memory_end = 3 * 1024 * 1024;
-	}
+    if(main_memory_end > 12 * 1024 * 1024)	//内存大于6M时
+    {
+        buffer_memory_start = 3 * 1024 * 1024;
+        buffer_memory_end = 4 * 1024 * 1024;
+    }
+    else 
+    {
+        buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;
+        buffer_memory_end = 3 * 1024 * 1024;
+    }
 
-	main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
-	main_memory_start &= 0xfffff000;
-	printk("start memroy = %d\t end memory = %d\n",main_memory_start,main_memory_end);
-	
-//	buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE 
-	init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
-	paging_init(main_memory_start,main_memory_end);
+    main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
+    main_memory_start &= 0xfffff000;
+    printk("start memroy = %d\t end memory = %d\n",main_memory_start,main_memory_end);
 
-	init_mem(main_memory_start,main_memory_end); //memeory management init
+    //	buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE 
+    init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
+    paging_init(main_memory_start,main_memory_end);
 
-	init_hd(); //hard disk init
+    init_mem(main_memory_start,main_memory_end); //memeory management init
 
-	init_fs(); //filesystem init
+    init_hd(); //hard disk init
 
+    init_fs(); //filesystem init
 
-//	init_sock();
+    //init_sock();
 
-	move_to_user_mode();
+    move_to_user_mode();
 
-	while(1){}
-
+    while(1){}
 }
 
+/*-----------------------------------------------------------------------------
+ *  init task
+ *-----------------------------------------------------------------------------*/
 static void init_task()
 {
 
@@ -148,26 +149,24 @@ static void init_task()
         if(strncmp(p_proc->name,"init",strlen("init")) != 0)
         {
             p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
-            //	memcpy(&p_proc->ldts[INDEX_LDT_C], &gdt[SELECTOR_KERNEL_CS >> 3], sizeof(DESCRIPTOR));
+            //memcpy(&p_proc->ldts[INDEX_LDT_C], &gdt[SELECTOR_KERNEL_CS >> 3], sizeof(DESCRIPTOR));
             p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
-            //	memcpy(&p_proc->ldts[INDEX_LDT_D], &gdt[SELECTOR_KERNEL_DS >> 3], sizeof(DESCRIPTOR));
+            //memcpy(&p_proc->ldts[INDEX_LDT_D], &gdt[SELECTOR_KERNEL_DS >> 3], sizeof(DESCRIPTOR));
             p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
             p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
         }
         else
         {
-
-            //			printk(" wo shi init.............\n");
+            //printk(" wo shi init.............\n");
             unsigned int k_base;
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
-            //		printk("k_base = %d k_limit = %d\n",k_base,k_limit);
+            //printk("k_base = %d k_limit = %d\n",k_base,k_limit);
             assert(ret== 0);
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
-
-
         }
+
         p_proc->regs.cs		= ((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.ds		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.es		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
@@ -182,9 +181,9 @@ static void init_task()
         p_task_stack -= p_task->stacksize;
         p_task++;
         selector_ldt += 1 << 3;
-        //		printk("NT_TASKS+ NR_NATIVE_PROCS = %d\n",NR_TASKS + NR_NATIVE_PROCS);
+        //printk("NT_TASKS+ NR_NATIVE_PROCS = %d\n",NR_TASKS + NR_NATIVE_PROCS);
     }
-    //	proc_table[1].signal |= (1 << (2));
+    //proc_table[1].signal |= (1 << (2));
 
     k_reenter	= 0;
     ticks		= 0;

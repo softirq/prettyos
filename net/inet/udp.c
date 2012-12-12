@@ -9,10 +9,10 @@
 #include "sock.h"
 
 struct  proto udp_prot = {
-	128,
-	0,
-	{NULL,},
-	"UDP",
-	0,
-	0
+    128,
+    0,
+    {NULL,},
+    "UDP",
+    0,
+    0
 };
