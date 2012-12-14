@@ -15,62 +15,61 @@
 
 void TestA()
 {
-	while(1){
-		//syscall sys_get_ticks
-		//		disp_int(get_ticks());
-		disp_str("A");
-		//		printf("sunkang A:%s",get_ticks());
-		milli_delay(100);
-	}
+    while(1){
+        //syscall sys_get_ticks
+        //		disp_int(get_ticks());
+        disp_str("A");
+        //		printf("sunkang A:%s",get_ticks());
+        milli_delay(100);
+    }
 }
 
 
 void TestB()
 {
-	//	int i = 0;
-	while(1){
-		disp_str("B");
-		//	printf("%d %s %c\t",i,"sunkang",'k');
-		//		i++;
-		//		assert(i ==1);
-		//		panic("no error\n");
-		//		TestA();
-		milli_delay(100);
-		exit();
-
-	}
+    //	int i = 0;
+    while(1){
+        disp_str("B");
+        //	printf("%d %s %c\t",i,"sunkang",'k');
+        //		i++;
+        //		assert(i ==1);
+        //		panic("no error\n");
+        //		TestA();
+        milli_delay(100);
+        exit();
+    }
 }
-
 
 void TestC()
 {
-	//	int i = 0;
-	while(1){
-		disp_str("C");
-//		waitpid(current->pid);
-		milli_delay(100);
-	}
+    //	int i = 0;
+    while(1){
+        disp_str("C");
+        //		waitpid(current->pid);
+        milli_delay(100);
+    }
 }
+
 void TestD()
 {
-	while(1)
-	{
-		disp_str("D");
-		milli_delay(100);
-	}
+    while(1)
+    {
+        disp_str("D");
+        milli_delay(100);
+    }
 }
 //get ldt segment address
 int ldt_seg_linear(struct task_struct *p,int idx)
 {
-	struct descriptor *d = &(p->ldts[idx]);
-	return (d->base_low | d->base_mid << 16 | d->base_high << 24);
+    struct descriptor *d = &(p->ldts[idx]);
+    return (d->base_low | d->base_mid << 16 | d->base_high << 24);
 }
 
 //virtual address to liner address
 void* va2la(int pid,void *va)
 {
-	struct task_struct *p = &proc_table[pid];
-	u32 seg_base = ldt_seg_linear(p,INDEX_LDT_D);	
-	u32 la = seg_base + (u32)va;
-	return (void *)la;
+    struct task_struct *p = &proc_table[pid];
+    u32 seg_base = ldt_seg_linear(p,INDEX_LDT_D);	
+    u32 la = seg_base + (u32)va;
+    return (void *)la;
 }

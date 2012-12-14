@@ -10,10 +10,10 @@
 #include "sock.h"
 
 struct  proto raw_prot = {
-	128,
-	0,
-	{NULL,},
-	"RAW",
-	0,
-	0
+    128,
+    0,
+    {NULL,},
+    "RAW",
+    0,
+    0
 };

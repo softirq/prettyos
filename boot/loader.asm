@@ -18,7 +18,7 @@ GdtPtr		dw	GdtLen - 1
 SelectorFlatC		equ	LABEL_DESC_FLAT_C	- LABEL_GDT
 SelectorFlatRW		equ	LABEL_DESC_FLAT_RW	- LABEL_GDT
 SelectorVideo		equ	LABEL_DESC_VIDEO	- LABEL_GDT + SA_RPL3
-BaseOfStack	equ	0100h
+BaseOfStack	equ	    0100h
 
 LABEL_START:			
 	mov	ax, cs

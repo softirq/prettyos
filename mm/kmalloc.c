@@ -6,10 +6,10 @@
 
 void * kmalloc (size_t size, int priority)
 {
-		return NULL;
+    return NULL;
 }
 
 void * kfree_s(void *obj,int len)
 {
-		return NULL;
+    return NULL;
 }

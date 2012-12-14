@@ -10,5 +10,3 @@ all:$(OBJS)
 clean:
 	rm -f $(OBJS) 
 
-
-
