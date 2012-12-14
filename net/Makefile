@@ -22,8 +22,7 @@ subdir:
 		done
 
 clean:
-	rm -f *.o
+	rm -f $(LIBNAME) 
 	@for dir in $(SUBDIR); do \
 		 (cd $$dir && $(MAKE) clean); \
 		  done
-

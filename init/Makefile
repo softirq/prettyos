@@ -10,4 +10,5 @@ init.o:$(OBJS)
 	$(CC) -c $(CFLAGS) $< $(INCLUDE)
 
 clean:
+	rm -f init.o
 	rm -f $(OBJS) 

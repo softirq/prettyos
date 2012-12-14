@@ -16,5 +16,6 @@ kernel.o:$(OBJS)
 	$(CC) -c $(CFLAGS) $< $(INCLUDE)
 
 clean:
+	rm -f kernel.o
 	rm -f $(OBJS) 
 

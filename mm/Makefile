@@ -1,7 +1,7 @@
 TOPDIR=..
 include $(TOPDIR)/Generic.mak
 
-MMOBJS:=memory.o pgtable.o swap.o mmap.o
+MMOBJS:=kmalloc.o memory.o pgtable.o swap.o mmap.o
 
 all:$(MMOBJS)
 

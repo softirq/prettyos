@@ -1,7 +1,7 @@
 TOPDIR=.
 include $(TOPDIR)/Generic.mak
 
-dEBUG=true 
+DEBUG=true 
 
 ifdef DEBUG
 BOOT:=boot/boot.com
@@ -36,6 +36,7 @@ OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS)
 all:everything 
 
 everything:$(BOOT) $(LOADER) $(KERNEL) 
+
 $(BOOT):boot/boot.asm 
 	$(ASM) $(ASMINCLUDE) $< -o $@ 
 	#@sz -e $(BOOT) 
@@ -70,10 +71,10 @@ subdir:
 		done
 
 clean:
+	rm -f $(BOOT) $(LOADER) $(KERNEL)
 	@for dir in $(SUBDIR); do \
 		 (cd $$dir && $(MAKE) clean); \
 		  done
-	rm -f $(BOOT) $(LOADER) $(KERNEL)
 
 upload:
 	@sz -e $(BOOT) 
