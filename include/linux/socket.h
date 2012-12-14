@@ -1,3 +1,6 @@
+#ifndef     _SOCKET_H_
+#define     _SOCKET_H_
+
 #define 	AF_UNIX 	1
 #define 	AF_INET 	2
 
@@ -6,9 +9,9 @@
 
 struct sockaddr
 {
-		unsigned short sa_len;
-		unsigned short sa_family;
-		char 			sa_data[14];
+    unsigned short sa_len;
+    unsigned short sa_family;
+    char 			sa_data[14];
 };
 
 
@@ -25,3 +28,4 @@ struct sockaddr
 #define MSG_PEEK 	2
 #define MSG_DONTROUTE   4
 
+#endif

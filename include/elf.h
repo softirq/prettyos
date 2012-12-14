@@ -1,3 +1,6 @@
+#ifndef     _ELF_H_
+#define     _ELF_H_
+
 typedef unsigned short 	Elf32_Half;
 typedef unsigned int 	Elf32_Addr;
 typedef unsigned int 	Elf32_Off;
@@ -36,3 +39,5 @@ typedef struct{
 }Elf32_Shdr;
 
 #define SHF_ALLOC 	 0x02
+
+#endif

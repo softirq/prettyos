@@ -1,3 +1,6 @@
+#ifndef     _SOCKIOS_H_
+#define     _SOCKIOS_H_
+
 #define 	SIOCADDRT 		0x800B
 #define 	SIOCDELRT 		0x800C
 
@@ -11,4 +14,4 @@
 #define 	SIOCGIFNETMASK 	0x8064
 #define 	SIOCGIFMTU 		0x8065
 
-
+#endif

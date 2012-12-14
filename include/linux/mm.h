@@ -1,8 +1,8 @@
+#ifndef     _MM_H_
+#define     _MM_H_
+
 #include "asm-i386/page.h"
-#ifndef __LINUX_LIST_H
-#define __LINUX_LIST_H 
 #include "list.h"
-#endif
 
 extern long memory_end; 
 extern long main_memory_start;
@@ -23,16 +23,16 @@ int get_base(struct descriptor *dp);
 
 struct page
 {
-		struct list_head list;
-		struct address_space *mapping;
-		unsigned long index;
-		struct page *next_hash;
-		int count;
-		unsigned long flags;
-		struct list_head lru;
-		wait_queue_head_t wait;
-		struct buffer_head *buffers;
-		struct zone_struct *zone;
+    struct list_head list;
+    struct address_space *mapping;
+    unsigned long index;
+    struct page *next_hash;
+    int count;
+    unsigned long flags;
+    struct list_head lru;
+    wait_queue_head_t wait;
+    struct buffer_head *buffers;
+    struct zone_struct *zone;
 
 };
 
@@ -67,8 +67,8 @@ extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_
 
 struct mem_list 
 {
-	struct mem_list *next;
-	struct mem_list *prev;
+    struct mem_list *next;
+    struct mem_list *prev;
 };
 
 extern struct mem_list free_mem_list[NR_MEM_LISTS];
@@ -77,36 +77,35 @@ extern unsigned char * free_mem_map[NR_MEM_LISTS];
 
 struct vm_area_struct 
 {
-		unsigned long vm_start;
-		unsigned long vm_end;
-		struct task_struct *vm_task;
+    unsigned long vm_start;
+    unsigned long vm_end;
+    struct task_struct *vm_task;
 
-		pgprot_t vm_page_prot;
-		short vm_avl_height;
-		unsigned short vm_flags;
-		
-		struct vm_area_struct *vm_avl_left;	
-		struct vm_area_struct *vm_avl_right;	
+    pgprot_t vm_page_prot;
+    short vm_avl_height;
+    unsigned short vm_flags;
 
-		struct vm_area_struct *vm_next;	
+    struct vm_area_struct *vm_avl_left;	
+    struct vm_area_struct *vm_avl_right;	
 
-		struct vm_area_struct *vm_next_share;	
-		struct vm_area_struct *vm_prev_share;	
+    struct vm_area_struct *vm_next;	
 
-		struct vm_operation_struct *vm_ops;
+    struct vm_area_struct *vm_next_share;	
+    struct vm_area_struct *vm_prev_share;	
 
-		unsigned long vm_offset;
-		struct 	m_inode *vm_inode;
-		unsigned long 	vm_pte; //shared mem;
+    struct vm_operation_struct *vm_ops;
+
+    unsigned long vm_offset;
+    struct 	m_inode *vm_inode;
+    unsigned long 	vm_pte; //shared mem;
 };
 
 struct vm_operation_struct
 {
-		void (*open) (struct vm_area_struct *vma);
-		void (*close) (struct vm_area_struct *vma);
-		void (*unmap)(struct vm_area_struct *area, unsigned long, size_t);
+    void (*open) (struct vm_area_struct *vma);
+    void (*close) (struct vm_area_struct *vma);
+    void (*unmap)(struct vm_area_struct *area, unsigned long, size_t);
 };
-
 
 #define 	VM_READ 		0x0001
 #define 	VM_WRITE 		0x0002
@@ -126,6 +125,7 @@ struct vm_operation_struct
 #define 	VM_EXECUTABLE  	0X1000
 #define 	VM_STACK_FLAGS 	0x0177
 
-
 extern unsigned long __get_free_pages(int priority, unsigned long gfporder);
 #define  	__get_free_page(priority) 		__get_free_pages((priority),0)
+
+#endif

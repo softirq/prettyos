@@ -1,7 +1,5 @@
-
-#ifndef	_Pretty_CONSOLE_H_
-#define	_Pretty_CONSOLE_H_
-
+#ifndef	_CONSOLE_H_
+#define	_CONSOLE_H_
 
 typedef struct s_console
 {
@@ -22,6 +20,5 @@ typedef struct s_console
 #define SCREEN_SIZE		(SCREEN_WIDTH * SCREEN_HIGH)
 
 #define DEFAULT_CHAR_COLOR	0x07	
-
 
 #endif 

@@ -18,10 +18,7 @@
 #include "asm-i386/system.h"
 
 #include "stddef.h"
-#ifndef _NOTIFIER_H
-#define _NOTIFIER_H
 #include "linux/notifier.h"
-#endif
 #include "linux/netdevice.h"
 #include "linux/sockios.h"
 #include "linux/if.h"

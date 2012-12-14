@@ -194,6 +194,7 @@ void rw_swap_page(int rw, swap_entry_t entry, char *buf)
         goto bad_nofile;
     }
     offset = SWAP_OFFSET(entry);
+
     if(offset >= p->max)
     {
         printk("swap_free: weirdness\n");
@@ -216,7 +217,7 @@ void rw_swap_page(int rw, swap_entry_t entry, char *buf)
     }
     else if(p->swap_file)
     {
-        struct inode *swapf = p->swap_file;
+        /*struct inode *swapf = p->swap_file;*/
         //		ll_rw_swap_file(rw,swapf->i_dev, zones, i,buf);
     }
     else

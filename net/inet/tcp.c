@@ -13,10 +13,7 @@
 #include "linux/mm.h"
 
 #include "linux/netdevice.h"
-#ifndef  _SKBUFF_HEADER_H
-#define  _SKBUFF_HEADER_H
 #include "linux/skbuff.h"
-#endif
 #include "linux/net.h"
 #include "linux/tcp.h"
 #include "linux/route.h"

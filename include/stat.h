@@ -1,3 +1,6 @@
+#ifndef     _STAT_H_
+#define     _STAT_H_
+
 struct stat
 {
 	u16	st_dev;
@@ -9,3 +12,5 @@ struct stat
 	u16	st_mtime;
 	u16	st_ctime;	
 };
+
+#endif

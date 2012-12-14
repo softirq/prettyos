@@ -18,7 +18,7 @@ int sys_get_ticks()
 
 int sys_waitpid(int pid)
 {
-    struct task_struct *p;
+    /*struct task_struct *p;*/
     int i;
     for(i = 0;i < NR_PROCESS + NR_PROCS;i++)
     {
@@ -51,7 +51,7 @@ int sys_waitpid(int pid)
 
                 }
                 */
-        p->state = TASK_UNINTERRUPTIBLE;
+        /*p->state = TASK_UNINTERRUPTIBLE;*/
         schedule();
         break;
     }

@@ -1,20 +1,23 @@
+#ifndef     _SWAP_H_
+#define     _SWAP_H_
+
 #define  MAX_SWAPFILES 	8
 
 struct swap_info_struct
 {
-		unsigned int flags;
-		struct inode *swap_file;
-		unsigned int swap_device;
-		unsigned short *swap_map;
-		unsigned short *lock_map;
-		unsigned int lowest_bit;
-		unsigned int highest_bit;
-		unsigned long max;
+    unsigned int flags;
+    struct inode *swap_file;
+    unsigned int swap_device;
+    unsigned short *swap_map;
+    unsigned short *lock_map;
+    unsigned int lowest_bit;
+    unsigned int highest_bit;
+    unsigned long max;
 };
 
 typedef struct 
 {
-		        unsigned long val;
+    unsigned long val;
 }swap_entry_t;
 
 extern void swap_free(swap_entry_t entry);
@@ -32,4 +35,6 @@ extern void swap_free(swap_entry_t entry);
 #define 	WRITE  	1
 
 #define read_swap_page(nr,buf) \
-		rw_swap_page(READ,(nr),(buf))
+    rw_swap_page(READ,(nr),(buf))
+
+#endif

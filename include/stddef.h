@@ -1,3 +1,6 @@
+#ifndef     _STDDEF_H_
+#define     _STDDEF_H_
+
 #undef  NULL
 #define NULL ((void *)0)
 
@@ -7,3 +10,5 @@
 		const typeof((type *)0->member) *_mptr = ptr;\
 		(type*)((char *)_mptr - offsetof(type,member));)}
 */
+
+#endif

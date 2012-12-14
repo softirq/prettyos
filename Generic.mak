@@ -1,7 +1,8 @@
 ASM:=nasm
-CC:=gcc
-LD:=ld
-AR:=ar
+CC:=gcc -m32
+LD:=ld -m elf_i386
+#AR:=ar -X32 
+AR:=ar 
 MAKE:=make
 
 CFLAGS= -g -fno-builtin -Wall -ggdb

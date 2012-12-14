@@ -1,12 +1,10 @@
-#ifndef	_Pretty_TTY_H_
-#define	_Pretty_TTY_H_
-
+#ifndef	_TTY_H_
+#define	_TTY_H_
 
 #define TTY_IN_BYTES	256	
 
 struct s_tty;
 struct s_console;
-
 
 typedef struct s_tty
 {
@@ -17,6 +15,5 @@ typedef struct s_tty
 
 	struct s_console *	p_console;
 }TTY;
-
 
 #endif 

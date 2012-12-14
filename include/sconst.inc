@@ -34,8 +34,6 @@ SELECTOR_FLAT_C		equ		0x08
 SELECTOR_TSS		equ		0x20	
 SELECTOR_KERNEL_CS	equ		SELECTOR_FLAT_C
 
-
-
 stata 		equ 	0
 signal		equ 	4
 sa_blocked 	equ 	8

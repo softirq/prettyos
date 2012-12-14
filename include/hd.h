@@ -1,3 +1,5 @@
+#ifndef     _HD_H_
+#define     _HD_H_
 
 #define HD_TIMEOUT 	10000
 
@@ -108,3 +110,4 @@ struct hard_disk_info
 };
 
 struct hard_disk_info hd_info[MAX_DRIVES];
+#endif

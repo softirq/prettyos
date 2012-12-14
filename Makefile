@@ -1,7 +1,7 @@
 DEBUG=true 
 ASM:=nasm
-CC:=gcc
-LD:=ld
+CC:=gcc -m32
+LD:=ld -m elf_i386
 CFLAGS:= -g -fno-builtin -Wall -ggdb
 INCLUDE:=-I include/ -I include/linux/ -I include/asm-i386/
 ASMINCLUDE:= -I boot/include/

@@ -8,10 +8,7 @@
 #include "asm-i386/system.h"
 #include "asm-i386/param.h"
 
-#ifndef _NOTIFIER_H
-#define _NOTIFIER_H
 #include "linux/notifier.h"
-#endif
 #include "linux/netdevice.h"
 #include "linux/if_ether.h"
 #include "linux/if.h"

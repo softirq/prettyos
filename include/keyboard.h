@@ -1,6 +1,5 @@
-
-#ifndef	_Pretty_KEYBOARD_H_
-#define	_Pretty_KEYBOARD_H_
+#ifndef	_KEYBOARD_H_
+#define	_KEYBOARD_H_
 
 
 #define	KB_IN_BYTES	32	/* size of keyboard input buffer */

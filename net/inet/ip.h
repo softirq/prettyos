@@ -1,4 +1,6 @@
 //#include "timer.h"
+#ifndef     _INET_IP_H_
+#define     _INET_IP_H_
 
 #define IP_FRAG_TIME    (30*HZ)
 
@@ -17,14 +19,14 @@ extern void ip_send_checksum(struct iphdr *iph);
  */
 struct ipfrag
 {
-		int 	offset; 	 // offset of fragment in IP datagram
-		int 	end; 		// last byte of data in datagram
-		int 	len; 			//length of this fragment
-		struct sk_buff 	*skb;  	// complete received gragment
-		struct timer_list 	timer;
-		unsigned char 	*ptr;
-		struct ipfrag 	*next;
-		struct ipfrag 	*prev;
+    int 	offset; 	 // offset of fragment in IP datagram
+    int 	end; 		// last byte of data in datagram
+    int 	len; 			//length of this fragment
+    struct sk_buff 	*skb;  	// complete received gragment
+    struct timer_list 	timer;
+    unsigned char 	*ptr;
+    struct ipfrag 	*next;
+    struct ipfrag 	*prev;
 };
 
 /*
@@ -32,19 +34,21 @@ struct ipfrag
  */
 struct ipfq
 {
-		unsigned 	char  	 	*mac; 		//pointer to MAC header
-		struct 		iphdr 		*iph;   	//pointer to IP header
-		int 					len;  				//total length of original datagram
-		short  					ihlen;  			// length of the IP header
-		short 					maclen; 			//length of the MAC header
-		struct 		timer_list 	timer;  		// when will this queue expire
-		struct 		ipfrag 		*fragments;
-		struct 		ipfq 		*next;
-		struct 		ipfq 		*prev;
-		struct 		net_device 		*dev;
+    unsigned 	char  	 	*mac; 		//pointer to MAC header
+    struct 		iphdr 		*iph;   	//pointer to IP header
+    int 					len;  				//total length of original datagram
+    short  					ihlen;  			// length of the IP header
+    short 					maclen; 			//length of the MAC header
+    struct 		timer_list 	timer;  		// when will this queue expire
+    struct 		ipfrag 		*fragments;
+    struct 		ipfq 		*next;
+    struct 		ipfq 		*prev;
+    struct 		net_device 		*dev;
 };
 
 static inline unsigned short ip_fast_cksum(unsigned char *buff, int wlen)
 {
-		return 0;
+    return 0;
 }
+
+#endif

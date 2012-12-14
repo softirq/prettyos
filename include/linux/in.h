@@ -1,12 +1,15 @@
+#ifndef     _IN_H_
+#define     _IN_H_
+
 enum
 {
-	IPPROTO_IP = 0,
-	IPPROTO_ICMP = 1,
-	IPPROTO_IGMP = 2,
-	IPPROTO_TCP = 6,
-	IPPROTO_UDP = 17,
-	IPPROTO_RAW = 255,
-	IPPROTO_MAX
+    IPPROTO_IP = 0,
+    IPPROTO_ICMP = 1,
+    IPPROTO_IGMP = 2,
+    IPPROTO_TCP = 6,
+    IPPROTO_UDP = 17,
+    IPPROTO_RAW = 255,
+    IPPROTO_MAX
 };
 
 #define 	INADDR_LOOPBACK 		((unsigned long int)0x7f000001)
@@ -31,14 +34,16 @@ enum
 
 struct in_addr
 {
-		unsigned long 	s_addr;
+    unsigned long 	s_addr;
 };
 
 struct sockaddr_in
 {
-		unsigned short 	sin_len;
-		unsigned short 	sin_family;
-		unsigned short 	sin_port;
-		struct in_addr 	sin_addr;
-		char 	sin_zero[8];
+    unsigned short 	sin_len;
+    unsigned short 	sin_family;
+    unsigned short 	sin_port;
+    struct in_addr 	sin_addr;
+    char 	sin_zero[8];
 };
+
+#endif

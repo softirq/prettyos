@@ -1,5 +1,7 @@
-typedef unsigned int mem_map_t;
+#ifndef     _PAGE_H_
+#define     _PAGE_H_
 
+typedef unsigned int mem_map_t;
 
 typedef struct { unsigned long pte; } pte_t;
 typedef struct { unsigned long pmd; } pmd_t;
@@ -40,3 +42,5 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define PAGE_OFFSET 	(unsigned long)__PAGE_OFFSET
 #define __pa(x) 	((unsigned long)(x) - PAGE_OFFSET)
 #define __va(x) 	((void *)((unsigned long)(x) + PAGE_OFFSET))
+
+#endif

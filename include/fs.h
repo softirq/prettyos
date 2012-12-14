@@ -1,3 +1,6 @@
+#ifndef     _FS_H_
+#define     _FS_H_
+
 #define NAME_LEN	12		//文件名的长度
 //文件系统magic
 #define MAGIC_FS	0x0001
@@ -178,10 +181,11 @@ extern void init_buffer(long buffer_start,long buffer_end);
 struct buffer_head * getblk(int dev,int block);
 extern void brelse(struct buffer_head *bh);
 
-
 #define 	SEL_IN 		1
 #define 	SEL_OUT 	2
 #define 	SEL_EX 		4
 
 #define 	FILE_READ 	0x01
 #define 	FILE_WRITE 	0x02
+
+#endif

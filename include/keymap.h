@@ -1,7 +1,5 @@
-
-#ifndef	_Pretty_KEYMAP_H_
-#define	_Pretty_KEYMAP_H_
-
+#ifndef	_KEYMAP_H_
+#define	_KEYMAP_H_
 
 /* Keymap for US MF-2 keyboard. */
 
@@ -138,5 +136,5 @@ t_32 keymap[NR_SCAN_CODES * MAP_COLS] = {
 /* 0x7E - 		*/	0,		0,		0,	
 /* 0x7F - 		*/	0,		0,		0
 };
-#endif 
 
+#endif 

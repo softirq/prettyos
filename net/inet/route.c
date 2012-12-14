@@ -14,10 +14,7 @@
 #include "asm-i386/system.h"
 
 #include "linux/netdevice.h"
-#ifndef _NOTIFIER_H
-#define _NOTIFIER_H
 #include "linux/notifier.h"
-#endif
 #include "linux/in.h"
 #include "linux/route.h"
 #include "linux/sockios.h"

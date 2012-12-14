@@ -8,10 +8,8 @@ INETOBJS:=inet/*.o
 UNIXOBJS:=unix/*.o
 DRIVEROBJS:=$(TOPDIR)/drivers/net/*.o
 
-
 CPPFLAGS+=-I./inet
 .PHONY:subdir
-
 
 $(LIBNAME):$(OBJS) subdir 
 	$(AR) $(ARFLAGS) $(LIBNAME) $(OBJS) $(INETOBJS) $(UNIXOBJS) $(DRIVEROBJS)

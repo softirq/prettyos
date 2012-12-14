@@ -1,5 +1,5 @@
-#ifndef 	__LINUX_MMAP_H
-#define 	__LINUX_MMAP_H
+#ifndef     _MMAP_H_
+#define     _MMAP_H_
 
 #define 	PROT_READ 		0x01
 #define 	PROT_WRITE 		0x02
@@ -11,4 +11,5 @@
 #define 	MAP_PRIVATE 	0x02
 #define 	MAP_FIXED 		0x04 		//interpret address exactly
 #define 	MAP_DENYWRITE 	0x08 		//
+
 #endif

@@ -1,5 +1,5 @@
-CC:=gcc
-LD:=ld
+CC:=gcc -m32
+LD:=ld -m elf_i386
 
 TOPDIR=../..
 

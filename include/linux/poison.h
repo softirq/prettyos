@@ -1,3 +1,6 @@
+#ifndef     _POISON_H_
+#define     _POISON_H_
+
 /********** include/linux/list.h **********/
 /*
  *  * These are non-NULL pointers that will result in page faults
@@ -6,3 +9,5 @@
  *     */
 #define LIST_POISON1  ((void *) 0x00100100)
 #define LIST_POISON2  ((void *) 0x00200200)
+
+#endif

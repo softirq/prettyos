@@ -1,9 +1,11 @@
+#ifndef     _PGTABLE_H_
+#define     _PGTABLE_H_
+
 pgd_t swapper_pg_dir[1024];
 
 #define PTRS_PER_PTE 	1024
 #define PTRS_PER_PMD  	1	
 #define PTRS_PER_PGD 	1024
-
 
 #define 	PAGE_PRESENT 		0x001
 #define 	PAGE_RW 			0x002
@@ -15,7 +17,6 @@ pgd_t swapper_pg_dir[1024];
 #define  	PAGE_SHARED 		__pgprot(PAGE_PRESENT | PAGE_RW | PAGE_USER)
 #define 	PAGE_TABLE 			(PAGE_PRESENT | PAGE_RW | PAGE_USER | PAGE_DIRTY)
 #define  	PAGE_BADTABLE 		__pgprot(PAGE_BAD)
-
 
 extern inline pgd_t* pgd_offset(struct task_struct *tsk, unsigned long address);
 extern inline int pgd_none(pgd_t pgd);
@@ -41,3 +42,5 @@ extern inline unsigned long pte_page(pte_t pte);
 extern inline void free_page_tables(struct task_struct *tsk);
 
 extern int unmap_page_range(unsigned long addr, unsigned long size);
+
+#endif

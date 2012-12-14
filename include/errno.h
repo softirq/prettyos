@@ -1,5 +1,6 @@
-#ifndef _ERRNO_H
-#define _ERRNO_H
+#ifndef _ERRNO_H_
+#define _ERRNO_H_
+
 extern int errno;
 
 #define ERROR		99

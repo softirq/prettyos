@@ -1,5 +1,6 @@
 #include "stddef.h"
 #include "linux/netdevice.h"
+
 #define NEXT_DEV 	NULL
 
 extern int loopback_init (struct net_device *dev);

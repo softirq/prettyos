@@ -1,3 +1,6 @@
+#ifndef     _LIB_H_
+#define     _LIB_H_
+
 #include "boot.h" 
 //       klib.asm 
 extern void     out_byte(t_port port, t_8 value);
@@ -34,3 +37,5 @@ extern int 		u_phys_copy(unsigned char * dst, unsigned char * src,int size);
 extern int 		memcmp(char *dst, char *src,int len);
 extern int 		memset(char *dst, char ch,int len);
 extern int 		strlen(char *str);
+
+#endif

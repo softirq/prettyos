@@ -1,3 +1,6 @@
+#ifndef     _BLK_DRV_H_
+#define     _BLK_DRV_H_
+
 //从端口读字符串
 #define port_read(port,buf,nr) \
        __asm__ (       \
@@ -21,5 +24,6 @@
 #define DEV_HD		3
 #define DEV_TTY		4
 
-
 void ll_rw_swap_file(int rw, int dev, unsigned int *b, int nb, char *buf);
+
+#endif

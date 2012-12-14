@@ -20,10 +20,7 @@
 #include "linux/if_arp.h"
 #include "linux/tcp.h"
 
-#ifndef _NOTIFIER_H
-#define _NOTIFIER_H
 #include "linux/notifier.h"
-#endif
 
 #include "linux/if.h"
 #include "linux/sockios.h"
@@ -55,7 +52,6 @@ struct arp_table
 #define 	ARP_TABLE_SIZE 		16
 
 #define 	FULL_ARP_TABLE_SIZE 	(ARP_TABLE_SIZE+1)
-
 
 #define  	HASH(addr) 			(addr & (ARP_TABLE_SIZE - 1))
 

@@ -1,26 +1,25 @@
+#ifndef     _WAIT_H_
+#define     _WAIT_H_
 
-#ifndef __LINUX_LIST_H
-#define __LINUX_LIST_H 
 #include "list.h"
-#endif
-
 
 struct wait_queue
 {
-		struct task_struct  *task;
-		struct wait_queue 	*next;
+    struct task_struct  *task;
+    struct wait_queue 	*next;
 };
 
 struct semaphore
 {
-		int count;
-		struct wait_queue *wait;
+    int count;
+    struct wait_queue *wait;
 };
 
 struct __wait_queue_head {
-//		spinlock_t lock;
-		struct list_head task_list;
+    //		spinlock_t lock;
+    struct list_head task_list;
 };
+
 typedef struct __wait_queue_head wait_queue_head_t;
 
 
@@ -33,3 +32,4 @@ extern void remove_wait_queue(struct wait_queue **wq, struct wait_queue *wait);
 extern void down(struct semaphore *sem);
 extern void up(struct semaphore *sem);
 
+#endif

@@ -1,3 +1,6 @@
+#ifndef     _IP_H_
+#define     _IP_H_
+
 #include "type.h"
 struct timestamp
 {
@@ -41,3 +44,5 @@ struct iphdr
 		u32 	saddr;
 		u32 	daddr;
 };
+
+#endif

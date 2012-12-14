@@ -1,6 +1,5 @@
-
-#ifndef	_Pretty_PROTECT_H_
-#define	_Pretty_PROTECT_H_
+#ifndef	_PROTECT_H_
+#define	_PROTECT_H_
 
 #define DP_BASE_HIGH_SHIFT 	24
 #define DP_BASE_MID_SHIFT 	16

@@ -1,3 +1,5 @@
+#ifndef     _GLOBAL_H_
+#define     _GLOBAL_H_
 
 #ifdef	GLOBAL_VARIABLES_HERE
 #undef	extern
@@ -33,3 +35,5 @@ extern	CONSOLE		console_table[];
 
 extern	irq_handler_ptr	irq_table[];
 extern	syscall_ptr		sys_call_table[];
+
+#endif

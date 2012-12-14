@@ -1,4 +1,3 @@
-
 TOPDIR=../..
 include $(TOPDIR)/Generic.mak
 
@@ -9,6 +8,3 @@ CFLAGS+=-I./
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< 
 clean:
 	rm -f $(OBJS) 
-
-
-

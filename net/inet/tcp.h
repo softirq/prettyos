@@ -1,15 +1,18 @@
+#ifndef     _INET_TCP_H_
+#define     _INET_TCP_H_
+
 extern struct proto tcp_prot;
 
 extern void 	tcp_send_probe(struct sock *sk);
 
 extern inline int before(unsigned long seq1, unsigned long seq2)
 {
-		return (int)((seq1 - seq2) < 0);
+    return (int)((seq1 - seq2) < 0);
 }
 
 extern inline int after(unsigned long seq1, unsigned long seq2)
 {
-		return (int)((seq1 - seq2) > 0);
+    return (int)((seq1 - seq2) > 0);
 }
 
 
@@ -25,3 +28,4 @@ extern inline int after(unsigned long seq1, unsigned long seq2)
 #define MAX_SYN_SIZE    44 + MAX_HEADER                               
 #define MAX_FIN_SIZE    40 + MAX_HEADER                                    
 
+#endif

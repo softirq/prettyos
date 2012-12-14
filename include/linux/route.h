@@ -1,7 +1,7 @@
-#ifndef _SOCKET_H 
-#define _SOCKET_H
+#ifndef     _ROUTE_H_
+#define     _ROUTE_H_
+
 #include "socket.h"
-#endif
 
 #define  	RTF_UP 			0x0001
 #define 	RTF_GATEWAY 	0x0002
@@ -11,15 +11,17 @@
 
 struct rtentry
 {
-		unsigned long 	rt_hash;
-		struct sockaddr	rt_dst;
-		struct sockaddr rt_gateway;
-		short 			rt_flags;
-		short 			rt_refcnt;
-		unsigned long 	rt_use;
-		struct ifnet 	*rt_ifp;
-		short 			rt_metric;
-		char 			*rt_dev;
-		unsigned long 	rt_mss;
-		unsigned long 	rt_window;
+    unsigned long 	rt_hash;
+    struct sockaddr	rt_dst;
+    struct sockaddr rt_gateway;
+    short 			rt_flags;
+    short 			rt_refcnt;
+    unsigned long 	rt_use;
+    struct ifnet 	*rt_ifp;
+    short 			rt_metric;
+    char 			*rt_dev;
+    unsigned long 	rt_mss;
+    unsigned long 	rt_window;
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef     _SIGNAL_H_
+#define     _SIGNAL_H_
+
 typedef struct sigaction
 {
 	int sa_flags;	
@@ -28,3 +31,5 @@ typedef struct sigaction
 #define SIGTSTP		20
 #define SIGTTIN		21
 #define SIGTTOU		22
+
+#endif

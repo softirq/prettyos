@@ -1,6 +1,5 @@
-
-#ifndef	_Pretty_TYPE_H_
-#define	_Pretty_TYPE_H_
+#ifndef	_TYPE_H_
+#define	_TYPE_H_
 
 typedef	unsigned int		t_32;
 typedef	unsigned short		t_16;
@@ -46,6 +45,5 @@ typedef __kernel_ssize_t	ssize_t;
 #define _PID_T
 typedef unsigned int 		pid_t;
 #endif
-
 
 #endif

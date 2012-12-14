@@ -1,3 +1,6 @@
+#ifndef     _KERNEL_H_
+#define     _KERNEL_H_
+
 /* traps.c */
 extern void	init_trap();
 // t_32	seg2phys(t_16 seg);
@@ -89,3 +92,4 @@ extern void 	hd_open(int net_device);
         const typeof((type *)0->member) *_mptr = ptr;\
         (type*)((char *)_mptr - offsetof(type,member));)}
 
+#endif
