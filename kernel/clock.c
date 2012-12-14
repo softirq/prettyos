@@ -47,8 +47,8 @@ void init_clock()
     out_byte(TIMER_MODE, RATE_GENERATOR);
 
     //set HZ = 100
-    out_byte(TIMER0, (t_8) (TIMER_FREQ/HZ) );
-    out_byte(TIMER0, (t_8) ((TIMER_FREQ/HZ) >> 8));
+    out_byte(TIMER0, (t8) (TIMER_FREQ/HZ) );
+    out_byte(TIMER0, (t8) ((TIMER_FREQ/HZ) >> 8));
 
     put_irq_handler(CLOCK_IRQ, clock_handler);	
     enable_irq(CLOCK_IRQ);			

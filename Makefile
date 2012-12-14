@@ -35,21 +35,20 @@ LIBOBJS:=lib/misc.o lib/kliba.o lib/string.o lib/klibc.o lib/errno.o
 #OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS) $(NETLIB) 
 OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS) 
 
-
 .PHONY:clean subdir
 all:everything 
 
 everything:$(BOOT) $(LOADER) $(KERNEL) 
 $(BOOT):boot/boot.asm 
 	$(ASM) $(ASMINCLUDE) $< -o $@ 
-#	@sz -e $(BOOT) 
+	#@sz -e $(BOOT) 
 $(LOADER):boot/loader.asm
 	$(ASM) $(ASMINCLUDE) $< -o $@
-#	@sz -e $(LOADER)
+	#@sz -e $(LOADER)
 #$(KERNEL):$(OBJS) subdir
 $(KERNEL):$(OBJS) 
 	$(LD) -s -Ttext 0x10400 -o $@ $(OBJS) $(INCLUDE)
-#	@sz -e $(KERNEL)
+	#@sz -e $(KERNEL)
 
 init/%.o:init/%.c
 	$(CC) -c $(CFLAGS) $<  -o $@ $(INCLUDE)
@@ -72,11 +71,18 @@ subdir:
 #net/%.o:net/%.c
 #	$(CC) -c $(CFLAGS) $< -o $@ $(INCLUDE)
 
+upload:
+	@sz -e $(BOOT) 
+	@sz -e $(LOADER)
+	@sz -e $(KERNEL)
+
 clean:
 	cd init;rm -f *.o
 	cd kernel;rm -f *.o
 	cd fs;rm -f *.o
 	cd mm; rm -f *.o
-#	cd net;rm -f *.o
+	cd net;rm -f *.o
 	cd lib;rm -f *.o
+	cd drivers/net; rm -f *.o;
+	cd drivers/block; rm -f *.o;
 	rm -f $(BOOT) $(LOADER) $(KERNEL)

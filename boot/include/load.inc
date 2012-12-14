@@ -1,4 +1,3 @@
-
 ;loader.bin 加载的地址
 BaseOfLoader		equ	 09000h	 
 OffsetOfLoader		equ	  0100h	

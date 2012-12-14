@@ -3,7 +3,7 @@
 
 /* Keymap for US MF-2 keyboard. */
 
-t_32 keymap[NR_SCAN_CODES * MAP_COLS] = {
+t32 keymap[NR_SCAN_CODES * MAP_COLS] = {
 
 /* scan-code			!Shift		Shift		E0 XX		*/
 /* ==================================================================== */

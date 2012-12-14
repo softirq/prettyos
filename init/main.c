@@ -46,6 +46,8 @@ static void start_kernel()
 {
     //	init_trap();// define in kernel/start.c
 
+    disp_str("-------------------------------------\n");
+
     init_clock(); //clock interrupt init
 
     main_memory_end = (1<<20) + (EXT_MEM_K << 10);
@@ -65,6 +67,7 @@ static void start_kernel()
     main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
     main_memory_start &= 0xfffff000;
     printk("start memroy = %d\t end memory = %d\n",main_memory_start,main_memory_end);
+    disp_str("-------------------------------------\n");
 
     //	buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE 
     init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
@@ -76,7 +79,7 @@ static void start_kernel()
 
     init_fs(); //filesystem init
 
-    //init_sock();
+    /*init_sock();*/
 
     move_to_user_mode();
 
@@ -84,25 +87,27 @@ static void start_kernel()
 }
 
 /*-----------------------------------------------------------------------------
- *  init task
+ *  init the first process
  *-----------------------------------------------------------------------------*/
 static void init_task()
 {
+    int ret;
 
-    //	disp_str("\tpretty initialize begin\n");
-    TASK*		p_task;
+    disp_str("\tpretty initialize begin\n");
+
+    TASK*	p_task;
     //		= task_table;
     PROCESS*	p_proc		= proc_table;
-    char*		p_task_stack	= task_stack + STACK_SIZE_TOTAL;
-    t_16		selector_ldt	= SELECTOR_LDT_FIRST;
+    char*	p_task_stack	= task_stack + STACK_SIZE_TOTAL;
+    t16	selector_ldt	= SELECTOR_LDT_FIRST;
     int i,j;
 
-    int 		prio;
-    t_8 		privilege;
-    t_8 		rpl;
-    int 		eflags;
+    int prio;
+    t8 	privilege;
+    t8 	rpl;
+    int eflags;
 
-    //	disp_str("\t\tprocess init begins\n");
+    disp_str("\t\tprocess init begins\n");
     for(i=0;i<NR_PROCESS + NR_PROCS;i++,p_proc++)
     {
         if(i >= NR_SYSTEM_PROCS + NR_USER_PROCS)
@@ -134,7 +139,7 @@ static void init_task()
 
         //		memset(p_proc,0,sizeof(struct task_struct));
         p_proc->state = TASK_RUNNING;
-        strcpy(p_proc->name, p_task->name);	// name of the process
+        ret = strcpy(p_proc->name, p_task->name);	// name of the process
         p_proc->pid = i;			// pid
         p_proc->parent = NO_PARENT;
         proc_table[0].nr_tty = 0;		// tty 
@@ -157,11 +162,11 @@ static void init_task()
         }
         else
         {
-            //printk(" wo shi init.............\n");
+            printk(" wo shi init.............\n");
             unsigned int k_base;
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
-            //printk("k_base = %d k_limit = %d\n",k_base,k_limit);
+            printk("k_base = %d k_limit = %d\n",k_base,k_limit);
             assert(ret== 0);
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
@@ -173,8 +178,8 @@ static void init_task()
         p_proc->regs.fs		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.ss		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.gs		= (SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl;
-        p_proc->regs.eip	= (t_32)p_task->initial_eip;
-        p_proc->regs.esp	= (t_32)p_task_stack;
+        p_proc->regs.eip	= (t32)p_task->initial_eip;
+        p_proc->regs.esp	= (t32)p_task_stack;
         p_proc->regs.eflags	= eflags;	
         p_proc->ticks = p_proc->priority = prio;
 

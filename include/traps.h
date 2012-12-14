@@ -7,52 +7,52 @@
 
 typedef struct descriptor		
 {
-	t_16	limit_low;		
-	t_16	base_low;		
-	t_8	base_mid;		
-	t_8	attr1;			
-	t_8	limit_high_attr2;	
-	t_8	base_high;		
+	t16	limit_low;		
+	t16	base_low;		
+	t8	base_mid;		
+	t8	attr1;			
+	t8	limit_high_attr2;	
+	t8	base_high;		
 }DESCRIPTOR;
 
 
 typedef struct s_gate
 {
-	t_16	offset_low;	
-	t_16	selector;	
-	t_8	dcount;		
-	t_8	attr;
-	t_16	offset_high;	
+	t16	offset_low;	
+	t16	selector;	
+	t8	dcount;		
+	t8	attr;
+	t16	offset_high;	
 }GATE;
 
 typedef struct s_tss {
-	t_32	backlink;
-	t_32	esp0;		
-	t_32	ss0;		
-	t_32	esp1;
-	t_32	ss1;
-	t_32	esp2;
-	t_32	ss2;
-	t_32	cr3;
-	t_32	eip;
-	t_32	flags;
-	t_32	eax;
-	t_32	ecx;
-	t_32	edx;
-	t_32	ebx;
-	t_32	esp;
-	t_32	ebp;
-	t_32	esi;
-	t_32	edi;
-	t_32	es;
-	t_32	cs;
-	t_32	ss;
-	t_32	ds;
-	t_32	fs;
-	t_32	gs;
-	t_32	ldt;
-	t_16	trap;
-	t_16	iobase;	
+	t32	backlink;
+	t32	esp0;		
+	t32	ss0;		
+	t32	esp1;
+	t32	ss1;
+	t32	esp2;
+	t32	ss2;
+	t32	cr3;
+	t32	eip;
+	t32	flags;
+	t32	eax;
+	t32	ecx;
+	t32	edx;
+	t32	ebx;
+	t32	esp;
+	t32	ebp;
+	t32	esi;
+	t32	edi;
+	t32	es;
+	t32	cs;
+	t32	ss;
+	t32	ds;
+	t32	fs;
+	t32	gs;
+	t32	ldt;
+	t16	trap;
+	t16	iobase;	
 	
 }TSS;
 
@@ -134,7 +134,7 @@ typedef struct s_tss {
 #define INDEX_LDT_C     0
 #define INDEX_LDT_D    	1
 
-#define vir2phys(seg_base, vir)	(t_32)(((t_32)seg_base) + (t_32)(vir))
+#define vir2phys(seg_base, vir)	(t32)(((t32)seg_base) + (t32)(vir))
 
 #define LIMIT_4K_SHIFT 	12
 

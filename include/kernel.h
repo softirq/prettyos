@@ -3,10 +3,10 @@
 
 /* traps.c */
 extern void	init_trap();
-// t_32	seg2phys(t_16 seg);
+// t32	seg2phys(t_16 seg);
 extern void	disable_irq(int irq);
 extern void	enable_irq(int irq);
-extern void 	init_descriptor(DESCRIPTOR * p_desc, t_32 base, t_32 limit, t_16 attribute);
+extern void 	init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t16 attribute);
 
 /* core.asm */
 extern void	restart();
@@ -43,14 +43,14 @@ extern void 	init_keyboard();
 
 /* tty.c */
 extern void	task_tty();
-extern void	in_process(TTY* p_tty, t_32 key);
+extern void	in_process(TTY* p_tty, t32 key);
 extern int 	sys_printx(char *buf,int len,struct task_struct *p_proc);
 
 /* console.c */
 extern void	init_screen(TTY* p_tty);
 extern void	out_char(CONSOLE* p_con, char ch);
 extern void	scroll_screen(CONSOLE* p_con, int direction);
-t_bool	is_current_console(CONSOLE* p_con);
+tbool	is_current_console(CONSOLE* p_con);
 extern void select_console(int nr_console);
 /* syscall.asm 
    void	sys_call();		

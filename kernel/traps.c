@@ -15,10 +15,10 @@
 #include "system.h"
 
 
-static void init_idt_desc(unsigned int n, t_8 desc_type, t_pf_int_handler handler, unsigned char privilege);
-static t_32 seg2phys(t_16 seg);
+static void init_idt_desc(unsigned int n, t8 desc_type, t_pf_int_handler handler, unsigned char privilege);
+static t32 seg2phys(t16 seg);
 
-//static void init_descriptor(DESCRIPTOR * p_desc, t_32 base, t_32 limit, t_16 attribute);
+//static void init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t_16 attribute);
 
 //  this is the exception handler
 extern void	divide_error();
@@ -109,7 +109,7 @@ void init_trap()
             DA_386TSS);
     tss.iobase	= sizeof(tss);	
     PROCESS* p_proc	= proc_table;
-    t_16 selector_ldt = INDEX_LDT_FIRST << 3;
+    t16 selector_ldt = INDEX_LDT_FIRST << 3;
 
     //¿¿GDT¿¿¿¿¿¿¿LDT 
     for(i=0;i<NR_SYSTEM_PROCS + NR_USER_PROCS;i++)
@@ -124,10 +124,10 @@ void init_trap()
 }
 
 
-void init_idt_desc(unsigned int n, t_8 desc_type, t_pf_int_handler handler, unsigned char privilege)
+void init_idt_desc(unsigned int n, t8 desc_type, t_pf_int_handler handler, unsigned char privilege)
 {
     GATE *	p_gate	= &idt[n];
-    t_32	base	= (t_32)handler;
+    t32	base	= (t32)handler;
     p_gate->offset_low	= base & 0xFFFF;
     p_gate->selector	= SELECTOR_KERNEL_CS;
     p_gate->dcount		= 0;
@@ -136,13 +136,13 @@ void init_idt_desc(unsigned int n, t_8 desc_type, t_pf_int_handler handler, unsi
 }
 
 
-static t_32 seg2phys(t_16 seg)
+static t32 seg2phys(t16 seg)
 {
     DESCRIPTOR* p_dest = &gdt[seg >> 3];
     return (p_dest->base_high << 24) | (p_dest->base_mid << 16) | (p_dest->base_low);
 }
 
-void init_descriptor(DESCRIPTOR * p_desc, t_32 base, t_32 limit, t_16 attribute)
+void init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t16 attribute)
 {
     p_desc->limit_low		= limit & 0x0FFFF;	
     p_desc->base_low		= base & 0x0FFFF;	

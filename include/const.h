@@ -1,6 +1,6 @@
 
-#ifndef	_Pretty_CONST_H_
-#define	_Pretty_CONST_H_
+#ifndef	_CONST_H_
+#define	_CONST_H_
 
 #define NULL	0
 

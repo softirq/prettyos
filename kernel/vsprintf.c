@@ -49,6 +49,7 @@ int vsprintf(char *buf,const char *fmt,va_list args)
     }
     return (p - buf); 
 }
+
 int sprintf(char *buf,const char *fmt,...)
 {
 

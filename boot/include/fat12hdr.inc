@@ -22,4 +22,3 @@ RootDirSectors		equ	14
 SectorNoOfRootDirectory equ 19
 SectorNoOfFAT1		equ	1	
 DeltaSectorNo		equ	17	
-					

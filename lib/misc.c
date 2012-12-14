@@ -12,7 +12,7 @@
 #include "lib.h"
 
 
-t_bool is_alphanumeric(char ch)
+tbool is_alphanumeric(char ch)
 {
     return ((ch >= ' ') && (ch <= '~'));
 }
@@ -23,7 +23,7 @@ void itoa(char *str, int num)
     char *	p = str;
     char	ch;
     int	i;
-    t_bool	flag = FALSE;
+    tbool	flag = FALSE;
 
     //	*p++ = '0';
     //	*p++ = 'x';
@@ -97,33 +97,23 @@ int strcmp(char *str1,char *str2)
     return 0;
 }
 
-int strncpy(char *dest,char *src,int pos,int size)
+int strncpy(char *dst,char *src,int size)
 {
-    char *p; 
     int i = 0;
-    if(!dest || !src || pos < 0 || size < 0)
+    if(!dst || !src || size < 0)
         return -1;
-    p = src + pos;
-    while(p++ && dest)
-    {
-        *dest++ = *p;
-        i++;
-        if(i >= size)
-        {
-            *dest = '0';
-            break;
-        }
-    }
+
+    while(((*dst++ = *src++) != '\0') && ((++i) < size));
+
     return 0;
 }
 
-int strcpy(char *dest,char *src)
+int strcpy(char *dst,char *src)
 {
-    if(!dest || !src)
+    if(!dst || !src)
         return -1;
-    while(dest && src)
-    {
-        *dest++ = *src++;
-    }
+
+    while((*dst++ = *src++) != '\0');
+
     return 0;
 }

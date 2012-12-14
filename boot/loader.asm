@@ -477,12 +477,10 @@ SetupPaging:
 	xor	eax, eax
 	mov	eax, PageTblBase | PG_P  | PG_USU | PG_RWW
 
-
 .1:
 	stosd
 	add	eax, 4096		
 	loop	.1
-
 
 	
 	pop	eax			

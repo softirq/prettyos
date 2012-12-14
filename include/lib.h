@@ -3,8 +3,8 @@
 
 #include "boot.h" 
 //       klib.asm 
-extern void     out_byte(t_port port, t_8 value);
-t_8      		in_byte(t_port port);
+extern void     out_byte(t_port port, t8 value);
+t8      		in_byte(t_port port);
 extern void     disable_int();
 extern void     enable_int();
 extern void     disp_str(char * info);
@@ -12,7 +12,7 @@ extern void     disp_str(char * info);
 extern void     disp_color_str(char * info, int color);
 extern void     clear_screen();
 //       tlib.c 
-t_bool   		is_alphanumeric(char ch);
+tbool   		is_alphanumeric(char ch);
 extern void     delay(int time);
 extern void     itoa(char* str, int num);
 extern void     disp_int(int input);
@@ -22,9 +22,9 @@ extern void     spin(char *str);
 extern void     assertion_failure(char *exp,char *file,char *base_file,int line);
 /*
 extern int 		strncmp(char *str1,char *str2,int len);
-extern int 		strncpy(char *dest,char *src,int pos,int size);
-extern int 		strcpy(char *dst, char *src);
 extern int 		strcmp(char *str1,char *str2);
+extern int 		strcpy(char *dst, char *src);
+extern int 		strncpy(char *dst,char *src,int size);
 
 */
 

@@ -15,27 +15,27 @@
 #include "lib.h"
 
 static	KB_INPUT	kb_in;
-static	t_bool		code_with_E0	= FALSE;
+static	tbool		code_with_E0	= FALSE;
 //static t_bool 		tab;
-static	t_bool		shift_l;		/* l shift state	*/
-static	t_bool		shift_r;		/* r shift state	*/
-static	t_bool		alt_l;			/* l alt state		*/
-static	t_bool		alt_r;			/* r left state		*/
-static	t_bool		ctrl_l;			/* l ctrl state		*/
-static	t_bool		ctrl_r;			/* l ctrl state		*/
-static	t_bool		caps_lock;		/* Caps Lock		*/
-static	t_bool		num_lock;		/* Num Lock		*/
-static	t_bool		scroll_lock;		/* Scroll Lock		*/
-static	int		column		= 0;	/* keyrow[column] ½«ÊÇ keymap ÖÐÄ³Ò»¸öÖµ */
+static	tbool		shift_l;		/* l shift state	*/
+static	tbool		shift_r;		/* r shift state	*/
+static	tbool		alt_l;			/* l alt state		*/
+static	tbool		alt_r;			/* r left state		*/
+static	tbool		ctrl_l;			/* l ctrl state		*/
+static	tbool		ctrl_r;			/* l ctrl state		*/
+static	tbool		caps_lock;		/* Caps Lock		*/
+static	tbool		num_lock;		/* Num Lock		*/
+static	tbool		scroll_lock;		/* Scroll Lock		*/
+static	int		column		= 0;	/* keyrow[column] ???? keymap ??Ä³Ò»??Öµ */
 
-static t_8	get_byte_from_kb_buf();
+static t8	get_byte_from_kb_buf();
 static void	set_leds();
 static void	kb_wait();
 static void	kb_ack();
 
 void keyboard_handler(int irq)
 {
-	t_8 scan_code = in_byte(KB_DATA);
+	t8 scan_code = in_byte(KB_DATA);
 //	disp_str("keyboard handler\n");
 
 	if (kb_in.count < KB_IN_BYTES) {
@@ -65,10 +65,10 @@ void init_keyboard()
 
 void keyboard_read(TTY* p_tty)
 {
-	t_8	scan_code;
-	t_bool	make;
-	t_32	key = 0;
-	t_32*	keyrow;	
+	t8	scan_code;
+	tbool	make;
+	t32	key = 0;
+	t32*	keyrow;	
 
 	if(kb_in.count > 0)
 	{
@@ -78,8 +78,8 @@ void keyboard_read(TTY* p_tty)
 		if (scan_code == 0xE1) 
 		{
 			int i;
-			t_8 pausebreak_scan_code[] = {0xE1, 0x1D, 0x45, 0xE1, 0x9D, 0xC5};
-			t_bool is_pausebreak = TRUE;
+			t8 pausebreak_scan_code[] = {0xE1, 0x1D, 0x45, 0xE1, 0x9D, 0xC5};
+			tbool is_pausebreak = TRUE;
 			for(i=1;i<6;i++)
 			{
 				if (get_byte_from_kb_buf() != pausebreak_scan_code[i]) {
@@ -124,13 +124,13 @@ void keyboard_read(TTY* p_tty)
 				}
 			}
 		}
-//¿¿¿¿ PAUSEBREAK ¿¿ PRINTSCREEN¿¿¿¿¿¿¿¿
+//???? PAUSEBREAK ?? PRINTSCREEN????????
 		if ((key != PAUSEBREAK) && (key != PRINTSCREEN)) 
 		{
 			make = (scan_code & FLAG_BREAK ? FALSE : TRUE);
 			keyrow = &keymap[(scan_code & 0x7F) * MAP_COLS];
 			column = 0;
-			t_bool caps = shift_l || shift_r;
+			tbool caps = shift_l || shift_r;
 			if (caps_lock) 
 			{
 				if ((keyrow[0] >= 'a') && (keyrow[0] <= 'z'))
@@ -148,8 +148,8 @@ void keyboard_read(TTY* p_tty)
 				column = 2;
 			}
 
-//l_shift ¿¿¿¿2a ¿keyrow¿¿¿¿ key = SHIFT_L; 
-//¿bool shift_l¿¿¿true ¿¿¿¿¿¿¿ ¿key ¿¿¿¿¿¿¿¿¿ ¿¿¿¿¿¿¿¿¿¿¿¿¿
+//l_shift ????2a ?keyrow???? key = SHIFT_L; 
+//?bool shift_l???true ??????? ?key ????????? ?????????????
 			
 			key = keyrow[column];
 
@@ -204,7 +204,7 @@ void keyboard_read(TTY* p_tty)
 
 		if(make)
 		{
-			t_bool pad = FALSE;
+			tbool pad = FALSE;
 			if ((key >= PAD_SLASH) && (key <= PAD_9)) 
 			{
 				pad = TRUE;
@@ -293,9 +293,9 @@ void keyboard_read(TTY* p_tty)
 }
 
 
-static t_8 get_byte_from_kb_buf()	
+static t8 get_byte_from_kb_buf()	
 {
-	t_8	scan_code;
+	t8	scan_code;
 
 	while (kb_in.count <= 0) {}
 
@@ -321,7 +321,7 @@ static t_8 get_byte_from_kb_buf()
 
 static void kb_wait()
 {
-	t_8 kb_stat;
+	t8 kb_stat;
 
 	do 
 	{
@@ -332,7 +332,7 @@ static void kb_wait()
 
 static void kb_ack()
 {
-	t_8 kb_read;
+	t8 kb_read;
 
 	do 
 	{
@@ -343,7 +343,7 @@ static void kb_ack()
 
 static void set_leds()
 {
-	t_8 leds = (caps_lock << 2) | (num_lock << 1) | scroll_lock;
+	t8 leds = (caps_lock << 2) | (num_lock << 1) | scroll_lock;
 
 	kb_wait();
 	out_byte(KB_DATA, LED_CODE);

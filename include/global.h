@@ -13,12 +13,12 @@ extern  long 		jiffies;
 extern	int		ticks;
 //video memory position
 extern	int		disp_pos;
-extern	t_8		gdt_ptr[6];	// 0~15:Limit  16~47:Base
+extern	t8		gdt_ptr[6];	// 0~15:Limit  16~47:Base
 extern	DESCRIPTOR	gdt[GDT_SIZE];
-extern	t_8		idt_ptr[6];	// 0~15:Limit  16~47:Base
+extern	t8		idt_ptr[6];	// 0~15:Limit  16~47:Base
 extern	GATE		idt[IDT_SIZE];
 
-extern	t_32		k_reenter;
+extern	t32		k_reenter;
 
 extern	TSS		tss;
 //extern	PROCESS*	p_proc_ready;

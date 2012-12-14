@@ -14,7 +14,7 @@
 
 
 static void	set_cursor(unsigned int position);
-static void	set_video_start_addr(t_32 addr);
+static void	set_video_start_addr(t32 addr);
 static void	flush(CONSOLE* p_con);
 static int 	clean_console_screen(CONSOLE *p_con);
 
@@ -24,7 +24,7 @@ static int out_char_number = 0;
 void out_str(CONSOLE *p_con,char *str,int len)
 {
     int i = 0;
-    t_8 *p_vmem = (t_8*)(V_MEM_BASE +  p_con->cursor * 2);
+    t8 *p_vmem = (t8*)(V_MEM_BASE +  p_con->cursor * 2);
     for(;i < len;i++)
     {
         if (p_con->cursor < p_con->original_addr + p_con->v_mem_limit - 1) 
@@ -45,7 +45,7 @@ void out_str(CONSOLE *p_con,char *str,int len)
 
 void out_char(CONSOLE* p_con, char ch)
 {
-    t_8* p_vmem = (t_8*)(V_MEM_BASE + p_con->cursor * 2);
+    t8* p_vmem = (t8*)(V_MEM_BASE + p_con->cursor * 2);
 
     switch(ch) {
         case '\n':
@@ -103,7 +103,7 @@ void out_char(CONSOLE* p_con, char ch)
 }
 
 
-t_bool is_current_console(CONSOLE* p_con)
+tbool is_current_console(CONSOLE* p_con)
 {
     return (p_con == &console_table[nr_current_console]);
 }
@@ -120,7 +120,7 @@ static void set_cursor(unsigned int position)
 }
 
 
-static void set_video_start_addr(t_32 addr)
+static void set_video_start_addr(t32 addr)
 {
     disable_int();
     out_byte(CRTC_ADDR_REG, CRTC_DATA_IDX_START_ADDR_H);

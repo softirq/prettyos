@@ -1,10 +1,10 @@
 #ifndef	_TYPE_H_
 #define	_TYPE_H_
 
-typedef	unsigned int		t_32;
-typedef	unsigned short		t_16;
-typedef	unsigned char		t_8;
-typedef	int			t_bool;
+typedef	int		    t32;
+typedef	short		t16;
+typedef	char		t8;
+typedef	int			tbool;
 //设置 设备号类型
 typedef int 			dev_t;
 

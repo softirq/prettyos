@@ -23,43 +23,43 @@ struct mm_struct
 };
 
 typedef struct s_stackframe {	
-    t_32	gs;		
-    t_32	fs;		
-    t_32	es;		
-    t_32	ds;		
-    t_32	edi;		
-    t_32	esi;		
-    t_32	ebp;		
-    t_32	kernel_esp;	
-    t_32	ebx;		
-    t_32	edx;		
-    t_32	ecx;		
-    t_32	eax;		
-    t_32	retaddr;	
-    t_32	eip;		
-    t_32	cs;		
-    t_32	eflags;		
-    t_32	esp;		
-    t_32	ss;		
+    t32	gs;		
+    t32	fs;		
+    t32	es;		
+    t32	ds;		
+    t32	edi;		
+    t32	esi;		
+    t32	ebp;		
+    t32	kernel_esp;	
+    t32	ebx;		
+    t32	edx;		
+    t32	ecx;		
+    t32	eax;		
+    t32	retaddr;	
+    t32	eip;		
+    t32	cs;		
+    t32	eflags;		
+    t32	esp;		
+    t32	ss;		
 }STACK_FRAME;
 
 
 typedef struct task_struct 
 {
     STACK_FRAME	regs;			
-    t_16		ldt_sel;		
+    t16		ldt_sel;		
     DESCRIPTOR	ldts[LDT_SIZE];		
     struct 	sigaction sig_action[32];//32个信号 
     int 		state;
     unsigned long signal; //信号位图
     unsigned long blocked; //信号屏蔽字段
-    t_bool		sigpending;	//是否有信号 有true 没有false
+    tbool		sigpending;	//是否有信号 有true 没有false
     int 		flags;
     int		ticks;			
     int		priority;
     int 		nr_tty;
     int 		parent;
-    t_32		pid;			
+    t32		pid;			
     char		name[16];		
     struct 	file 	*filp[NR_OPEN];
     //	struct task_struct *parent;
@@ -72,7 +72,6 @@ typedef struct task_struct
     int 		exit_code;
 
 }PROCESS;
-
 
 typedef struct s_task 
 {
