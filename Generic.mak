@@ -5,10 +5,10 @@ LD:=ld -m elf_i386
 AR:=ar 
 MAKE:=make
 
-CFLAGS= -g -fno-builtin -Wall -ggdb
-CPPFLAGS=-I$(TOPDIR)/include/ -I$(TOPDIR)/include/linux
+CFLAGS=-g -fno-builtin -Wall -ggdb
+INCLUDE=-I$(TOPDIR)/include/ -I$(TOPDIR)/include/linux/ -I$(TOPDIR)/include/asm-i386/
 ASMINCLUDE=-I $(TOPDIR)/boot/include/
 ARFLAGS=-r
 
-SOURCES=$(wildcard *.c)
-OBJS=$(subst .c,.o,$(SOURCES))
+#SOURCES=$(wildcard *.c)
+#OBJS=$(subst .c,.o,$(SOURCES))

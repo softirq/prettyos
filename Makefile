@@ -1,10 +1,7 @@
-DEBUG=true 
-ASM:=nasm
-CC:=gcc -m32
-LD:=ld -m elf_i386
-CFLAGS:= -g -fno-builtin -Wall -ggdb
-INCLUDE:=-I include/ -I include/linux/ -I include/asm-i386/
-ASMINCLUDE:= -I boot/include/
+TOPDIR=.
+include $(TOPDIR)/Generic.mak
+
+dEBUG=true 
 
 ifdef DEBUG
 BOOT:=boot/boot.com
@@ -66,23 +63,19 @@ lib/%.o:lib/%.asm
 lib/%.o:lib/%.c
 	$(CC) -c $(CFLAGS) $< -o $@  $(INCLUDE)
 
+SUBDIR:=drivers fs init kernel lib mm net
 subdir:
-#	cd net;$(MAKE)
-#net/%.o:net/%.c
-#	$(CC) -c $(CFLAGS) $< -o $@ $(INCLUDE)
+	@for dir in $(SUBDIR); do \
+		(cd $$dir && $(MAKE)); \
+		done
+
+clean:
+	@for dir in $(SUBDIR); do \
+		 (cd $$dir && $(MAKE) clean); \
+		  done
+	rm -f $(BOOT) $(LOADER) $(KERNEL)
 
 upload:
 	@sz -e $(BOOT) 
 	@sz -e $(LOADER)
 	@sz -e $(KERNEL)
-
-clean:
-	cd init;rm -f *.o
-	cd kernel;rm -f *.o
-	cd fs;rm -f *.o
-	cd mm; rm -f *.o
-	cd net;rm -f *.o
-	cd lib;rm -f *.o
-	cd drivers/net; rm -f *.o;
-	cd drivers/block; rm -f *.o;
-	rm -f $(BOOT) $(LOADER) $(KERNEL)

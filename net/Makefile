@@ -1,6 +1,6 @@
 TOPDIR:=..
-
 include $(TOPDIR)/Generic.mak
+
 LIBNAME=net.a
 
 SUBDIR:=inet unix $(TOPDIR)/drivers/net
@@ -14,7 +14,7 @@ CPPFLAGS+=-I./inet
 $(LIBNAME):$(OBJS) subdir 
 	$(AR) $(ARFLAGS) $(LIBNAME) $(OBJS) $(INETOBJS) $(UNIXOBJS) $(DRIVEROBJS)
 %.o:%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< 
+	$(CC) -c $(CFLAGS) $< 
 
 subdir:
 	@for dir in $(SUBDIR); do \

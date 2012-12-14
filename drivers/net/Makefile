@@ -1,20 +1,15 @@
-CC:=gcc -m32
-LD:=ld -m elf_i386
-
 TOPDIR=../..
+include $(TOPDIR)/Generic.mak
 
-CFLAGS:= -g -fno-builtin -Wall
-INCLUDE:=-I./ -I../ -I$(TOPDIR)/include -I $(TOPDIR)/include/linux -I$(TOPDIR)/net
+INCLUDE+=-I$(TOPDIR)/net/
 
-SOURCES:=$(wildcard *.c)
-OBJS:=$(subst .c,.o,$(SOURCES))
+OBJS:=ne.o space.o net_init.o loopback.o
 
 all:$(OBJS)
 
 %.o:%.c
 	$(CC) -c $(CFLAGS) $< $(INCLUDE)
+
 clean:
-	rm -f *.o
-
-
+	rm -f $(OBJS)
 
