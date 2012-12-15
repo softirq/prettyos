@@ -1,7 +1,7 @@
 TOPDIR=..
 include $(TOPDIR)/Generic.mak
 
-LIBOBJS:=klibc.o string.o kliba.o misc.o errno.o
+LIBOBJS:=klibc.o stringa.o kliba.o string.o errno.o
 
 all:$(LIBOBJS)
 #	$(LD) -r -o $@ $(OBJS)

@@ -7,7 +7,7 @@
 #include "panic.h"
 #include "printf.h"
 #include "fork.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "proc.h"
 #include "wait.h"
 #include "mm.h"

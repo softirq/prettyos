@@ -12,7 +12,7 @@
 #include "keyboard.h"
 #include "keymap.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 
 static	KB_INPUT	kb_in;
 static	tbool		code_with_E0	= FALSE;

@@ -1,7 +1,7 @@
 prettyos
 ========
 
-Author:  kang.sun(SoftIRQ) 312134065@qq.com
+Author:  kang.sun(SoftIRQ) kangs.uestc@gmail.com UESTC
 Version:  0.30
 
 a operation system myself

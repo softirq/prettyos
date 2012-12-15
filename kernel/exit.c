@@ -47,7 +47,7 @@ int do_exit()
     int i;
     struct task_struct *p = current;
     int pid = p->pid;	
-    printk("%d\n",pid);
+    printk("\nexit process pid = %d\n",pid);
     for(i = 0;i < NR_PROCESS + NR_PROCS;i++)
     {
         if(proc_table[i].parent == pid)

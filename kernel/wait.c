@@ -9,7 +9,7 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "timer.h"
 #include "kstat.h"
 #include "asm-i386/system.h"

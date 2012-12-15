@@ -46,14 +46,6 @@
 #define	INT_S_CTL	0xA0	/* I/O port for second interrupt controller  <Slave>  */
 #define	INT_S_CTLMASK	0xA1	/* setting bits in this port disables ints   <Slave>  */
 
-/* 8253/8254 PIT (Programmable Interval Timer) */
-#define TIMER0          0x40	/* I/O port for timer channel 0 */
-#define TIMER_MODE      0x43	/* I/O port for timer mode control */
-#define RATE_GENERATOR	0x34	/* 00-11-010-0 : Counter0 - LSB then MSB - rate generator - binary */
-#define TIMER_FREQ	1193182L/* clock frequency for timer in PC and AT */
-#define HZ		100	/* clock freq (software settable on IBM-PC) */
-
-/* AT keyboard */
 /* 8042 ports */
 #define	KB_DATA		0x60	/* I/O port for keyboard data
 					Read : Read Output Buffer 
@@ -92,10 +84,14 @@
 #define	NR_SYS_CALL	6
 
 #define ASSERT
+
 #ifdef 	ASSERT
 void assertion_failure(char *exp,char *file,char *base_file,int line);
-#define assert(exp) if(exp);\
-	else	assertion_failure(#exp,__FILE__,__BASE_FILE__,__LINE__);
+#define assert(exp) do{ \
+    if(exp);\
+        else	 \
+    assertion_failure(#exp,__FILE__,__BASE_FILE__,__LINE__); \
+}while(0)
 #else
 #define assert(exp)
 #endif

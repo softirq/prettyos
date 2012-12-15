@@ -9,7 +9,7 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "fork.h"
 #include "linux/net.h"
 
@@ -24,9 +24,9 @@ long memory_size = 0;
 void init()
 {
     //	disp_str("init() is running ...\n");
-    pid_t pid;
+    pid_t pid = 0;
 
-    pid = fork();
+    /*pid = fork();*/
     if(pid != 0)
     {
         printk("parnet is running,parent pid = %d \n",getpid());
@@ -69,15 +69,15 @@ static void start_kernel()
     printk("start memroy = %d\t end memory = %d\n",main_memory_start,main_memory_end);
     disp_str("-------------------------------------\n");
 
-    //	buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE 
-    init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
-    paging_init(main_memory_start,main_memory_end);
+        /*buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE */
+    /*init_buffer(buffer_memory_start,buffer_memory_end); //buffer init*/
+    /*paging_init(main_memory_start,main_memory_end);*/
 
-    init_mem(main_memory_start,main_memory_end); //memeory management init
+    /*init_mem(main_memory_start,main_memory_end); //memeory management init*/
 
-    init_hd(); //hard disk init
+    /*init_hd(); //hard disk init*/
 
-    init_fs(); //filesystem init
+    /*init_fs(); //filesystem init*/
 
     /*init_sock();*/
 
@@ -139,8 +139,10 @@ static void init_task()
 
         //		memset(p_proc,0,sizeof(struct task_struct));
         p_proc->state = TASK_RUNNING;
+        /*p_proc->flags = 1;*/
         ret = strcpy(p_proc->name, p_task->name);	// name of the process
         p_proc->pid = i;			// pid
+        disp_str("*****************\n");
         p_proc->parent = NO_PARENT;
         proc_table[0].nr_tty = 0;		// tty 
         for(j = 0; j < NR_SIGNALS;j++)
@@ -167,6 +169,7 @@ static void init_task()
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
             printk("k_base = %d k_limit = %d\n",k_base,k_limit);
+            printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);
             assert(ret== 0);
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);

@@ -4,7 +4,7 @@
 #include "string.h"
 #include "tty.h"
 #include "console.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "fork.h"
 #include "proc.h"
 #include "panic.h"
@@ -55,8 +55,10 @@ int alloc_mem(int pid,int memsize)
         printk("base = %d\n",base);
         printk("memsize = %d\n",memsize);
         printk("memory_size = %d\n",memory_size);
-        */	if(base + memsize >= memory_size)
-    panic("memory allocation failed pid %d\n",pid);
+        */	
+    if(base + memsize >= memory_size)
+        panic("memory allocation failed pid %d\n",pid);
+
     return base;
 }
 

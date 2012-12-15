@@ -43,7 +43,6 @@ typedef struct s_stackframe {
     t32	ss;		
 }STACK_FRAME;
 
-
 typedef struct task_struct 
 {
     STACK_FRAME	regs;			

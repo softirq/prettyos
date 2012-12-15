@@ -10,7 +10,7 @@
 #include "kernel.h" 
 #include "config.h"
 #include "elf.h"
-#include "lib.h"
+#include "stdlib.h"
 
 void spin(char *str)
 {
@@ -30,7 +30,7 @@ void assertion_failure(char *exp,char *file,char *base_file,int line)
 void disp_int(int input)
 {
     char output[16];
-    itoa(output,input);
+    htoa(output,input);
     disp_str(output);
 }
 
@@ -114,59 +114,3 @@ int u_phys_copy(unsigned char *dst, unsigned char *src, int size)
     return 0;
 }
 
-int memcmp(char *dst, char *src,int len)
-{
-
-    if(dst == NULL || src == NULL)
-    {
-        return 1;
-    }
-    else
-    {
-        if(strlen(dst) != strlen(src))
-            return -1;
-        if(len > strlen(dst))
-            return -1;
-        while(dst && src && len--)
-        {
-            if(*dst != *src)
-                return -1;
-            dst++;
-            src++;
-        }
-        return 0;
-    }
-    return -1;
-
-}
-
-int memset(char *dst,char ch,int size)
-{
-    if(size <= 0)
-        return -1;
-    int i = 0;	
-    while(dst && i < size)
-    {
-        *dst = ch;
-        dst++;
-        i++;
-    }
-    return 0;
-}
-
-/*
-   int strlen(char *str)
-   {
-   int i = 0;
-   char ch;
-   char *ptr = str;
-   if(str == NULL)
-   return 0;
-   while((ch = *str) != '\0')
-   {
-   i++;
-   ptr++;
-   }
-   return i;
-   }
-   */

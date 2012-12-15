@@ -6,7 +6,9 @@ OBJS:=core.o start.o i8259.o global.o traps.o hd.o \
 	vsprintf.o proc.o panic.o signal.o  fork.o exit.o timer.o bitops.o \
 	wait.o
 
-kernel.o:$(OBJS)
+KERNEL=kernel.o
+
+$(KERNEL):$(OBJS)
 	$(LD) -r -o $@ $(OBJS)
 
 %.o:%.asm
@@ -16,6 +18,6 @@ kernel.o:$(OBJS)
 	$(CC) -c $(CFLAGS) $< $(INCLUDE)
 
 clean:
-	rm -f kernel.o
+	rm -f $(KERNEL) 
 	rm -f $(OBJS) 
 

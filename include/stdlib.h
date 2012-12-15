@@ -15,6 +15,7 @@ extern void     clear_screen();
 tbool   		is_alphanumeric(char ch);
 extern void     delay(int time);
 extern void     itoa(char* str, int num);
+extern void     htoa(char* str, int num);
 extern void     disp_int(int input);
 
 //       misc.c 

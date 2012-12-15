@@ -11,7 +11,7 @@
 #include "global.h"
 #include "keyboard.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 
 #define TTY_FIRST	(tty_table)
 #define TTY_END		(tty_table + NR_CONSOLES)

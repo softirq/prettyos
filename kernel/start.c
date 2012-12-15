@@ -9,7 +9,7 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "string_32.h"
 
 void cstart()

@@ -2,7 +2,7 @@
 #include "const.h"
 #include "vsprintf.h"
 #include "syscall.h"
-#include "lib.h"
+#include "stdlib.h"
 
 int printf(const char *fmt,...)
 {
@@ -19,13 +19,14 @@ int printf(const char *fmt,...)
 //直接放入到显存，不通过虚拟终端
 int printk(const char *fmt,...)
 {
-    int i;
+    int num = 0;
     //	int text_color = 0x74;
-    char buf[512];
+    char buf[512] = {0};
     va_list args = (va_list)((char *)(&fmt) + 4);
-    i = vsprintf(buf,fmt,args);
-    buf[i] = 0;
+    num = vsprintf(buf,fmt,args);
+    buf[num] = '\0';
     //	disp_color_str(buf,text_color);
     disp_str(buf);
-    return i;
+
+    return num;
 }

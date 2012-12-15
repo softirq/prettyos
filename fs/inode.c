@@ -2,7 +2,7 @@
 #include "const.h"
 #include "traps.h"
 #include "string.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "tty.h"
 #include "console.h"
 #include "wait.h"

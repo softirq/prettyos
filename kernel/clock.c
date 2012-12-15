@@ -1,5 +1,6 @@
 #include "type.h"
 #include "const.h"
+#include "timer.h"
 #include "traps.h"
 //#include "string.h"
 #include "tty.h"
@@ -10,7 +11,7 @@
 #include "global.h"
 #include "kernel.h"
 #include "syscall.h"
-#include "lib.h"
+#include "stdlib.h"
 
 void clock_handler(int irq)
 {
@@ -42,6 +43,7 @@ void milli_delay(int milli_sec)
     while(((get_ticks() - t) * 1000 / HZ) < milli_sec) {}
 }
 
+/*init timer*/
 void init_clock()
 {
     out_byte(TIMER_MODE, RATE_GENERATOR);

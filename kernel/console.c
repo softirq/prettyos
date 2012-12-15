@@ -10,7 +10,7 @@
 #include "global.h"
 #include "keyboard.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 
 
 static void	set_cursor(unsigned int position);

@@ -1,14 +1,15 @@
 #include "type.h"
 #include "const.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "asm-i386/string_32.h"
 
 int vsprintf(char *buf,const char *fmt,va_list args)
 {
-    int i;
+    int value = 0;
     char *p = buf;
     char tmp[16] = {0};
     va_list next_arg = args;
+
     for(;*fmt;fmt++)
     {
         if(*fmt != '%')
@@ -17,6 +18,7 @@ int vsprintf(char *buf,const char *fmt,va_list args)
             continue;
         }
         fmt++;
+
         switch(*fmt)
         {
             case 's':
@@ -25,23 +27,35 @@ int vsprintf(char *buf,const char *fmt,va_list args)
 
                 next_arg += 4;
                 break;
+
             case 'c':
                 *p++ = *((char *)next_arg);
                 next_arg += 4;
                 break;
+
             case 'd':
-                i = *((int *)next_arg);
-                if(i < 0)
+                value = *((int *)next_arg);
+                if(value < 0)
                 {
                     *p++ = '-';
                 }
-                itoa(tmp,i);				
+                itoa(tmp,value);				
                 strcpy(p,tmp);
                 p+= strlen(tmp);
                 next_arg += 4;
                 break;
-            case 'x':
 
+            case 'x':
+                value = *((int *)next_arg);
+                if(value < 0)
+                {
+                    *p++ = '-';
+                }
+                htoa(tmp,value);				
+                strcpy(p,tmp);
+                p+= strlen(tmp);
+                next_arg += 4;
+                break;
 
             default:
                 break;

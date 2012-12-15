@@ -9,7 +9,7 @@
 #include "global.h"
 #include "kernel.h"
 //#include "string.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "panic.h"
 #include "proc.h"
 
@@ -65,9 +65,9 @@ static int copy_mem(int pid,struct task_struct *p)
     assert((text_base == data_base)  && 
             (text_limit == data_limit) &&
             (text_size == data_size)
-          )
+          );
 
-        int child_base = alloc_mem(p->pid,text_size);
+    int child_base = alloc_mem(p->pid,text_size);
 
     //	printk("child_base = %d\t text_base = %d\t text_size = %d\n",child_base,text_base,text_size);
     //	memcpy((void *)child_base,(void *)(text_base),text_size);

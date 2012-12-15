@@ -31,6 +31,7 @@ write:
 	mov 	ecx,[esp + 8]
 	int 	INT_VECTOR_SYS_CALL
 	ret
+
 printx:
 	mov 	eax,_NR_printx
 	mov 	ebx,[esp + 4]
@@ -42,7 +43,6 @@ fork:
 	mov 	eax,_NR_fork
 	int 	INT_VECTOR_SYS_CALL
 	ret
-
 
 exit:
 	mov 	eax,_NR_exit

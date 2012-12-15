@@ -11,7 +11,7 @@
 #include "kernel.h"
 //#include "string.h"
 #include "syscall.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "system.h"
 
 

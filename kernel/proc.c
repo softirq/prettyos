@@ -9,13 +9,14 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "sys.h"
 #include "exit.h"
 
 void TestA()
 {
-    while(1){
+    while(1)
+    {
         //syscall sys_get_ticks
         //		disp_int(get_ticks());
         disp_str("A");
@@ -28,7 +29,8 @@ void TestA()
 void TestB()
 {
     //	int i = 0;
-    while(1){
+    while(1)
+    {
         disp_str("B");
         //	printf("%d %s %c\t",i,"sunkang",'k');
         //		i++;

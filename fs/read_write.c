@@ -9,7 +9,7 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
 #include "errno.h"

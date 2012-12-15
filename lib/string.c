@@ -9,26 +9,44 @@
 #include "console.h"
 #include "global.h"
 //#include "kernel.h"
-#include "lib.h"
-
+#include "stdlib.h"
 
 tbool is_alphanumeric(char ch)
 {
     return ((ch >= ' ') && (ch <= '~'));
 }
 
-//public void itoa(int num)
-void itoa(char *str, int num)
+/*decimal number to string*/
+void itoa(char *str, int value)
 {
-    char *	p = str;
-    char	ch;
-    int	i;
-    tbool	flag = FALSE;
+    char *p = str;
+    u8 bit = 0;
 
-    //	*p++ = '0';
-    //	*p++ = 'x';
+    if(value == 0)
+    {   
+        *p++ = '0';
+    }   
+    else
+    {   
+        while(value != 0)
+        {   
+            bit = value%10;
+            *p++ = '0' + bit;
+            value = value/10;
+        }   
+    }   
+    *p = 0;
+}
 
-    if(num == 0)
+/*hexadecimal number to string*/
+void htoa(char *str, int value)
+{
+    char *p = str;
+    char ch;
+    int	i = 0;
+    tbool flag = FALSE;
+
+    if(value == 0)
     {
         *p++ = '0';
     }
@@ -36,7 +54,7 @@ void itoa(char *str, int num)
     {	
         for(i=28;i>=0;i-=4)
         {
-            ch = (num >> i) & 0xF;
+            ch = (value >> i) & 0xF;
             if(flag || (ch > 0))
             {
                 flag = TRUE;
@@ -117,3 +135,58 @@ int strcpy(char *dst,char *src)
 
     return 0;
 }
+int memcmp(char *dst, char *src,int len)
+{
+    if(dst == NULL || src == NULL)
+    {
+        return 1;
+    }
+    else
+    {
+        if(strlen(dst) != strlen(src))
+            return -1;
+        if(len > strlen(dst))
+            return -1;
+        while(dst && src && len--)
+        {
+            if(*dst != *src)
+                return -1;
+            dst++;
+            src++;
+        }
+        return 0;
+    }
+    return -1;
+
+}
+
+int memset(char *dst,char ch,int size)
+{
+    if(size <= 0)
+        return -1;
+    int i = 0;	
+    while(dst && i < size)
+    {
+        *dst = ch;
+        dst++;
+        i++;
+    }
+    return 0;
+}
+
+/*
+   int strlen(char *str)
+   {
+   int i = 0;
+   char ch;
+   char *ptr = str;
+   if(str == NULL)
+   return 0;
+   while((ch = *str) != '\0')
+   {
+   i++;
+   ptr++;
+   }
+   return i;
+   }
+   */

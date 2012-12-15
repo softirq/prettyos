@@ -10,7 +10,7 @@
 #include "global.h"
 #include "kernel.h"
 #include "panic.h"
-#include "lib.h"
+#include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
 #include "fcntl.h"
