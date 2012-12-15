@@ -76,6 +76,7 @@ static int copy_mem(int pid,struct task_struct *p)
     phys_copy((char *)child_base,(char *)(text_base),text_size);
     return child_base;
 }
+
 int do_fork()
 {
     //	int i = 0;

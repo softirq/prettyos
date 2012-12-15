@@ -1,7 +1,7 @@
 #include "type.h"
 #include "const.h"
 #include "traps.h"
-#include "asm-i386/string_32.h"
+#include "string.h"
 #include "tty.h"
 #include "console.h"
 #include "wait.h"
@@ -21,7 +21,7 @@ long main_memory_end = 0;
 long main_memory_start = 0;
 long memory_size = 0;
 
-void init()
+void init_p()
 {
     //	disp_str("init() is running ...\n");
     pid_t pid = 0;
@@ -69,7 +69,7 @@ static void start_kernel()
     printk("start memroy = %d\t end memory = %d\n",main_memory_start,main_memory_end);
     disp_str("-------------------------------------\n");
 
-        /*buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE */
+    /*buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE */
     /*init_buffer(buffer_memory_start,buffer_memory_end); //buffer init*/
     /*paging_init(main_memory_start,main_memory_end);*/
 
@@ -142,8 +142,13 @@ static void init_task()
         /*p_proc->flags = 1;*/
         ret = strcpy(p_proc->name, p_task->name);	// name of the process
         p_proc->pid = i;			// pid
-        disp_str("*****************\n");
-        p_proc->parent = NO_PARENT;
+        /*disp_str("*****************\n");*/
+        /*p_proc->parent = NO_PARENT;*/
+
+        /*proces family */
+        p_proc->parent = init;
+        p_proc->next = p_proc->sibling = NULL;
+
         proc_table[0].nr_tty = 0;		// tty 
         for(j = 0; j < NR_SIGNALS;j++)
         {
@@ -181,7 +186,10 @@ static void init_task()
         p_proc->regs.fs		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.ss		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
         p_proc->regs.gs		= (SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl;
+
         p_proc->regs.eip	= (t32)p_task->initial_eip;
+        /*disp_int(p_proc->regs.eip);*/
+
         p_proc->regs.esp	= (t32)p_task_stack;
         p_proc->regs.eflags	= eflags;	
         p_proc->ticks = p_proc->priority = prio;
@@ -190,6 +198,8 @@ static void init_task()
         p_task++;
         selector_ldt += 1 << 3;
         //printk("NT_TASKS+ NR_NATIVE_PROCS = %d\n",NR_TASKS + NR_NATIVE_PROCS);
+        /*insert into running queue*/
+        insert_rq(p_proc);
     }
     //proc_table[1].signal |= (1 << (2));
 

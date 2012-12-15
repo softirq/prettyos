@@ -15,7 +15,7 @@
 #include "hd.h"
 #include "panic.h"
 #include "blk_drv.h"
-#include "asm-i386/string_32.h"
+#include "string.h"
 
 /*
    there is one hard disk default

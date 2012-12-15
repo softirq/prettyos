@@ -10,7 +10,7 @@
 #include "global.h"
 #include "kernel.h"
 #include "stdlib.h"
-#include "string_32.h"
+#include "string.h"
 
 void cstart()
 {

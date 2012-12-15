@@ -1,7 +1,7 @@
 #include "type.h"
 #include "const.h"
 #include "stdlib.h"
-#include "asm-i386/string_32.h"
+#include "string.h"
 
 int vsprintf(char *buf,const char *fmt,va_list args)
 {

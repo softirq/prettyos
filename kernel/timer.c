@@ -9,10 +9,8 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
-#include "lib.h"
-
+#include "stdlib.h"
 #include "linux/timer.h"
-
 
 static struct timer_list timer_header = 
 {

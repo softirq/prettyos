@@ -14,7 +14,7 @@
 #include "hd.h"
 #include "blk_drv.h"
 #include "fcntl.h"
-#include "asm-i386/string_32.h"
+#include "string.h"
 
 int match(struct dir_entry *de,char *name,int namelen)
 {

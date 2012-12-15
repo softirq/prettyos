@@ -36,7 +36,7 @@ void task_tty()
 
     while (1) 
     {
-        for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) 
+        for (p_tty = TTY_FIRST;p_tty < TTY_END;++p_tty) 
         {
             tty_do_read(p_tty);
             tty_do_write(p_tty);

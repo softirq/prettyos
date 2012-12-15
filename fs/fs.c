@@ -14,7 +14,7 @@
 #include "hd.h"
 #include "blk_drv.h"
 #include "fcntl.h"
-#include "string_32.h"
+#include "string.h"
 
 //一个扇区大小
 //public u8 fs_buf[SECTOR_SIZE];

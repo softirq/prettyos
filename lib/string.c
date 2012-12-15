@@ -16,9 +16,49 @@ tbool is_alphanumeric(char ch)
     return ((ch >= ' ') && (ch <= '~'));
 }
 
+/*string length*/
+int strlen(const char *str)
+{
+    int i = 0;
+
+    if(str == NULL)
+        return -1;
+
+    while(*str++ != '\0' && ++i);
+
+    return i;
+}
+
+/*string reverse*/
+int strreverse(char *ptr)
+{
+    if(ptr == NULL)
+        return -1;
+
+    int len = strlen(ptr);
+    char *p = ptr + len - 1;
+
+    char tmp;
+
+    while(ptr < p)
+    {
+        tmp = *ptr;
+        *ptr = *p;
+        *p = tmp;
+
+        ++ptr;
+        --p;
+    }
+
+    return 0;
+}
+
 /*decimal number to string*/
 void itoa(char *str, int value)
 {
+    if(str == NULL)
+        return;
+
     char *p = str;
     u8 bit = 0;
 
@@ -34,13 +74,18 @@ void itoa(char *str, int value)
             *p++ = '0' + bit;
             value = value/10;
         }   
+        strreverse(str);
     }   
     *p = 0;
+
 }
 
 /*hexadecimal number to string*/
 void htoa(char *str, int value)
 {
+    if(str == NULL)
+        return;
+
     char *p = str;
     char ch;
     int	i = 0;
@@ -71,19 +116,8 @@ void htoa(char *str, int value)
     *p = 0;
 }
 
-int strlen(char *str)
-{
-    int i = 0;
-    char *p = str;
-    while(*p != '\0')
-    {
-        i++;
-        p++;
-    }
-    return i;
-}
-
 #define min(x,y) ((x > y)?y:x)
+/*compare too string */
 int strncmp(char *str1,char *str2,int len)
 {
     int i;
@@ -100,9 +134,12 @@ int strncmp(char *str1,char *str2,int len)
         else
             return -1;
     }	
+
     return 0;
 }
+#undef min
 
+/*compare too string */
 int strcmp(char *str1,char *str2)
 {
     if(!str1 || !str2)
@@ -115,6 +152,7 @@ int strcmp(char *str1,char *str2)
     return 0;
 }
 
+/*string copy*/
 int strncpy(char *dst,char *src,int size)
 {
     int i = 0;
@@ -126,6 +164,7 @@ int strncpy(char *dst,char *src,int size)
     return 0;
 }
 
+/*string copy*/
 int strcpy(char *dst,char *src)
 {
     if(!dst || !src)
@@ -135,34 +174,35 @@ int strcpy(char *dst,char *src)
 
     return 0;
 }
+
+/*memory copy*/
 int memcmp(char *dst, char *src,int len)
 {
-    if(dst == NULL || src == NULL)
-    {
-        return 1;
-    }
+    if(dst == NULL || src == NULL || len <= 0)
+        return -1;
+
     else
     {
         if(strlen(dst) != strlen(src))
-            return -1;
+            return -2;
         if(len > strlen(dst))
-            return -1;
+            return -3;
         while(dst && src && len--)
         {
             if(*dst != *src)
-                return -1;
+                return -4;
             dst++;
             src++;
         }
         return 0;
     }
-    return -1;
 
+    return -5;
 }
 
 int memset(char *dst,char ch,int size)
 {
-    if(size <= 0)
+    if(dst == NULL || size <= 0)
         return -1;
     int i = 0;	
     while(dst && i < size)
@@ -171,22 +211,6 @@ int memset(char *dst,char ch,int size)
         dst++;
         i++;
     }
+
     return 0;
 }
-
-/*
-   int strlen(char *str)
-   {
-   int i = 0;
-   char ch;
-   char *ptr = str;
-   if(str == NULL)
-   return 0;
-   while((ch = *str) != '\0')
-   {
-   i++;
-   ptr++;
-   }
-   return i;
-   }
-   */

@@ -37,6 +37,6 @@ extern int 		u_phys_copy(unsigned char * dst, unsigned char * src,int size);
 #define 		memncpy(d,s,l) do{u_phys_copy(d,s,l);}while(0)
 extern int 		memcmp(char *dst, char *src,int len);
 extern int 		memset(char *dst, char ch,int len);
-extern int 		strlen(char *str);
+//extern int 		strlen(const char *str);
 
 #endif

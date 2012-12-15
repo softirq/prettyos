@@ -17,7 +17,7 @@ extern void	TestA();
 extern void	TestB();
 extern void	TestC();
 extern void	TestD();
-extern void 	init();
+extern void 	init_p();
 
 /* i8259.c */
 extern void	put_irq_handler(int iIRQ, irq_handler_ptr handler);

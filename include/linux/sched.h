@@ -3,24 +3,8 @@
 
 #include "signal.h"
 #include "fs.h"
+#include "mm.h"
 #include "asm-i386/processor.h"
-
-struct mm_struct
-{
-    int count;
-    unsigned long start_code, end_code, end_data;
-    unsigned long start_brk, brk, start_stack, start_mmap;
-    unsigned long arg_start, arg_end, env_start, env_end;
-    unsigned long rss;
-    unsigned long min_flt, maj_flt, cmin_flt, cmaj_flt;
-    int swappable:1;
-    unsigned long swap_address;
-    unsigned long old_maj_flt;
-    unsigned long dec_flt;
-    unsigned long swap_cnt;
-    struct vm_area_struct *mmap;  	/* mmap list */
-    struct vm_area_struct *mmap_avl;  /* mmap val tree */
-};
 
 typedef struct s_stackframe {	
     t32	gs;		
@@ -57,7 +41,7 @@ typedef struct task_struct
     int		ticks;			
     int		priority;
     int 		nr_tty;
-    int 		parent;
+    //int 		parent;
     t32		pid;			
     char		name[16];		
     struct 	file 	*filp[NR_OPEN];
@@ -67,8 +51,8 @@ typedef struct task_struct
     struct m_inode 	*executable;
     struct thread_struct tss;
     struct mm_struct *mm;
-
     int 		exit_code;
+    struct task_struct *parent, *next, *sibling;
 
 }PROCESS;
 
@@ -79,7 +63,9 @@ typedef struct s_task
     char		name[32];
 }TASK;
 
-extern  struct  task_struct*    current;
+extern struct task_struct *current;
+extern struct task_struct *run_queue;
+extern struct task_struct *init;
 
 #define NR_SYSTEM_PROCS 	1 //system process : tty  
 #define NR_USER_PROCS 		5 //user process : testA testB testC testD init
@@ -108,7 +94,7 @@ extern  struct  task_struct*    current;
 
 /* 	null		0 */
 #define FREE_SLOT	0
-#define NO_PARENT 	NULL
+//#define NO_PARENT 	NULL
 
 #define TASK_RUNNING		0	//running
 #define TASK_INTERRUPTIBLE	1	//sleep 
@@ -116,5 +102,8 @@ extern  struct  task_struct*    current;
 #define TASK_ZOMBIE		3	//being terminated
 #define TASK_STOPPED		4	//being traced
 #define TASK_WAITING 	TASK_UNINTERRUPTIBLE
+
+int insert_rq(struct task_struct *p);
+int delete_rq(struct task_struct *p);
 
 #endif

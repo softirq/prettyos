@@ -24,44 +24,46 @@ int release_process(struct task_struct *p)
 
 static void tell_father(pid)
 {
+    struct task_struct *iter = NULL;
     int i = 0;
     if(pid)
     {
-        for(i = 0;i < NR_PROCESS + NR_PROCS;i++)
+        for(iter = run_queue; iter; iter = iter->next)
         {
-            /*				if(!proc_table[i])
-                            continue;
-                            */				if(proc_table[i].pid != pid)
-            continue;
+            if(iter->pid != pid)
+                continue;
             //send signal to father;
-            release_process(&proc_table[i]); //it is wrong,must free by father;
+            release_process(iter); //it is wrong,must free by father;
             return ;
         }
         printk("BAD BAD - no father found\n\r");
     }
-    release_process(current);
+    /*release_process(current);*/
 }
 
 int do_exit()
 {
-    int i;
-    struct task_struct *p = current;
+    struct task_struct *p = current, *iter = NULL;
     int pid = p->pid;	
     printk("\nexit process pid = %d\n",pid);
-    for(i = 0;i < NR_PROCESS + NR_PROCS;i++)
+    for(iter = run_queue; iter; iter = iter->next)
     {
-        if(proc_table[i].parent == pid)
+        if(iter->parent->pid == pid)
         {
-            proc_table[i].parent = 1; //init pid
-            if(proc_table[i].state == TASK_WAITING && proc_table[i].state == TASK_ZOMBIE)
+            /*parent is init task*/
+            iter->parent = init;
+            if(iter->state == TASK_WAITING && iter->state == TASK_ZOMBIE)
             {
                 //			release_process(&proc_table[i]);
             }
         }
     }
+
     p->state = TASK_ZOMBIE;
+
+    delete_rq(p);
     //	p->exit_code = code;
-    tell_father(p->parent);
+    /*tell_father(p->parent);*/
     schedule();
     return 0;
 }

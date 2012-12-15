@@ -18,22 +18,22 @@ static inline void INIT_LIST_HEAD(struct list_head *list)
     list->next = list;
     list->prev = list;
 }
-static inline void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+static inline void __list_add(struct list_head *item, struct list_head *prev, struct list_head *next)
 {
-    new->next = next;
-    next->prev = new;
-    new->prev = prev;
-    prev->next = new;
+    item->next = next;
+    next->prev = item;
+    item->prev = prev;
+    prev->next = item;
 }
 
-static inline void list_add_after(struct list_head *new, struct list_head *head)
+static inline void list_add_after(struct list_head *item, struct list_head *head)
 {
-    __list_add(new, head, head->next);
+    __list_add(item, head, head->next);
 }
 
-static inline void list_add_before(struct list_head *new, struct list_head *head)
+static inline void list_add_before(struct list_head *item, struct list_head *head)
 {
-    __list_add(new,head->prev, head);
+    __list_add(item,head->prev, head);
 }
 
 #define list_add 		list_add_after
@@ -41,8 +41,12 @@ static inline void list_add_before(struct list_head *new, struct list_head *head
 
 static inline void __list_del(struct list_head *prev, struct list_head *next)
 {
-    prev->next = next;
     next->prev = prev;
+
+    if(prev)
+    {
+        prev->next = next;
+    }
 }
 
 static inline void list_del(struct list_head *entry)

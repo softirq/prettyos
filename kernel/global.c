@@ -28,7 +28,7 @@ TASK	\
 //user process tables;only for test now
 TASK 	\
             user_proc_table[NR_USER_PROCS] = { 
-                {init, 	STACK_SIZE_INIT,   "init"},
+                {init_p, 	STACK_SIZE_INIT,   "init"},
                 {TestA, STACK_SIZE_TESTA, "TestA"},
                 {TestB, STACK_SIZE_TESTB, "TestB"},
                 {TestC, STACK_SIZE_TESTC, "TestC"},

@@ -4,6 +4,24 @@
 #include "asm-i386/page.h"
 #include "list.h"
 
+struct mm_struct
+{
+    int count;
+    unsigned long start_code, end_code, end_data;
+    unsigned long start_brk, brk, start_stack, start_mmap;
+    unsigned long arg_start, arg_end, env_start, env_end;
+    unsigned long rss;
+    unsigned long min_flt, maj_flt, cmin_flt, cmaj_flt;
+    int swappable:1;
+    unsigned long swap_address;
+    unsigned long old_maj_flt;
+    unsigned long dec_flt;
+    unsigned long swap_cnt;
+    struct vm_area_struct *mmap;  	/* mmap list */
+    struct vm_area_struct *mmap_avl;  /* mmap val tree */
+};
+
+
 extern long memory_end; 
 extern long main_memory_start;
 extern long main_memory_end;
