@@ -7,6 +7,7 @@
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
+#include "proc.h"
 #include "global.h"
 #include "kernel.h"
 //#include "string.h"

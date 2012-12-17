@@ -98,7 +98,7 @@ int do_fork()
 
     p->state = TASK_UNINTERRUPTIBLE;
     p->pid = child_pid;
-    p->parent = pid;
+    p->parent = current;
     p->regs.eflags = 0x1202;
     sprintf(p->name,"%s-%d",p->name,p->pid);
     //	printk("p->name= %s\n",p->name);

@@ -19,7 +19,6 @@ extern	sys_call_table
 extern 	get_signal_bitmap
 extern  do_signal
 
-
 bits 32
 [SECTION .data]
 clock_int_msg		db	"^", 0
@@ -325,9 +324,9 @@ sys_call:
 	ret
 
 move_to_user_mode:
-        mov     esp, [current];进程切换
+        mov     esp, [current];process switch
         lldt    [esp + P_LDT_SEL]
-        ;保存sp0堆栈
+        ;save sp0 stack
         lea     eax, [esp + P_STACKTOP]
         mov     dword [tss + TSS3_S_SP0], eax
        	dec     dword [k_reenter]

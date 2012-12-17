@@ -8,10 +8,33 @@
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
+#include "proc.h"
 #include "kernel.h"
 #include "stdlib.h"
 #include "sys.h"
+#include "fork.h"
 #include "exit.h"
+
+void init_p()
+{
+    //	disp_str("init() is running ...\n");
+    pid_t pid = 0;
+
+    /*pid = fork();*/
+    if(pid != 0)
+    {
+        printk("parnet is running,parent pid = %d \n",getpid());
+    }
+    else
+    {
+        printk("child is running,child pid  = %d\n",getpid());
+    }
+    //	current->state = TASK_WAITING;
+    while(1)
+    {
+    }
+}
+
 
 void TestA()
 {

@@ -9,8 +9,9 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
+#include "proc.h"
 #include "stdlib.h"
-#include "fork.h"
+/*#include "fork.h"*/
 #include "linux/net.h"
 
 #define EXT_MEM_K 	(*(unsigned short*)0x8002)
@@ -20,26 +21,6 @@ long buffer_memory_end = 0;
 long main_memory_end = 0;
 long main_memory_start = 0;
 long memory_size = 0;
-
-void init_p()
-{
-    //	disp_str("init() is running ...\n");
-    pid_t pid = 0;
-
-    /*pid = fork();*/
-    if(pid != 0)
-    {
-        printk("parnet is running,parent pid = %d \n",getpid());
-    }
-    else
-    {
-        printk("child is running,child pid  = %d\n",getpid());
-    }
-    //	current->state = TASK_WAITING;
-    while(1)
-    {
-    }
-}
 
 //init process pid = 0;
 static void start_kernel()
@@ -65,12 +46,14 @@ static void start_kernel()
     }
 
     main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
-    main_memory_start &= 0xfffff000;
-    printk("start memroy = %d\t end memory = %d\n",main_memory_start,main_memory_end);
-    disp_str("-------------------------------------\n");
+    /*main_memory_start &= 0xfffff000;*/
+    /*disp_str("-------------------------------------\n");*/
 
-    /*buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE */
-    /*init_buffer(buffer_memory_start,buffer_memory_end); //buffer init*/
+    /*buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE*/
+    buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE
+    buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
+    printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);
+    init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
     /*paging_init(main_memory_start,main_memory_end);*/
 
     /*init_mem(main_memory_start,main_memory_end); //memeory management init*/

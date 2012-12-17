@@ -47,6 +47,7 @@ void write_inode(struct m_inode *inode)
     brelse(bh);
     inode->i_dirt = 0;
 }
+
 void read_inode(struct m_inode* inode)
 {
     u16 dev = inode->i_dev;

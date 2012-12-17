@@ -7,6 +7,7 @@
 #include "mm.h"
 #include "sched.h"
 #include "console.h"
+#include "proc.h"
 #include "global.h"
 #include "kernel.h"
 #include "errno.h"

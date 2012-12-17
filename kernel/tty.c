@@ -9,6 +9,7 @@
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
+#include "proc.h"
 #include "keyboard.h"
 #include "kernel.h"
 #include "stdlib.h"

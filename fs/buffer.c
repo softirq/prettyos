@@ -15,6 +15,7 @@
 #include "blk_drv.h"
 #include "fcntl.h"
 
+/*a hash and a free list*/
 
 //long end =  3 * 1024 * 1024;
 struct buffer_head *start_buffer;	// = (struct buffer_head *)(&end);
@@ -34,8 +35,10 @@ static inline void remove_from_queues(struct buffer_head *bh)
         bh->b_next->b_prev = bh->b_prev;
     if(bh->b_prev)
         bh->b_prev->b_next = bh->b_next;
+
     if(hash(bh->b_dev,bh->b_blocknr) == bh)
         hash(bh->b_dev,bh->b_blocknr) = bh->b_next;
+
     //free list是个双向链表
     if(!(bh->b_prev_free) || !(bh->b_next_free))	
         panic("free block list corrupted");	
@@ -51,6 +54,7 @@ static inline void insert_into_queues(struct buffer_head *bh)
     bh->b_next_free = buffer_free_list;
     bh->b_prev_free = buffer_free_list->b_next_free;
     buffer_free_list->b_prev_free->b_next_free = bh;
+
     //put the buffer in new hash-queue if  it has a device
     bh->b_prev = NULL;
     bh->b_next = NULL;
@@ -59,7 +63,6 @@ static inline void insert_into_queues(struct buffer_head *bh)
     bh->b_next = hash(bh->b_dev,bh->b_blocknr);
     hash(bh->b_dev,bh->b_blocknr) = bh;
     bh->b_next->b_prev = bh;
-
 }
 
 static void wait_on_buffer(struct buffer_head *bh)
@@ -89,14 +92,17 @@ static inline void unlock_buffer(struct buffer_head *bh)
 
 static struct buffer_head * find_buffer(int dev,int block)
 {
-    struct buffer_head *tmp;
+    struct buffer_head *tmp = NULL;
+
     for(tmp = hash(dev,block);tmp != NULL;tmp=tmp->b_next)
     {
         if(tmp->b_dev == dev && tmp->b_blocknr == block)
             return tmp;
     }
+
     return NULL;
 }
+
 static struct buffer_head * get_hash_buffer(int dev,int block)
 {
     struct buffer_head *bh;
@@ -110,6 +116,7 @@ static struct buffer_head * get_hash_buffer(int dev,int block)
             return bh;
         bh->b_count--;
     }
+
     return NULL;
 }
 
@@ -156,6 +163,7 @@ repeat:
     wait_on_buffer(bh);
     if(bh->b_count)
         goto repeat;
+
     /*	while(bh->b_dirt)
         {
         sync_dev(bh->b_dev);
@@ -174,8 +182,10 @@ repeat:
     bh->b_dev = dev;
     bh->b_blocknr = block;
     insert_into_queues(bh);
+
     return bh;
 }
+#undef BADNESS
 
 void brelse(struct buffer_head *bh)
 {
@@ -187,13 +197,16 @@ void brelse(struct buffer_head *bh)
     //	wake_up(&buffer_wait);
 }
 
-void init_buffer(long buffer_start,long buffer_end)
+void init_buffer(const long buffer_start,const long buffer_end)
 {
+    void *b = NULL;
+    int i = 0;
+
     start_buffer = (struct buffer_head *)(buffer_start);
     struct buffer_head *h = start_buffer;
-    void *b;
-    int i;
+
     b = (void *)buffer_end;
+
     while((b -= SECTOR_SIZE) >= (void *)(h + 1))
     {
         h->b_dev = 0;
@@ -210,14 +223,15 @@ void init_buffer(long buffer_start,long buffer_end)
         h++;
         NR_BUFFERS++;
     }
-    h--;		//让h指向最后一个有效的缓冲头
+    //让h指向最后一个有效的缓冲头
+    h--;
     //形成双向链表
     buffer_free_list = start_buffer;
     buffer_free_list->b_prev_free = h;
     h->b_next_free = buffer_free_list;
+
     for(i = 0;i < NR_HASH_BUFFER;i++)
     {
         hash_buffer[i] = NULL;
     }
-    //	printk("buffer memory init end\n");
 }

@@ -8,6 +8,7 @@
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
+#include "proc.h"
 #include "kernel.h"
 #include "stdlib.h"
 #include "timer.h"
@@ -82,7 +83,7 @@ void schedule()
         // if all processes execuse over ,asign time to each one,then choose a process
         if (!greatest_ticks) 
         {
-            disp_int(4);
+            /*disp_int(4);*/
             for(iter = run_queue; iter; iter = iter->next)	
             {
                 iter->ticks = iter->priority;

@@ -34,9 +34,13 @@ struct buffer_head
 	unsigned char b_count;
 	unsigned char b_lock;
 	struct wait_queue  *b_wait;
+
+    /* list */
 	struct buffer_head *b_prev;
 	struct buffer_head *b_next;
-	struct buffer_head *b_prev_free;
+
+    /* free list  */
+	struct buffer_head *b_prev_free; 
 	struct buffer_head *b_next_free;
 };
 
@@ -177,7 +181,7 @@ extern int clear_zmap_bit(int dev,int nr);
        /*      link.c  */
 extern int do_unlink(char *name);
 
-extern void init_buffer(long buffer_start,long buffer_end);
+extern void init_buffer(const long buffer_start,const long buffer_end);
 struct buffer_head * getblk(int dev,int block);
 extern void brelse(struct buffer_head *bh);
 
@@ -187,5 +191,29 @@ extern void brelse(struct buffer_head *bh);
 
 #define 	FILE_READ 	0x01
 #define 	FILE_WRITE 	0x02
+
+//sector size 
+#define SECTOR_SIZE 	512
+
+//buffer size
+#define     BUFFER_SIZE 	SECTOR_SIZE
+#define     BUFFER_ALIGN    BUFFER_SIZE 
+extern  u8 hd_buf[];
+
+//定义文件类型
+#define I_ALL		0X1D00
+
+#define I_REGULAR       0x1000
+#define I_BLOCK_SPECIAL 0x0600
+#define I_DIRECTORY	0x0400
+#define I_CHAR_SPECIAL  0x0200
+#define I_NAMED_PIPE	0x0100
+
+#define S_ISBLK(m)	((m & I_ALL) == I_BLOCK_SPECIAL)
+#define S_ISCHR(m)	((m & I_ALL) == I_CHAR_SPECIAL)	
+#define S_ISDIR(m)	((m & I_ALL) == I_DIRECTORY)	
+#define S_ISREG(m)	((m & I_ALL) == I_REGULAR)	
+#define S_ISPIFO(m)	((m & I_ALL) == I_NAMED_PIFO)	
+
 
 #endif

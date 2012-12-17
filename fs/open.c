@@ -8,6 +8,7 @@
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
+#include "proc.h"
 #include "kernel.h"
 #include "panic.h"
 #include "stdlib.h"

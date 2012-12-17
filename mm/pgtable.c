@@ -7,13 +7,13 @@
 #include "console.h"
 #include "printf.h"
 #include "fork.h"
-#include "proc.h"
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
 #include "swap.h"
 #include "pgtable.h"
+#include "proc.h"
 
 inline int pmd_none(pmd_t pmd)
 {

@@ -8,7 +8,6 @@
 #include "printf.h"
 #include "fork.h"
 #include "stdlib.h"
-#include "proc.h"
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
@@ -17,6 +16,7 @@
 #include "swap.h"
 #include "bitops.h"
 #include "kstat.h"
+#include "proc.h"
 
 /*
  * buddy system

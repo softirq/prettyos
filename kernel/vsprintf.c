@@ -7,7 +7,7 @@ int vsprintf(char *buf,const char *fmt,va_list args)
 {
     int value = 0;
     char *p = buf;
-    char tmp[16] = {0};
+    char tmp[32] = {0};
     va_list next_arg = args;
 
     for(;*fmt;fmt++)
@@ -45,7 +45,9 @@ int vsprintf(char *buf,const char *fmt,va_list args)
                 next_arg += 4;
                 break;
 
+            case 'p':
             case 'x':
+
                 value = *((int *)next_arg);
                 if(value < 0)
                 {
@@ -56,6 +58,8 @@ int vsprintf(char *buf,const char *fmt,va_list args)
                 p+= strlen(tmp);
                 next_arg += 4;
                 break;
+
+                /* print address value */
 
             default:
                 break;

@@ -6,13 +6,13 @@
 #include "console.h"
 #include "stdlib.h"
 #include "fork.h"
-#include "proc.h"
 #include "panic.h"
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
 #include "kernel.h"
 #include "global.h"
+#include "proc.h"
 #include "pgtable.h"
 
 static long PAGING_PAGES = 0;

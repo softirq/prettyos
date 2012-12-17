@@ -103,30 +103,10 @@ void assertion_failure(char *exp,char *file,char *base_file,int line);
 /* signal.c */
 #define NR_SIGNALS	32
 
-//sector size 
-#define SECTOR_SIZE 	512
-
-//buffer size
-#define BUFFER_SIZE 	SECTOR_SIZE
-extern  u8 hd_buf[];
-
-//定义文件类型
-#define I_ALL		0X1D00
-
-#define I_REGULAR       0x1000
-#define I_BLOCK_SPECIAL 0x0600
-#define I_DIRECTORY	0x0400
-#define I_CHAR_SPECIAL  0x0200
-#define I_NAMED_PIPE	0x0100
-
-#define S_ISBLK(m)	((m & I_ALL) == I_BLOCK_SPECIAL)
-#define S_ISCHR(m)	((m & I_ALL) == I_CHAR_SPECIAL)	
-#define S_ISDIR(m)	((m & I_ALL) == I_DIRECTORY)	
-#define S_ISREG(m)	((m & I_ALL) == I_REGULAR)	
-#define S_ISPIFO(m)	((m & I_ALL) == I_NAMED_PIFO)	
-
 #define MIN(a,b)	(((a)>(b)?(b):(a)))
 #define MAX(a,b)	(((a)>(b)?(a):(b)))
+
+#define ALIGN(value,agn) ((value) & (~(agn) + 1))
 
 #endif /* _Pretty_CONST_H_ */
 
