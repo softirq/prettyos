@@ -48,12 +48,12 @@ void delay(int time)
 
 void get_boot_params(struct boot_params *bp)
 {
-
     int *p = (int *)(BOOT_PARAM_ADDR);
 
     /*assert(p[BP_MAGIC] == BOOT_PARAM_MAGIC);*/
     bp->mem_size = p[BP_MEM_SIZE];
     bp->kernel_addr = (unsigned char *)(p[BP_KERNEL_ADDR]);
+
     return ;
 }
 

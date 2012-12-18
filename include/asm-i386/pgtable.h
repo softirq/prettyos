@@ -1,7 +1,7 @@
 #ifndef     _PGTABLE_H_
 #define     _PGTABLE_H_
 
-pgd_t swapper_pg_dir[1024];
+extern pgd_t swapper_pg_dir[1024];
 
 #define PTRS_PER_PTE 	1024
 #define PTRS_PER_PMD  	1	

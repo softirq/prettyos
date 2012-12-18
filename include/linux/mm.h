@@ -22,12 +22,12 @@ struct mm_struct
 };
 
 
-extern long memory_end; 
-extern long main_memory_start;
-extern long main_memory_end;
-extern long memory_size;
-extern long buffer_memory_start;
-extern long buffer_memory_end;
+extern unsigned long memory_end; 
+extern unsigned long main_memory_start;
+extern unsigned long main_memory_end;
+extern unsigned long memory_size;
+extern unsigned long buffer_memory_start;
+extern unsigned long buffer_memory_end;
 
 extern struct page *mem_map;
 
@@ -51,7 +51,6 @@ struct page
     wait_queue_head_t wait;
     struct buffer_head *buffers;
     struct zone_struct *zone;
-
 };
 
 
@@ -64,7 +63,7 @@ struct page
 
 
 extern void free_pages(unsigned long addr, unsigned long order);
-extern unsigned long paging_init(unsigned long start_mem, unsigned long end_mem);
+extern unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem);
 extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
 
@@ -75,7 +74,7 @@ extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_
 #define NR_MEM_LISTS 	6
 /*
  * 1 page  1024
- * 2 pages 518
+ * 2 pages 512
  * 3 pages 256 
  * 4 pages 128 
  * 5 pages 64 
@@ -89,8 +88,7 @@ struct mem_list
     struct mem_list *prev;
 };
 
-extern struct mem_list free_mem_list[NR_MEM_LISTS];
-extern unsigned char * free_mem_map[NR_MEM_LISTS];
+extern struct mem_list buddy_list[NR_MEM_LISTS];
 
 
 struct vm_area_struct 

@@ -20,11 +20,9 @@ int nr_swap_pages = 0;
 int nr_free_pages = 0;
 static int nr_mem_map = 0;
 
-//mem_map_t  *mem_map = NULL;
 struct page * mem_map = NULL;
 
-struct mem_list free_mem_list[NR_MEM_LISTS];
-unsigned char * free_mem_map[NR_MEM_LISTS];
+struct mem_list buddy_list[NR_MEM_LISTS];
 
 #define  	copy_page(from, to) 	memcpy((void *)from, (void *)to, PAGE_SIZE)
 //static unsigned long free = 0;
@@ -36,30 +34,46 @@ unsigned char * free_mem_map[NR_MEM_LISTS];
    return;
    }
    */
+/*free page list*/
+/*static unsigned long buddy_list_init (unsigned long start_mem, unsigned long end_mem)*/
+static void buddy_list_init ()
+{
+    int i;
+    for(i = 0;i < NR_MEM_LISTS; i++)
+    {
+        /*unsigned long bitmap_size;*/
+        /*bitmap_size = BITMAP_MAX >> i;*/
+        buddy_list[i].prev = buddy_list[i].next = &buddy_list[i];
+        /*memset((void *)start_mem, 0, bitmap_size);*/
+        /*start_mem += bitmap_size;*/
+    }
+    /*return start_mem;*/
+}
 
 int alloc_mem(int pid,int memsize)
 {
-    assert(pid < NR_PROCESS + NR_PROCS);
+    /*assert(pid < NR_PROCESS + NR_PROCS);
     int base = 0;
     if(memsize > PROC_IMAGE_SIZE_DEFAULT)
         panic("unsupported memory request %d,shoud be less than %d\n",\
                 memsize,PROC_IMAGE_SIZE_DEFAULT);
-    /*
+    [>
        printk("NR_PROCESS = %d\n",NR_PROCESS);
        printk("base = %d\n",base);
 
-*/
+<]
     base = (int)PROCS_BASE + (pid - ((int)NR_PROCESS)) * PROC_IMAGE_SIZE_DEFAULT;
 
-    /*	printk("proces_base = %d\n",PROCS_BASE);
+    [>	printk("proces_base = %d\n",PROCS_BASE);
         printk("base = %d\n",base);
         printk("memsize = %d\n",memsize);
         printk("memory_size = %d\n",memory_size);
-        */	
+        <]	
     if(base + memsize >= memory_size)
         panic("memory allocation failed pid %d\n",pid);
-
     return base;
+*/
+    return 0;
 }
 
 inline unsigned long get_free_page(int priority)
@@ -68,6 +82,7 @@ inline unsigned long get_free_page(int priority)
     page = __get_free_page(priority);
     if(page)
         memset((void *)page, 0 ,PAGE_SIZE);
+
     return page;
 }
 
@@ -167,9 +182,11 @@ void do_wp_page(struct vm_area_struct *vma, unsigned long address, int write_acc
     if(new_page)
         free_page(new_page);
     return;
+
 bad_wp_page:
     printk("do_wp_page: bogus page at address %08lx (%08lx)\n",address,old_page);
     goto end_wp_page;
+
 end_wp_page:
     if(new_page)
         free_page(new_page);
@@ -217,30 +234,34 @@ no_memory:
     oom();
 }
 
-unsigned long alloc_mem_map(unsigned long start_mem, unsigned long end_mem)
+static unsigned long alloc_mem_map(unsigned long start_mem, unsigned long end_mem)
 {
-    unsigned long start_pfn, end_pfn, size;
+    int size = 0;
     if(!mem_map)
     {
-        start_pfn = 0; 
-        nr_mem_map = (end_pfn - start_pfn);
+        nr_mem_map = (end_mem - start_mem) >> PAGE_SHIFT;;
         size = (nr_mem_map) * (sizeof(struct page) + sizeof(struct page *));
         start_mem += size;
         mem_map = (struct page *)start_mem;
         memset((void *)mem_map, 0 ,size);
     }
+
     return start_mem;
 }
 
 void init_mem(unsigned long start_mem, unsigned long end_mem)
 {
     int tmp ;
+
+    buddy_list_init();
+
     struct boot_params bp;
     get_boot_params(&bp);
     memory_size = bp.mem_size;
     memory_size  &= 0xfffff000;
 
     end_mem = (end_mem > memory_size)?end_mem:memory_size;
+    /*alloc memory to mem_map;*/
     start_mem = alloc_mem_map(start_mem, end_mem);
     start_mem = (start_mem & PAGE_MASK);
 

@@ -24,59 +24,49 @@
 
 #define BITMAP_MAX 		(1024)
 
+pgd_t swapper_pg_dir[1024];
 static int nr_swapfiles = 0;
 static struct wait_queue *lock_queue = NULL;
 static int swap_cache_add_total = 0;
 
 struct swap_info_struct swap_files[MAX_SWAPFILES];
+/*struct page pages[];*/
 
-unsigned long free_list_init (unsigned long start_mem, unsigned long end_mem)
+
+/*first in boot/loader.asm first setup the pgd talbe in function SetupPaging
+ * now set the pte after get the real memory in the system*/
+unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem)
 {
-    int i;
-    for(i = 0;i < NR_MEM_LISTS; i++)
-    {
-        unsigned long bitmap_size;
-        bitmap_size = BITMAP_MAX >> i;
-        free_mem_list[i].prev = free_mem_list[i].next = &free_mem_list[i];
-        free_mem_map[i] = (unsigned char *)start_mem;
-        memset((void *)start_mem, 0, bitmap_size);
-        start_mem += bitmap_size;
-    }
-    return start_mem;
-}
+    int k = 0;
+    unsigned long address = 0;
 
-unsigned long paging_init(unsigned long start_mem, unsigned long end_mem)
-{
-    int tmp;
-
-    pgd_t *pg_dir;
-    pte_t *pg_table;
-
-    unsigned long address;
+    pgd_t *pg_dir = NULL;
+    pte_t *pg_table = NULL;
 
     pg_dir = swapper_pg_dir;
-    address = 0;
 
     while(address < end_mem)
     {
+        /*since the 768 entry is the kernel page table*/
         pg_table = (pte_t *)(pgd_val(pg_dir[768]));
-        start_mem += PAGE_SIZE;
-        for(tmp = 0;tmp < PTRS_PER_PTE; tmp++,pg_table++)
+        /*start_mem += PAGE_SIZE;*/
+        for(k = 0;k < PTRS_PER_PTE; ++k,pg_table++)
         {
             if(address < end_mem)
                 *pg_table =  mk_pte(address,PAGE_SHARED);
             address += PAGE_SIZE;
         }
         pg_dir++;
-
     }
-    free_list_init(start_mem, end_mem);
+
+    /*free_list_init(start_mem, end_mem);*/
+
     return 0;
 }
 
 unsigned long get_free_pages(unsigned long order)
 {
-    struct mem_list *queue = free_mem_list + order;
+    struct mem_list *queue = buddy_list + order;
     unsigned long new_order = order;
     do
     {
@@ -92,6 +82,7 @@ unsigned long get_free_pages(unsigned long order)
         queue++;
 
     }while(new_order < NR_MEM_LISTS);
+
     return 0;
 }
 
@@ -99,6 +90,7 @@ unsigned long __get_free_pages(int priority, unsigned long order)
 {
     if(priority == GFP_ATOMIC)
         return get_free_pages(order);
+
     return 0;
 }
 
@@ -119,7 +111,7 @@ static inline void remove_mem_queue (struct mem_list *head, struct mem_list *ent
 
 static inline void free_pages_ok(unsigned long addr, unsigned long order)
 {
-    add_mem_queue(free_mem_list + order, (struct mem_list *)addr);
+    add_mem_queue(buddy_list + order, (struct mem_list *)addr);
 }
 
 void free_pages(unsigned long addr, unsigned long order)

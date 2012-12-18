@@ -21,4 +21,4 @@ PageTblBase		equ	0x0a01000
 
 
 BOOT_PARAM_ADDR   	equ 	0x900
-BOOT_PARAM_MAGIC 	equ  0xCCCC
+BOOT_PARAM_MAGIC 	equ     0xCCCC

@@ -8,6 +8,7 @@
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
+#include "config.h"
 #include "kernel.h"
 #include "proc.h"
 #include "stdlib.h"
@@ -16,13 +17,27 @@
 
 #define EXT_MEM_K 	(*(unsigned short*)0x8002)
 //long memory_start = 0;
-long buffer_memory_start = 0;
-long buffer_memory_end = 0;
-long main_memory_end = 0;
-long main_memory_start = 0;
-long memory_size = 0;
+unsigned long buffer_memory_start = 0;
+unsigned long buffer_memory_end = 0;
+unsigned long main_memory_end = 0;
+unsigned long main_memory_start = 0;
+unsigned long memory_size = 0;
 
 //init process pid = 0;
+//
+//get memory size
+static int get_memsize(unsigned long *mem_size)
+{
+    int magic = *(int *)BOOT_PARAM_ADDR;
+    /*printk("magic = %x\n", magic);*/
+    assert(magic == BOOT_PARAM_MAGIC);
+
+    *mem_size = *(int *)(BOOT_PARAM_ADDR + sizeof(int));
+    printk("memsize = %x\n", *mem_size);
+
+    return 0;
+}
+
 static void start_kernel()
 {
     //	init_trap();// define in kernel/start.c
@@ -31,8 +46,11 @@ static void start_kernel()
 
     init_clock(); //clock interrupt init
 
-    main_memory_end = (1<<20) + (EXT_MEM_K << 10);
+    get_memsize(&main_memory_end);
+    /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
+    /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
     main_memory_end &= 0xfffff000;
+    printk("main memory end = %x\n",main_memory_end);
 
     if(main_memory_end > 12 * 1024 * 1024)	//内存大于6M时
     {
@@ -54,9 +72,10 @@ static void start_kernel()
     buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
     printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);
     init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
-    /*paging_init(main_memory_start,main_memory_end);*/
+    printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);
+    paging_init(main_memory_start,main_memory_end);
 
-    /*init_mem(main_memory_start,main_memory_end); //memeory management init*/
+    init_mem(main_memory_start,main_memory_end); //memeory management init
 
     /*init_hd(); //hard disk init*/
 
