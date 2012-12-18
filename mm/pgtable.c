@@ -1,4 +1,4 @@
-#include "type.h"
+/*#include "type.h"
 #include "const.h"
 #include "traps.h"
 #include "string.h"
@@ -8,11 +8,30 @@
 #include "printf.h"
 #include "fork.h"
 #include "wait.h"
-#include "mm.h"
 #include "sched.h"
 #include "global.h"
 #include "swap.h"
+#include "proc.h"
+#include "pgtable.h"*/
+/*#include "mm.h"*/
+#include "type.h"
+#include "const.h"
+#include "traps.h"
+#include "string.h"
+#include "tty.h"
+#include "console.h"
+#include "panic.h"
+#include "printf.h"
+#include "fork.h"
+#include "stdlib.h"
+#include "wait.h"
+#include "mm.h"
+#include "sched.h"
+#include "global.h"
 #include "pgtable.h"
+#include "swap.h"
+#include "bitops.h"
+#include "kstat.h"
 #include "proc.h"
 
 inline int pmd_none(pmd_t pmd)
@@ -60,19 +79,19 @@ inline int pgd_clear(pgd_t pgd)
     return pgd_val(pgd) = 0;
 }
 
-inline unsigned long pte_page(pte_t pte)
+inline struct page * pte_page(pte_t pte)
 {
-    return (pte_val(pte) & ~PAGE_MASK);
+    return (mem_map + MAP_NR(pte_val(pte)));
 }
 
-inline unsigned long pmd_page(pmd_t pmd)
+inline struct page * pmd_page(pmd_t pmd)
 {
-    return (pmd_val(pmd) & ~PAGE_MASK);
+    return (mem_map + MAP_NR(pmd_val(pmd)));
 }
 
-inline unsigned long pgd_page(pgd_t pgd)
+inline struct page * pgd_page(pgd_t pgd)
 {
-    return (pgd_val(pgd) & ~PAGE_MASK);
+    return (mem_map + MAP_NR(pgd_val(pgd)));
 }
 
 inline void pte_free(pte_t pte)
@@ -304,7 +323,7 @@ inline void get_empty_page(struct vm_area_struct *vma, pte_t *page_table)
     if(!(tmp = get_free_page(GFP_KERNEL)))
     {
         oom();
-        //				put_page(page_table, PAGE_BADTABLE);
+                        /*put_page(page_table, PAGE_BADTABLE);*/
         return;
     }
 

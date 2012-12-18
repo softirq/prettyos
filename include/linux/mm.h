@@ -2,6 +2,7 @@
 #define     _MM_H_
 
 #include "asm-i386/page.h"
+#include "wait.h"
 #include "list.h"
 
 struct mm_struct
@@ -36,13 +37,12 @@ extern int nr_free_pages;
 
 int alloc_mem(int pid,int memsize);
 void init_mem(unsigned long start_mem,unsigned long end_mem);
-int get_limit(struct descriptor *dp);
-int get_base(struct descriptor *dp);
 
 struct page
 {
     struct list_head list;
     struct address_space *mapping;
+    unsigned long address;
     unsigned long index;
     struct page *next_hash;
     int count;
@@ -62,13 +62,16 @@ struct page
 #define  GFP_KERNEL 	0x003
 
 
-extern void free_pages(unsigned long addr, unsigned long order);
+//extern void free_pages(unsigned long addr, unsigned long order);
+extern void free_pages(struct page *page, unsigned long order);
 extern unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem);
 extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
 
-#define free_page(addr) 	free_pages((addr), 0)
-#define MAP_NR(addr) 		(((unsigned long) addr) >> PAGE_SHIFT)
+extern unsigned long page_start_mem;
+
+#define free_page(page) 	free_pages((page), 0)
+#define MAP_NR(addr) 		(((unsigned long)addr - page_start_mem) >> PAGE_SHIFT)
 
 
 #define NR_MEM_LISTS 	6
@@ -84,8 +87,7 @@ extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_
 
 struct mem_list 
 {
-    struct mem_list *next;
-    struct mem_list *prev;
+    struct list_head list;
 };
 
 extern struct mem_list buddy_list[NR_MEM_LISTS];

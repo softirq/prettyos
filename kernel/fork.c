@@ -12,6 +12,7 @@
 #include "stdlib.h"
 #include "panic.h"
 #include "proc.h"
+#include "printf.h"
 
 int get_limit(struct descriptor *dp)
 {

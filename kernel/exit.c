@@ -12,6 +12,7 @@
 //#include "lib.h"
 #include "proc.h"
 #include "pgtable.h"
+#include "printf.h"
 
 int release_process(struct task_struct *p)
 {

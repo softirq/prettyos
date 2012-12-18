@@ -1,24 +1,20 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
 #include "string.h"
-#include "tty.h"
-#include "console.h"
 #include "stdlib.h"
-#include "fork.h"
+#include "list.h"
 #include "panic.h"
 #include "wait.h"
 #include "mm.h"
-#include "sched.h"
-#include "kernel.h"
-#include "global.h"
-#include "proc.h"
+#include "printf.h"
 #include "pgtable.h"
 
 static long PAGING_PAGES = 0;
 int nr_swap_pages = 0;
 int nr_free_pages = 0;
 static int nr_mem_map = 0;
+
+unsigned long page_start_mem = 0;
 
 struct page * mem_map = NULL;
 
@@ -36,18 +32,26 @@ struct mem_list buddy_list[NR_MEM_LISTS];
    */
 /*free page list*/
 /*static unsigned long buddy_list_init (unsigned long start_mem, unsigned long end_mem)*/
+
 static void buddy_list_init ()
 {
     int i;
     for(i = 0;i < NR_MEM_LISTS; i++)
     {
-        /*unsigned long bitmap_size;*/
-        /*bitmap_size = BITMAP_MAX >> i;*/
-        buddy_list[i].prev = buddy_list[i].next = &buddy_list[i];
-        /*memset((void *)start_mem, 0, bitmap_size);*/
-        /*start_mem += bitmap_size;*/
+        INIT_LIST_HEAD(&(buddy_list[i].list));
     }
-    /*return start_mem;*/
+}
+
+/*tidy the buddy list*/
+static int buddy_list_tidy()
+{
+    int i ;
+
+    for(i = 0;i < NR_MEM_LISTS; i++)
+    {
+    }
+
+    return 0;
 }
 
 int alloc_mem(int pid,int memsize)
@@ -156,31 +160,31 @@ void do_wp_page(struct vm_area_struct *vma, unsigned long address, int write_acc
         goto end_wp_page;
     if(pte_write(pte))
         goto  end_wp_page;
-    old_page = pte_page(pte);
+    old_page = pte_page(pte)->address;
     if(old_page >= main_memory_end)
         goto bad_wp_page;
 
-    (vma->vm_task->mm->min_flt)++;
+    /*(vma->vm_task->mm->min_flt)++;*/
 
     if(mem_map[MAP_NR(old_page)].flags & PAGE_PRESENT)
     {
         if(new_page)
         {
             if(mem_map[MAP_NR(old_page)].flags & MAP_PAGE_RESERVED)
-                ++(vma->vm_task->mm->rss);
+                /*++(vma->vm_task->mm->rss);*/
             copy_page(old_page, new_page);
             *page_table = pte_mkwrite(pte_mkdirty(mk_pte((unsigned long)&new_page, vma->vm_page_prot)));
-            free_page(old_page);
+            /*free_page(old_page);*/
             return;
         }
         pte_val(*page_table) &= PAGE_BAD;
-        free_page(old_page);
+        /*free_page(old_page);*/
         oom();
         return;
     }
     *page_table = pte_mkdirty(pte_mkwrite(pte));
     if(new_page)
-        free_page(new_page);
+        /*free_page(new_page);*/
     return;
 
 bad_wp_page:
@@ -189,7 +193,7 @@ bad_wp_page:
 
 end_wp_page:
     if(new_page)
-        free_page(new_page);
+        /*free_page(new_page);*/
     return;
 }
 
@@ -241,17 +245,21 @@ static unsigned long alloc_mem_map(unsigned long start_mem, unsigned long end_me
     {
         nr_mem_map = (end_mem - start_mem) >> PAGE_SHIFT;;
         size = (nr_mem_map) * (sizeof(struct page) + sizeof(struct page *));
-        start_mem += size;
         mem_map = (struct page *)start_mem;
         memset((void *)mem_map, 0 ,size);
+
+        start_mem += size;
     }
 
+    page_start_mem = start_mem; 
     return start_mem;
 }
 
 void init_mem(unsigned long start_mem, unsigned long end_mem)
 {
-    int tmp ;
+    int k;
+    struct page *p = NULL;
+    unsigned long page_ptr_start_mem = 0;
 
     buddy_list_init();
 
@@ -262,17 +270,25 @@ void init_mem(unsigned long start_mem, unsigned long end_mem)
 
     end_mem = (end_mem > memory_size)?end_mem:memory_size;
     /*alloc memory to mem_map;*/
-    start_mem = alloc_mem_map(start_mem, end_mem);
-    start_mem = (start_mem & PAGE_MASK);
+    page_start_mem = alloc_mem_map(start_mem, end_mem);
+    page_start_mem = (start_mem & PAGE_MASK);
 
-    PAGING_PAGES = (end_mem - start_mem) >> PAGE_SHIFT;
+    PAGING_PAGES = (end_mem - page_start_mem) >> PAGE_SHIFT;
 
-    struct page *p = (struct page *)((unsigned long)mem_map + sizeof(mem_map) * nr_mem_map);
-    for(tmp = 0;tmp  < PAGING_PAGES;tmp++,p++)
+    page_ptr_start_mem = start_mem  + sizeof(struct mem_list) * nr_mem_map; 
+
+    /*struct page *p = (struct page *)((unsigned long)mem_map + sizeof(mem_map) * nr_mem_map);*/
+    for(k= 0;k < PAGING_PAGES;++k)
     {
-        mem_map[tmp] = *p;
-        free_page(tmp);
+        p = (struct page *)(page_ptr_start_mem) + k;
+
+        (mem_map + k )->address = page_start_mem;
+
+        free_page(p);
+        page_start_mem += PAGE_SIZE;
     }
+
+    buddy_list_tidy();
 
     printk("free pages = %d\n",PAGING_PAGES);
     return ;

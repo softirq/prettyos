@@ -11,6 +11,7 @@
 #include "kernel.h"
 #include "stdlib.h"
 #include "linux/timer.h"
+#include "printf.h"
 
 static struct timer_list timer_header = 
 {

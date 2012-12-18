@@ -16,6 +16,7 @@
 #include "panic.h"
 #include "blk_drv.h"
 #include "string.h"
+#include "printf.h"
 
 /*
    there is one hard disk default

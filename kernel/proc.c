@@ -14,6 +14,7 @@
 #include "sys.h"
 #include "fork.h"
 #include "exit.h"
+#include "printf.h"
 
 void init_p()
 {

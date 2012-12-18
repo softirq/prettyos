@@ -1,13 +1,13 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
+/*#include "traps.h"*/
 //#include "string.h"
-#include "tty.h"
-#include "wait.h"
-#include "mm.h"
-#include "sched.h"
-#include "console.h"
-#include "global.h"
+/*#include "tty.h"*/
+/*#include "wait.h"*/
+/*#include "mm.h"*/
+/*#include "sched.h"*/
+/*#include "console.h"*/
+/*#include "global.h"*/
 //#include "kernel.h"
 #include "stdlib.h"
 

@@ -15,6 +15,7 @@
 #include "blk_drv.h"
 #include "fcntl.h"
 #include "string.h"
+#include "printf.h"
 
 int match(struct dir_entry *de,char *name,int namelen)
 {

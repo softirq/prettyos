@@ -14,6 +14,7 @@
 #include "blk_drv.h"
 #include "fcntl.h"
 #include "errno.h"
+#include "printf.h"
 
 int do_unlink(char *name)
 {

@@ -1,6 +1,9 @@
 #ifndef     _PRINTF_H_
 #define     _PRINTF_H_
 
-extern int  printk(const char *fmt,...);
+#include "vsprintf.h"
+
+extern int printk(const char *fmt,...);
+extern int printf(const char *fmt,...);
 
 #endif

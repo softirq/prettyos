@@ -22,7 +22,6 @@ struct __wait_queue_head {
 
 typedef struct __wait_queue_head wait_queue_head_t;
 
-
 extern 	void  	wake_up_interruptible(struct wait_queue **wq);
 extern 	void 	interruptible_sleep_on(struct wait_queue **wq);
 

@@ -70,14 +70,14 @@ unsigned long get_free_pages(unsigned long order)
     unsigned long new_order = order;
     do
     {
-        struct mem_list *next = queue->next;
+        /*struct mem_list *next = queue->next;
         if(queue != next)
         {
             queue->next = next->next;
             queue->next->prev = queue;
             nr_free_pages -= (1 << order);
             return (unsigned long)next;
-        }
+        }*/
         new_order++;
         queue++;
 
@@ -94,43 +94,33 @@ unsigned long __get_free_pages(int priority, unsigned long order)
     return 0;
 }
 
-static inline void add_mem_queue (struct mem_list *head, struct mem_list *entry)
+static inline void add_mem_queue (struct page *page, unsigned long order)
 {
-    entry->prev = head;
-    head->next->prev = entry;
-    entry->next = head->next;
-    head->next = entry;
-
+    struct mem_list *header = buddy_list + order;
+    list_add_after(&(header->list), &(page->list));
 }
 
-static inline void remove_mem_queue (struct mem_list *head, struct mem_list *entry)
+/*static inline void remove_mem_queue (struct mem_list *head, struct mem_list *entry)
 {
-    entry->prev->next = entry->next;
-    entry->next->prev = entry->prev;
+    [>entry->prev->next = entry->next;<]
+    [>entry->next->prev = entry->prev;<]
+}*/
+
+static inline void free_pages_ok(struct page *page, unsigned long order)
+{
+    add_mem_queue(page, order);
 }
 
-static inline void free_pages_ok(unsigned long addr, unsigned long order)
+void free_pages(struct page *page, unsigned long order)
 {
-    add_mem_queue(buddy_list + order, (struct mem_list *)addr);
-}
-
-void free_pages(unsigned long addr, unsigned long order)
-{
-    if(addr < main_memory_end)
+    if(!(page->flags & MAP_PAGE_RESERVED))
     {
-        struct page *map = mem_map + MAP_NR(addr);
-        if(map)
-        {
-            if(!(map->flags & MAP_PAGE_RESERVED))
-            {
-                free_pages_ok(addr, order);
-            }
-            return;
-
-        }
-        printk("Trying to free free memory (%081x):memory probably corrupted\n",addr);
+        free_pages_ok(page, order);
         return;
     }
+
+    printk("Trying to free free memory (%081x):memory probably corrupted\n",page->address);
+    return;
 }
 
 void add_to_swap_cache (struct page *page, swap_entry_t entry)

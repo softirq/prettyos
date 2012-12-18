@@ -10,6 +10,7 @@
 #include "fork.h"
 #include "wait.h"
 #include "mm.h"
+#include "fs.h"
 #include "sched.h"
 #include "global.h"
 #include "proc.h"

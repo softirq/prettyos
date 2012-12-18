@@ -1,5 +1,6 @@
 #ifndef     _PGTABLE_H_
 #define     _PGTABLE_H_
+#include "mm.h"
 
 extern pgd_t swapper_pg_dir[1024];
 
@@ -21,12 +22,13 @@ extern pgd_t swapper_pg_dir[1024];
 extern inline pgd_t* pgd_offset(struct task_struct *tsk, unsigned long address);
 extern inline int pgd_none(pgd_t pgd);
 extern inline int pgd_bad(pgd_t pgd);
+inline struct page * pgd_page (pgd_t pgd);
 
 extern inline pmd_t * pmd_alloc (pgd_t *pgd, unsigned long address);
 extern inline pmd_t * pmd_offset(pgd_t *pgd, unsigned long address);
 extern inline int pmd_none(pmd_t pmd);
 extern inline int pmd_bad(pmd_t pmd);
-extern inline unsigned long  pmd_page (pmd_t pmd);
+extern inline struct page * pmd_page (pmd_t pmd);
 
 extern inline pte_t * pte_alloc (pmd_t *pmd, unsigned long address);
 extern inline pte_t mk_pte(unsigned long addr, pgprot_t pgprot);
@@ -37,7 +39,7 @@ extern inline int pte_present(pte_t pte);
 extern inline int pte_none(pte_t pte);
 extern inline int pte_write(pte_t pte);
 extern inline pte_t * pte_offset(pmd_t *pmd, unsigned long address);
-extern inline unsigned long pte_page(pte_t pte);
+extern inline struct page* pte_page(pte_t pte);
 
 extern inline void free_page_tables(struct task_struct *tsk);
 

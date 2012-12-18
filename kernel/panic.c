@@ -9,6 +9,7 @@
 #include "sched.h"
 #include "global.h"
 #include "kernel.h"
+#include "printf.h"
 
 //系统级错误 系统stop
 void panic(const char *fmt,...)

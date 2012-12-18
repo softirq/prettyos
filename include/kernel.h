@@ -6,7 +6,7 @@ extern void	init_trap();
 // t32	seg2phys(t_16 seg);
 extern void	disable_irq(int irq);
 extern void	enable_irq(int irq);
-extern void 	init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t16 attribute);
+extern void init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t16 attribute);
 
 /* core.asm */
 extern void	restart();
@@ -58,12 +58,6 @@ extern void select_console(int nr_console);
    void 	write(char *buf,int len);
    void 	printx(char *buf,int len);
    */
-/* vsprintf.c */
-extern int vsprintf(char *buf,const char *fmt,va_list args);
-extern int sprintf(char *buf,const char *fmt,...);
-/* printf.c */
-extern int printf(const char *fmt,...);
-extern int printk(const char *fmt,...);
 
 /* sys.c */
 int	sys_get_ticks();

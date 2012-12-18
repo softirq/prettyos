@@ -13,6 +13,7 @@
 #include "panic.h"
 #include "hd.h"
 #include "blk_drv.h"
+#include "printf.h"
 
 int free_inode(struct m_inode *inode);
 

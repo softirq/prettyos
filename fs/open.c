@@ -14,6 +14,7 @@
 #include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
+#include "printf.h"
 
 
 //创建一个新的文件/目录
