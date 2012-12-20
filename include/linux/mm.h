@@ -53,7 +53,6 @@ struct page
     struct zone_struct *zone;
 };
 
-
 #define oom() ({ panic ("memory fatal error!\n");})
 
 #define  GFP_BUFFER 	0x001
@@ -62,17 +61,19 @@ struct page
 #define  GFP_KERNEL 	0x003
 
 
+#define     HIGH_MEM_ENTRY      768
+
 //extern void free_pages(unsigned long addr, unsigned long order);
 extern void free_pages(struct page *page, unsigned long order);
 extern unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem);
 extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
 
+/*memory for page struct */
 extern unsigned long page_start_mem;
 
 #define free_page(page) 	free_pages((page), 0)
 #define MAP_NR(addr) 		(((unsigned long)addr - page_start_mem) >> PAGE_SHIFT)
-
 
 #define NR_MEM_LISTS 	6
 /*

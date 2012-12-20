@@ -41,6 +41,6 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 
 #define PAGE_OFFSET 	(unsigned long)__PAGE_OFFSET
 #define __pa(x) 	((unsigned long)(x) - PAGE_OFFSET)
-#define __va(x) 	((void *)((unsigned long)(x) + PAGE_OFFSET))
+#define __va(x) 	((unsigned long)(x) + PAGE_OFFSET)
 
 #endif
