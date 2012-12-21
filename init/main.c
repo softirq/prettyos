@@ -75,7 +75,7 @@ static void start_kernel()
     printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);
     paging_init(main_memory_start,main_memory_end);
 
-    init_mem(main_memory_start,main_memory_end); //memeory management init
+    /*init_mem(main_memory_start,main_memory_end); //memeory management init*/
 
     /*init_hd(); //hard disk init*/
 

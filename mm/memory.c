@@ -7,12 +7,15 @@
 #include "wait.h"
 #include "mm.h"
 #include "printf.h"
-#include "pgtable.h"
+/*#include "pgtable.h"*/
 
 static long PAGING_PAGES = 0;
 int nr_swap_pages = 0;
 int nr_free_pages = 0;
 static int nr_mem_map = 0;
+
+unsigned long low_mem_start = 0x800000;
+unsigned long low_mem_end = 0x1000000;
 
 unsigned long page_start_mem = 0;
 
@@ -52,6 +55,20 @@ static int buddy_list_tidy()
     }
 
     return 0;
+}
+
+unsigned long alloc_low_mem(int memsize)
+{
+    if(low_mem_start + memsize > low_mem_end)
+    {
+        panic("no low memory alloc.\n");
+        return -1;
+    }
+
+    unsigned long allow_mem = low_mem_start;
+    low_mem_start += memsize;
+
+    return allow_mem;
 }
 
 int alloc_mem(int pid,int memsize)

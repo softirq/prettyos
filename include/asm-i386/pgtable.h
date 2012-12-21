@@ -1,8 +1,9 @@
-#ifndef     _PGTABLE_H_
-#define     _PGTABLE_H_
-#include "mm.h"
+#ifndef     _I386_PGTABLE_H_
+#define     _I386_PGTABLE_H_
 
-extern pgd_t swapper_pg_dir[1024];
+//#include "mm.h"
+
+//extern pgd_t swapper_pg_dir[1024];
 
 #define PTRS_PER_PTE 	1024
 #define PTRS_PER_PMD  	1	
@@ -19,6 +20,7 @@ extern pgd_t swapper_pg_dir[1024];
 #define 	PAGE_TABLE 			(PAGE_PRESENT | PAGE_RW | PAGE_USER | PAGE_DIRTY)
 #define  	PAGE_BADTABLE 		__pgprot(PAGE_BAD)
 
+extern inline pgd_t mk_pgd(unsigned long address, pgprot_t pgprot);
 extern inline pgd_t* pgd_offset(struct task_struct *tsk, unsigned long address);
 extern inline int pgd_none(pgd_t pgd);
 extern inline int pgd_bad(pgd_t pgd);

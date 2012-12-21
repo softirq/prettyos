@@ -448,6 +448,7 @@ DispMemInfo:
 	pop	esi
 	ret
 
+;only map the 0 1 and 0x300 0x301 entry exactly
 SetupPaging:
 
 ;	push	dword [dwMemSize]	

@@ -2,6 +2,7 @@
 #define     _MM_H_
 
 #include "asm-i386/page.h"
+#include "pgtable.h"
 #include "wait.h"
 #include "list.h"
 
@@ -60,9 +61,6 @@ struct page
 #define  GFP_ATOMIC 	0x002
 #define  GFP_KERNEL 	0x003
 
-
-#define     HIGH_MEM_ENTRY      768
-
 //extern void free_pages(unsigned long addr, unsigned long order);
 extern void free_pages(struct page *page, unsigned long order);
 extern unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem);
@@ -92,7 +90,6 @@ struct mem_list
 };
 
 extern struct mem_list buddy_list[NR_MEM_LISTS];
-
 
 struct vm_area_struct 
 {

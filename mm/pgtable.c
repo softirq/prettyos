@@ -19,7 +19,7 @@
 #include "kstat.h"
 #include "proc.h"
 
-pgd_t swapper_pg_dir[1024];
+pgd_t *swapper_pg_dir = NULL;
 
 inline int pmd_none(pmd_t pmd)
 {
@@ -117,6 +117,13 @@ inline pte_t mk_pte(unsigned long address, pgprot_t pgprot)
     pte_t pte;
     pte_val(pte) = __va(address) | pgprot_val(pgprot);
     return pte;
+}
+
+inline pgd_t mk_pgd(unsigned long address, pgprot_t pgprot)
+{
+    pgd_t pgd;
+    pgd_val(pgd) = __va(address) | pgprot_val(pgprot);
+    return pgd;
 }
 
 inline pte_t * pte_offset(pmd_t *pmd, unsigned long address)
@@ -391,46 +398,6 @@ int unmap_page_range(unsigned long addr, unsigned long size)
     return 0;
 }
 
-/*first in boot/loader.asm first setup the pgd talbe in function SetupPaging
- * now set the pte after get the real memory in the system*/
-unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem)
-{
-    int k = 0;
-    unsigned long address = 0;
-    int count = 1;
-
-    pgd_t *pg_dir = NULL;
-    pte_t *pg_table = NULL;
-
-    pg_dir = swapper_pg_dir;
-
-    while(address < end_mem)
-    {
-        /*the first 768 entries is the directory mapping*/
-        if(count <= HIGH_MEM_ENTRY)
-        {
-            pg_table = (pte_t *)(pgd_val(*pg_dir));
-            /*start_mem += PAGE_SIZE;*/
-            for(k = 0;k < PTRS_PER_PTE; ++k,pg_table++)
-            {
-                if(address < end_mem)
-                    *pg_table =  mk_pte(address,PAGE_SHARED);
-                address += PAGE_SIZE;
-            }
-            ++pg_dir;
-            ++count;
-        }
-        /* the rest for vmalloc or persistent mapping or fixmaped */
-        else
-        {
-        }
-    }
-
-    /*free_list_init(start_mem, end_mem);*/
-
-    return 0;
-}
-
 unsigned long get_free_pages(unsigned long order)
 {
     struct mem_list *queue = buddy_list + order;
@@ -482,5 +449,35 @@ void free_pages(struct page *page, unsigned long order)
 
     printk("Trying to free free memory (%081x):memory probably corrupted\n",page->address);
     return;
+}
+
+/*first in boot/loader.asm first setup the pgd talbe in function SetupPaging
+ * now set the pte after get the real memory in the system*/
+unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem)
+{
+    int i = 0, j = 0;
+    unsigned long address = 0;
+
+    pgd_t *pg_dir = NULL;
+    pte_t *pg_table = NULL;
+
+    pg_dir = (pgd_t *)alloc_low_mem(PGD_ENTRYS * sizeof(pgd_t));
+
+    pg_table = (pte_t *)alloc_low_mem(HIGH_MEM_ENTRY * sizeof(pte_t));
+
+    while(i <= HIGH_MEM_ENTRY)
+    {
+        *pg_dir = mk_pgd((unsigned long)pg_table, PAGE_SHARED);
+        for(j = 0;j < PTRS_PER_PTE; ++j)
+        {
+            if(address < end_mem)
+                *pg_table = mk_pte(address, PAGE_SHARED);
+            address += PAGE_SIZE;
+        }
+        ++pg_table;
+        ++i;
+    }
+
+    return 0;
 }
 

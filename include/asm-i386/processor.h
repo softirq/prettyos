@@ -1,5 +1,5 @@
-#ifndef     _PROCESSOR_H_
-#define     _PROCESSOR_H_
+#ifndef     _I386_PROCESSOR_H_
+#define     _I386_PROCESSOR_H_
 
 struct thread_struct
 {

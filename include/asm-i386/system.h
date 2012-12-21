@@ -1,5 +1,5 @@
-#ifndef     _ASM_386_SYSTEM_H_
-#define     _ASM_386_SYSTEM_H_
+#ifndef     _I386_SYSTEM_H_
+#define     _I386_SYSTEM_H_
 
 #define sti() __asm__ __volatile__ ("sti": : :"memory")
 #define cli() __asm__ __volatile__ ("cli": : :"memory")

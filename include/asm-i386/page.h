@@ -1,5 +1,5 @@
-#ifndef     _PAGE_H_
-#define     _PAGE_H_
+#ifndef     _I386_PAGE_H_
+#define     _I386_PAGE_H_
 
 typedef unsigned int mem_map_t;
 

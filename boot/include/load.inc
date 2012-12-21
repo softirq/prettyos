@@ -10,7 +10,8 @@ OffsetOfKernelFile	equ	     0h
 BaseOfKernelFilePhyAddr	equ	BaseOfKernelFile * 10h
 
 ;KernelEntryPointPhyAddr	equ	030400h	
-KernelEntryPointPhyAddr	equ	010400h	
+;KernelEntryPointPhyAddr	equ	010400h	
+KernelEntryPointPhyAddr	equ	0100000h	
 
 					
 ;二级页式存储

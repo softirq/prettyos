@@ -45,7 +45,8 @@ $(LOADER):boot/loader.asm
 	#@sz -e $(LOADER)
 #$(KERNEL):$(OBJS) subdir
 $(KERNEL):$(OBJS) 
-	$(LD) -s -Ttext 0x10400 -o $@ $(OBJS) $(INCLUDE)
+	#$(LD) -s -Ttext 0x10400 -o $@ $(OBJS) $(INCLUDE)
+	$(LD) -s -Ttext 0x100000 -o $@ $(OBJS) $(INCLUDE)
 	#@sz -e $(KERNEL)
 
 init/%.o:init/%.c

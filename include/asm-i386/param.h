@@ -1,5 +1,5 @@
-#ifndef     _PARAM_H_
-#define     _PARAM_H_
+#ifndef     _I386_PARAM_H_
+#define     _I386_PARAM_H_
 
 #ifndef HZ
 #define HZ 		100
