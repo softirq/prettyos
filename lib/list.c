@@ -6,7 +6,9 @@
 
 inline void INIT_LIST_HEAD(struct list_head *list)
 {
-    list->next = list;
+    /*list->next = list;*/
+    list->next = NULL;
+
     list->prev = list;
 }
 inline void __list_add(struct list_head *item, struct list_head *prev, struct list_head *next)

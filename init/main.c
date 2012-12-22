@@ -48,24 +48,23 @@ static void start_kernel()
     /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
     /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
     main_memory_end &= 0xfffff000;
-    /*printk("main memory end = %x\n",main_memory_end);*/
+    printk("main memory end = %x\n",main_memory_end);
 
-    if(main_memory_end > 12 * 1024 * 1024)	//内存大于6M时
+    if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
     {
         buffer_memory_start = 3 * 1024 * 1024;
+        /*buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;*/
         buffer_memory_end = 4 * 1024 * 1024;
     }
     else 
     {
-        buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;
-        buffer_memory_end = 3 * 1024 * 1024;
+        buffer_memory_start = 3 * 1024 * 1024;
+        buffer_memory_end = 4 * 1024 * 1024;
     }
 
     main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
     /*main_memory_start &= 0xfffff000;*/
-    /*disp_str("-------------------------------------\n");*/
 
-    /*buffer_memory_end = (buffer_memory_end + BUFFER_SIZE) & (~BUFFER_SIZE)- 1;  //align BUFFER_SIZE*/
     buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE
     buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
     printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);
@@ -172,7 +171,6 @@ static void init_task()
             unsigned int k_base;
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
-            disp_pos = 0;
             printk(" wo shi init.............\n");
             printk("k_base = %d k_limit = %d\n",k_base,k_limit);
             printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);

@@ -418,6 +418,12 @@ unsigned long paging_init()
     pg_dir = (pgd_t *)alloc_low_mem(PGD_ENTRYS * sizeof(pgd_t));
     pg_table = (pte_t *)alloc_low_mem(HIGH_MEM_ENTRY * sizeof(pte_t));
 
+    if(pg_dir == NULL || pg_table == NULL)
+    {
+        printk("alloc_low_mem error. ");
+        return -1;
+    }
+
     while(i <= HIGH_MEM_ENTRY)
     {
         *pg_dir = mk_pgd((unsigned long)pg_table, PAGE_SHARED);
@@ -431,6 +437,7 @@ unsigned long paging_init()
             }
             else
             {
+                /*printk("address = %x", address);*/
                 return 0;
             }
         }

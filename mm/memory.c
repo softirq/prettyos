@@ -14,7 +14,7 @@ static long PAGING_PAGES = 0;
 int nr_swap_pages = 0;
 int nr_free_pages = 0;
 
-unsigned long low_mem_start = 0x400000;
+unsigned long low_mem_start = 0x600000;
 unsigned long low_mem_end = 0x1000000;
 
 /*unsigned long page_start_mem = 0;*/
@@ -25,7 +25,7 @@ struct page * mem_map = NULL;
 
 struct mem_list buddy_list[NR_MEM_LISTS];
 
-static int count = 0;
+/*static int count = 0;*/
 
 #define  	copy_page(from, to) 	memcpy((void *)from, (void *)to, PAGE_SIZE)
 //static unsigned long free = 0;
@@ -55,7 +55,7 @@ static int buddy_list_tidy()
     int i ;
     int count = 0;
     struct mem_list *queue = NULL;
-    /*struct page *page = NULL;*/
+    struct page *page = NULL;
     struct list_head *head, *pos, *n;
 
     for(i = 0;i < NR_MEM_LISTS; i++)
@@ -64,27 +64,17 @@ static int buddy_list_tidy()
         printk("i = %d nr_free_pages = %d  ", i, queue->nr_free_pages);
         head = &(queue->list);
 
-        /*list_for_each_safe(pos, n, &(queue->list))*/
-            /*for(pos = (head)->next, n = pos->next;pos != (head); pos = n, n = pos->next)*/
-        /*for(pos = head.next, n = pos->next;pos != &(head); pos = n, n = pos->next)*/
-        /*for(pos = head->next, n = pos->next;pos != head; pos = n, n = pos->next)*/
-        /*for(pos = head->next;pos != head; pos = pos->next)*/
         pos = head->next;
-        /*while(pos != head)*/
-        /*while(count < 10000 && pos != head)*/
-        /*{*/
-            /*++count;*/
-
-            /*if(count % 100 == 0)*/
-            /*{*/
-                /*int k = count;*/
-                /*printk("%d ", count);*/
-                /*printk("%x ", pos);*/
-                /*[>page = list_entry(pos, Page, list);<]*/
-                /*[>printk("address = %x. ", page->address);<]*/
-            /*}*/
-            /*pos = pos->next;*/
-        /*}*/
+        while(pos && pos != head)
+        {
+            ++count;
+            if(count > 2400)
+            {
+                printk("%d ", count);
+                page = list_entry(pos, Page, list);
+            }
+            pos = pos->next;
+        }
     }
 
     return 0;
@@ -288,57 +278,81 @@ no_memory:
     oom();
 }
 
-static inline void add_buddy_queue (struct page *page, unsigned long order)
+static inline int add_buddy_queue (struct page *page, unsigned long order)
 {
-    struct mem_list *header = buddy_list + order;
-    /*list_add(&(page->list),&(header->list));*/
-
-    struct list_head *head, *item;
-    head = &(header->list); 
-    item = &(page->list);
-
-    head->next->prev = item;
-    item->next = head->next;
-    item->prev = head;
-    head->next = item;
-
-    item = head->next;
-    count = 0;
-    while(item != head)
+    if(page == NULL || order >= NR_MEM_LISTS)
     {
-        item = item->next;
-        ++count;
-        if(count > 2400)
-            printk(".%d.", count);
+        return -1;
     }
 
+    struct mem_list *header = buddy_list + order;
+    list_add(&(page->list),&(header->list));
+
+    /*struct list_head *head, *item; 
+      head = &(header->list); 
+      item = &(page->list);
+      if(head == NULL || item == NULL)
+      {
+      return -2;
+      }
+      [>head->next->prev = item;<]
+      item->next = head->next;
+      [>item->prev = head;<]
+      head->next = item;
+
+      tmp = head->next;
+      count = 0;
+
+      while(tmp && tmp != head)
+      {
+      ++count;
+      if(count > 2412)
+      {
+      printk(".%d.", count);
+      }
+
+      tmp = tmp->next;
+      }*/
 
     ++buddy_list[order].nr_free_pages;
+
+    return 0;
 }
 
-static inline void free_pages_ok(struct page *page, unsigned long order)
+static inline int free_pages_ok(struct page *page, unsigned long order)
 {
-    add_buddy_queue(page, order);
+    if(page == NULL || order >= NR_MEM_LISTS)
+        return -1;
+
+    if(add_buddy_queue(page, order) < 0)
+        return -2;
+
+    return 0;
 }
 
-void free_pages(struct page *page, unsigned long order)
+int free_pages(struct page *page, unsigned long order)
 {
+    if(page == NULL || order >= NR_MEM_LISTS)
+        return -1;
+
     if(page->flags & SYS_RAM)
     {
-        /*printk("*");*/
-        free_pages_ok(page, order); 
-        return ;
+        if(free_pages_ok(page, order) < 0)
+            return -2;
     }
-    else
-    {
-        /*printk("Trying to free memory (%x):memory probably corrupted\n",page->address);*/
-        return;
-    }
+
+    return 0;
 }
 
 unsigned long get_free_pages(unsigned long order)
 {
+    if(order >= NR_MEM_LISTS)
+        return -1;
+
     struct mem_list *queue = buddy_list + order;
+    if(queue == NULL)
+        return -2;
+
     unsigned long new_order = order;
     do
     {
@@ -387,30 +401,22 @@ void init_mem()
     mem_map = (struct page *)alloc_low_mem(page_fns * sizeof(struct page *));
     /* alloc memory to struct page */
     printk("%x.\n", low_mem_start);
+    printk("buffer_memory_end = %x\n, buffer_memory_end");
+    printk("page size = %d\n", sizeof(struct page));
     page_ptr_mem = alloc_low_mem(page_fns * sizeof(struct page));
     printk("%x %x.\n", page_ptr_mem, page_ptr_mem + page_fns * sizeof(struct page));
 
-    /*struct page *p = (struct page *)((unsigned long)mem_map + sizeof(mem_map) * nr_mem_map);*/
-    page_fns = low_mem_end >> PAGE_SHIFT ;
-    printk("low_mem_end = %d\n", low_mem_end);
-    page_fns += 2413;
-    printk("page_fns = %d\n", page_fns);
     p = (struct page*)page_ptr_mem;
-    for(k = 0;k < page_fns; ++k)
+
+    for(k = 0;p != NULL && k < page_fns; ++k)
     {
-        /*if(count++ % 200 == 0)*/
-        /*printk("%x.", p);*/
-        if(address < low_mem_end)
+        if(address < low_mem_end || address < buffer_memory_end)
         {
             /* system reserved and read only */
-            /*p->flags |= (SYS_RESERVED & SYS_ROM);*/
             p->flags |= (SYS_RESERVED | SYS_ROM);
         }
         else
         {
-            if(count % 5000 == 0)
-                printk("@");
-            /* read and write*/
             p->flags |= SYS_RAM;
         }
         p->address = address;
@@ -421,12 +427,8 @@ void init_mem()
         ++p;
     }
 
-    /*printk("memsize %x\n", &memory_size);*/
-
     buddy_list_tidy();
 
-    printk("free pages count =  %d\n", count);
-    printk("free pages = %d\n",PAGING_PAGES);
     return ;
 }
 

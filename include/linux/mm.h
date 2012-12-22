@@ -67,7 +67,7 @@ typedef struct page
 #define  GFP_KERNEL 	0x003
 
 //extern void free_pages(unsigned long addr, unsigned long order);
-extern void free_pages(struct page *page, unsigned long order);
+extern int free_pages(struct page *page, unsigned long order);
 extern unsigned long paging_init();
 extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
