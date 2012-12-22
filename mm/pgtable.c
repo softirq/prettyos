@@ -398,71 +398,24 @@ int unmap_page_range(unsigned long addr, unsigned long size)
     return 0;
 }
 
-unsigned long get_free_pages(unsigned long order)
-{
-    struct mem_list *queue = buddy_list + order;
-    unsigned long new_order = order;
-    do
-    {
-        /*struct mem_list *next = queue->next;
-          if(queue != next)
-          {
-          queue->next = next->next;
-          queue->next->prev = queue;
-          nr_free_pages -= (1 << order);
-          return (unsigned long)next;
-          }*/
-        new_order++;
-        queue++;
-
-    }while(new_order < NR_MEM_LISTS);
-
-    return 0;
-}
-
-unsigned long __get_free_pages(int priority, unsigned long order)
-{
-    if(priority == GFP_ATOMIC)
-        return get_free_pages(order);
-
-    return 0;
-}
-
-static inline void add_mem_queue (struct page *page, unsigned long order)
-{
-    struct mem_list *header = buddy_list + order;
-    list_add_after(&(header->list), &(page->list));
-}
-
-static inline void free_pages_ok(struct page *page, unsigned long order)
-{
-    add_mem_queue(page, order);
-}
-
-void free_pages(struct page *page, unsigned long order)
-{
-    if(!(page->flags & MAP_PAGE_RESERVED))
-    {
-        free_pages_ok(page, order);
-        return;
-    }
-
-    printk("Trying to free free memory (%081x):memory probably corrupted\n",page->address);
-    return;
-}
-
 /*first in boot/loader.asm first setup the pgd talbe in function SetupPaging
  * now set the pte after get the real memory in the system*/
-unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem)
+unsigned long paging_init()
 {
     int i = 0, j = 0;
     unsigned long address = 0;
+
+    struct boot_params bp;
+    get_boot_params(&bp);
+    int memory_size = bp.mem_size;
+    memory_size  &= 0xfffff000;
+
+    printk("end_mem = %x\n", memory_size);
 
     pgd_t *pg_dir = NULL;
     pte_t *pg_table = NULL;
 
     pg_dir = (pgd_t *)alloc_low_mem(PGD_ENTRYS * sizeof(pgd_t));
-
     pg_table = (pte_t *)alloc_low_mem(HIGH_MEM_ENTRY * sizeof(pte_t));
 
     while(i <= HIGH_MEM_ENTRY)
@@ -470,13 +423,23 @@ unsigned long paging_init(const unsigned long start_mem, const unsigned long end
         *pg_dir = mk_pgd((unsigned long)pg_table, PAGE_SHARED);
         for(j = 0;j < PTRS_PER_PTE; ++j)
         {
-            if(address < end_mem)
+            if(address < memory_size)
+            {
                 *pg_table = mk_pte(address, PAGE_SHARED);
-            address += PAGE_SIZE;
+                address += PAGE_SIZE;
+                ++pg_table;
+            }
+            else
+            {
+                return 0;
+            }
         }
-        ++pg_table;
         ++i;
     }
+
+    /* vmalloc  */
+    /* persistent mappings */
+    /* fiexed maps */
 
     return 0;
 }

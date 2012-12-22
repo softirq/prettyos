@@ -189,7 +189,7 @@ void exception_handler(int vec_no, int err_code, int eip, int cs, int eflags)
 
     disp_color_str("Exception! --> ", text_color);
     disp_color_str(err_description[vec_no], text_color);
-    disp_color_str("\n\n", text_color);
+    disp_color_str("\n", text_color);
     disp_color_str("EFLAGS:", text_color);
     disp_int(eflags);
     disp_color_str("CS:", text_color);

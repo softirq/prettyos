@@ -79,11 +79,6 @@ extern void 	hd_rw(int net_device,int start_sect,int nr_sects,int flag,struct bu
 extern void 	hd_open(int net_device);
 // void do_signal();
 
-
 #define 	suser() (!current->euid == 0)
-
-#define container_of(ptr, type, memeber) ({ \
-        const typeof((type *)0->member) *_mptr = ptr;\
-        (type*)((char *)_mptr - offsetof(type,member));)}
 
 #endif

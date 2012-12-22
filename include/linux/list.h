@@ -28,8 +28,18 @@ inline void list_del_init(struct list_head *entry);
 inline int list_empty(const struct list_head *head);
 inline int list_empty_careful(const struct list_head *head);
 
-#define list_entry(ptr, type, member) 		\
-    container_of(ptr, type, member)
+#define offsetof(type, member) ((unsigned long)&((type *)0)->member)
+
+#define container_of(ptr, type, member)({ \
+                const typeof(((type *)0)->member) *__mptr = (ptr); \
+                (type *)((char *)__mptr - offsetof(type, member)); })
+
+#define list_entry(ptr, type, member) \
+        container_of(ptr, type, member)
+
+/*  防止在遍历的时候 节点正好被删掉了*/
+#define list_for_each_safe(pos, n, head) \
+        for(pos = (head)->next, n = pos->next;pos != (head); pos = n, n = pos->next)
 
 #define list_first_entry(ptr, type, member) \
     list_entry((ptr)->next, type, member)

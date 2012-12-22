@@ -12,10 +12,10 @@
 #include "kernel.h"
 #include "proc.h"
 #include "stdlib.h"
-/*#include "fork.h"*/
 #include "linux/net.h"
+#include "printf.h"
 
-#define EXT_MEM_K 	(*(unsigned short*)0x8002)
+/*#define EXT_MEM_K 	(*(unsigned short*)0x8002)*/
 //long memory_start = 0;
 unsigned long buffer_memory_start = 0;
 unsigned long buffer_memory_end = 0;
@@ -33,7 +33,7 @@ static int get_memsize(unsigned long *mem_size)
     assert(magic == BOOT_PARAM_MAGIC);
 
     *mem_size = *(int *)(BOOT_PARAM_ADDR + sizeof(int));
-    printk("memsize = %x\n", *mem_size);
+    /*printk("memsize = %x\n", *mem_size);*/
 
     return 0;
 }
@@ -42,15 +42,13 @@ static void start_kernel()
 {
     //	init_trap();// define in kernel/start.c
 
-    disp_str("-------------------------------------\n");
-
     init_clock(); //clock interrupt init
 
     get_memsize(&main_memory_end);
     /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
     /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
     main_memory_end &= 0xfffff000;
-    printk("main memory end = %x\n",main_memory_end);
+    /*printk("main memory end = %x\n",main_memory_end);*/
 
     if(main_memory_end > 12 * 1024 * 1024)	//内存大于6M时
     {
@@ -73,9 +71,9 @@ static void start_kernel()
     printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);
     init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
     printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);
-    paging_init(main_memory_start,main_memory_end);
+    paging_init();
 
-    /*init_mem(main_memory_start,main_memory_end); //memeory management init*/
+    init_mem(); //memeory management init
 
     /*init_hd(); //hard disk init*/
 
@@ -171,10 +169,11 @@ static void init_task()
         }
         else
         {
-            printk(" wo shi init.............\n");
             unsigned int k_base;
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
+            disp_pos = 0;
+            printk(" wo shi init.............\n");
             printk("k_base = %d k_limit = %d\n",k_base,k_limit);
             printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);
             assert(ret== 0);

@@ -11,8 +11,8 @@ inline void INIT_LIST_HEAD(struct list_head *list)
 }
 inline void __list_add(struct list_head *item, struct list_head *prev, struct list_head *next)
 {
-    item->next = next;
     next->prev = item;
+    item->next = next;
     item->prev = prev;
     prev->next = item;
 }

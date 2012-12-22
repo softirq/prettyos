@@ -17,8 +17,10 @@ KernelEntryPointPhyAddr	equ	0100000h
 ;二级页式存储
 ;页目录
 PageDirBase		equ	0x0a00000	
+;PageDirBase		equ	0x0400000	
 ;页表	
 PageTblBase		equ	0x0a01000 
+;PageTblBase		equ	0x0402000 
 
 
 BOOT_PARAM_ADDR   	equ 	0x900

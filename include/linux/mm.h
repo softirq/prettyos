@@ -6,6 +6,10 @@
 #include "wait.h"
 #include "list.h"
 
+#define     SYS_RESERVED    0x1
+#define     SYS_ROM         0x2
+#define     SYS_RAM         0x4
+
 struct mm_struct
 {
     int count;
@@ -23,7 +27,6 @@ struct mm_struct
     struct vm_area_struct *mmap_avl;  /* mmap val tree */
 };
 
-
 extern unsigned long memory_end; 
 extern unsigned long main_memory_start;
 extern unsigned long main_memory_end;
@@ -32,14 +35,16 @@ extern unsigned long buffer_memory_start;
 extern unsigned long buffer_memory_end;
 
 extern struct page *mem_map;
+/* number of pages */
+extern unsigned long page_fns;
 
 extern int nr_swap_pages;
 extern int nr_free_pages;
 
 int alloc_mem(int pid,int memsize);
-void init_mem(unsigned long start_mem,unsigned long end_mem);
+void init_mem();
 
-struct page
+typedef struct page
 {
     struct list_head list;
     struct address_space *mapping;
@@ -52,7 +57,7 @@ struct page
     wait_queue_head_t wait;
     struct buffer_head *buffers;
     struct zone_struct *zone;
-};
+}Page;
 
 #define oom() ({ panic ("memory fatal error!\n");})
 
@@ -63,15 +68,12 @@ struct page
 
 //extern void free_pages(unsigned long addr, unsigned long order);
 extern void free_pages(struct page *page, unsigned long order);
-extern unsigned long paging_init(const unsigned long start_mem, const unsigned long end_mem);
+extern unsigned long paging_init();
 extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
 
-/*memory for page struct */
-extern unsigned long page_start_mem;
-
 #define free_page(page) 	free_pages((page), 0)
-#define MAP_NR(addr) 		(((unsigned long)addr - page_start_mem) >> PAGE_SHIFT)
+#define MAP_NR(addr) 		(((unsigned long)addr) >> PAGE_SHIFT)
 
 #define NR_MEM_LISTS 	6
 /*
@@ -87,6 +89,7 @@ extern unsigned long page_start_mem;
 struct mem_list 
 {
     struct list_head list;
+    int nr_free_pages;
 };
 
 extern struct mem_list buddy_list[NR_MEM_LISTS];

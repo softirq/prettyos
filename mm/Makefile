@@ -4,6 +4,7 @@ include $(TOPDIR)/Generic.mak
 MMOBJS:=pgtable.o memory.o kmalloc.o swap.o mmap.o
 
 MM=mm.o
+
 all:$(MMOBJS)
 
 #$(MM):$(FSOBJS) 

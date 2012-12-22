@@ -26,7 +26,7 @@ int release_process(struct task_struct *p)
 static void tell_father(pid)
 {
     struct task_struct *iter = NULL;
-    int i = 0;
+    /*int i = 0;*/
     if(pid)
     {
         for(iter = run_queue; iter; iter = iter->next)
