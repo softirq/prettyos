@@ -23,9 +23,7 @@ unsigned long page_fns = 0;
 
 struct page ** mem_map = NULL;
 
-struct mem_list buddy_list[NR_MEM_LISTS];
-
-static int count = 0;
+/*static int count = 0;*/
 
 #define  	copy_page(from, to) 	memcpy((void *)from, (void *)to, PAGE_SIZE)
 //static unsigned long free = 0;
@@ -38,90 +36,6 @@ static int count = 0;
    }
    */
 /*free page list*/
-
-/*is page address is closed*/
-static inline int is_pageclosed(struct list_head *prev, struct list_head *next, int order)
-{
-    int index = 1;
-    struct page *prev_page = NULL,*next_page = NULL;
-
-    if(prev == NULL || next == NULL)
-        return 0;
-
-    prev_page = list_entry(prev, Page, list);
-    next_page = list_entry(next, Page, list);
-
-    index = power(order);
-
-    return ((prev_page->address + index * PAGE_SIZE == next_page->address) || (prev_page->address - index * PAGE_SIZE == next_page->address));
-}
-
-static void buddy_list_init ()
-{
-    int i;
-    for(i = 0;i < NR_MEM_LISTS; i++)
-    {
-        INIT_LIST_HEAD(&(buddy_list[i].list));
-        buddy_list[i].nr_free_pages = 0;
-    }
-}
-
-/*tidy the buddy list*/
-static int buddy_list_tidy()
-{
-    int i ;
-    struct mem_list *queue = NULL;
-    struct page *page = NULL;
-    struct list_head *head, *pos ,*n;
-
-    for(i = 0;i < NR_MEM_LISTS; i++)
-    /*for(i = 0;i < 3; i++)*/
-    {
-        count = 0;
-        queue = buddy_list + i;
-        printk("1 i = %d nr_free_pages = %d.\n", i, queue->nr_free_pages);
-
-        if(queue->nr_free_pages <= 0)
-            return 0;
-
-        /*list_for_each_safe(pos, n, head)*/
-
-        head = &(queue->list);
-        pos = head->next;
-
-        while(pos && pos != head)
-        {
-            n = pos->next;
-            if(pos->next != head)
-            {
-                /*printk("*");*/
-                if(is_pageclosed(pos,pos->next, i))
-                {
-                    ++count;
-                    /*printk("#");*/
-                    n = pos->next->next;
-                    list_del(pos->next);
-                    list_del(pos);
-                    queue->nr_free_pages -= 2;
-                    /*printk("@");*/
-                    page = list_entry(pos, Page, list);
-                    list_add(&(page->list),&((queue+1)->list));
-                    /*printk("&");*/
-                    ++(queue+1)->nr_free_pages;
-                }
-                else
-                {
-                    /*printk("#");*/
-                }
-            }
-            pos = n;
-        }
-        printk("count=%d\n", count);
-    }
-
-
-    return 0;
-}
 
 unsigned long alloc_low_mem(int memsize)
 {
@@ -321,33 +235,18 @@ no_memory:
     oom();
 }
 
-static inline int add_buddy_queue (struct page *page, unsigned long order)
-{
-    if(page == NULL || order >= NR_MEM_LISTS)
-    {
-        return -1;
-    }
-
-    struct mem_list *header = buddy_list + order;
-    list_add(&(page->list),&(header->list));
-
-    ++buddy_list[order].nr_free_pages;
-
-    return 0;
-}
-
-static inline int free_pages_ok(struct page *page, unsigned long order)
+static inline int free_pages_ok(struct page *page, const int order)
 {
     if(page == NULL || order >= NR_MEM_LISTS)
         return -1;
 
-    if(add_buddy_queue(page, order) < 0)
+    if(buddy_list_add(page, order) < 0)
         return -2;
 
     return 0;
 }
 
-int free_pages(struct page *page, unsigned long order)
+int free_pages(struct page *page, const int order)
 {
     if(page == NULL || order >= NR_MEM_LISTS)
         return -1;
@@ -366,25 +265,31 @@ unsigned long get_free_pages(unsigned long order)
     if(order >= NR_MEM_LISTS)
         return -1;
 
-    struct mem_list *queue = buddy_list + order;
+    struct buddy_list *queue = buddy_list + order;
+    struct page *page = NULL;
+    struct list_head *head = NULL, *item = NULL;
+
     if(queue == NULL)
         return -2;
 
-    unsigned long new_order = order;
+    /*unsigned long new_order = order;*/
     do
     {
-        /*struct mem_list *next = queue->next;
-          if(queue != next)
-          {
-          queue->next = next->next;
-          queue->next->prev = queue;
-          nr_free_pages -= (1 << order);
-          return (unsigned long)next;
-          }*/
-        new_order++;
-        queue++;
+        if(queue->nr_free_pages > 0)
+        {
+            head = &(queue->list);
+            if(list_get_del(head, &item) != 0)
+                return -3;
 
-    }while(new_order < NR_MEM_LISTS);
+            page = list_entry(item,Page,list);
+            buddy_list_add(page, order);
+            return 0;
+        }
+
+        ++order;
+        ++queue;
+
+    }while(order < NR_MEM_LISTS);
 
     return 0;
 }
@@ -448,16 +353,7 @@ void init_mem()
     }
 
     buddy_list_tidy();
-
-    printk("\n---------------------------\n");
-
-    int i = 0;
-    struct mem_list *queue = NULL;
-    for(i = 0;i < NR_MEM_LISTS; i++)
-    {
-        queue = buddy_list + i;
-        printk("2 i = %d nr_free_pages = %d.\n", i, queue->nr_free_pages);
-    }
+    print_buddy_list();
 
     return ;
 }

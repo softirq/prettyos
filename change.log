@@ -4,3 +4,5 @@ AUTHOR:kangsun (SoftIRQ)
     fixed the strncpy bug
 2012/12/15
     vsprintf add parse hex number
+2012/12/24
+    init mm and buddy system

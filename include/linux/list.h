@@ -28,6 +28,14 @@ inline void list_del_init(struct list_head *entry);
 inline int list_empty(const struct list_head *head);
 inline int list_empty_careful(const struct list_head *head);
 
+inline int list_get_head(struct list_head *head, struct list_head **entry);
+inline int list_get_tail(struct list_head *head, struct list_head **entry);
+inline int list_get_head_del(struct list_head *head, struct list_head **entry);
+inline int list_get_tail_del(struct list_head *head, struct list_head **entry);
+
+#define     list_get        list_get_tail
+#define     list_get_del    list_get_head_del
+
 #define offsetof(type, member) ((unsigned long)&((type *)0)->member)
 
 #define container_of(ptr, type, member)({ \

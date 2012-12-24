@@ -60,3 +60,65 @@ inline int list_empty_careful(const struct list_head *head)
 {
     return (head->next == head) && (head == head->prev);
 }
+
+inline int list_get_head(struct list_head *head, struct list_head **entry)
+{
+    if(head == NULL || entry == NULL)
+    {
+        return -1;
+    }
+    if(head->next != head)
+    {
+        *entry = head->next;
+        list_del(head->next);
+
+        return 0;
+    }
+
+    return -2;
+}
+
+inline int list_get_tail(struct list_head *head, struct list_head **entry)
+{
+    if(head == NULL || entry == NULL)
+    {
+        return -1;
+    }
+
+    if(head->prev != head) 
+    {
+        *entry = head->prev;
+        list_del(head->prev);
+        return 0;
+    }
+
+    return -2;
+}
+
+inline int list_get_head_del(struct list_head *head, struct list_head **entry)
+{
+    if(list_get_head(head, entry))
+    {
+        if(*entry)
+        {
+            list_del(*entry);
+            return 0;
+        }
+    }
+
+    return -2;
+}
+
+inline int list_get_tail_del(struct list_head *head, struct list_head **entry)
+{
+    if(list_get_tail(head, entry))
+    {
+        if(*entry)
+        {
+            list_del(*entry);
+            return 0;
+        }
+    }
+
+    return -2;
+}

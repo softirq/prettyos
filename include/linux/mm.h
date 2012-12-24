@@ -5,6 +5,7 @@
 #include "pgtable.h"
 #include "wait.h"
 #include "list.h"
+#include "buddy.h"
 
 #define     SYS_RESERVED    0x1
 #define     SYS_ROM         0x2
@@ -67,32 +68,13 @@ typedef struct page
 #define  GFP_KERNEL 	0x003
 
 //extern void free_pages(unsigned long addr, unsigned long order);
-extern int free_pages(struct page *page, unsigned long order);
+extern int free_pages(struct page *page, const int order);
 extern unsigned long paging_init();
 extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
 
 #define free_page(page) 	free_pages((page), 0)
 #define MAP_NR(addr) 		(((unsigned long)addr) >> PAGE_SHIFT)
-
-#define NR_MEM_LISTS 	6
-/*
- * 1 page  1024
- * 2 pages 512
- * 3 pages 256 
- * 4 pages 128 
- * 5 pages 64 
- * 6 pages 32 
- *
- * */
-
-struct mem_list 
-{
-    struct list_head list;
-    int nr_free_pages;
-};
-
-extern struct mem_list buddy_list[NR_MEM_LISTS];
 
 struct vm_area_struct 
 {
