@@ -171,10 +171,11 @@ static void init_task()
             unsigned int k_base;
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
-            printk(" wo shi init.............\n");
+            /*k_limit = 1000 * k_limit;*/
+            /*printk(" wo shi init.............\n\n\n\n");*/
             printk("k_base = %d k_limit = %d\n",k_base,k_limit);
             printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);
-            assert(ret== 0);
+            assert(ret == 0);
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
         }

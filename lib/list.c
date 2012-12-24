@@ -6,9 +6,7 @@
 
 inline void INIT_LIST_HEAD(struct list_head *list)
 {
-    /*list->next = list;*/
-    list->next = NULL;
-
+    list->next = list;
     list->prev = list;
 }
 inline void __list_add(struct list_head *item, struct list_head *prev, struct list_head *next)
@@ -21,22 +19,23 @@ inline void __list_add(struct list_head *item, struct list_head *prev, struct li
 
 inline void list_add_after(struct list_head *item, struct list_head *head)
 {
-    __list_add(item, head, head->next);
+    if(item != NULL)
+        __list_add(item, head, head->next);
 }
 
 inline void list_add_before(struct list_head *item, struct list_head *head)
 {
-    __list_add(item,head->prev, head);
+    if(item != NULL)
+        __list_add(item,head->prev, head);
 }
 
 inline void __list_del(struct list_head *prev, struct list_head *next)
 {
-    next->prev = prev;
+    if(next)
+        next->prev = prev;
 
     if(prev)
-    {
         prev->next = next;
-    }
 }
 
 inline void list_del(struct list_head *entry)

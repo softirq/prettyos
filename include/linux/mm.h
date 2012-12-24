@@ -34,7 +34,7 @@ extern unsigned long memory_size;
 extern unsigned long buffer_memory_start;
 extern unsigned long buffer_memory_end;
 
-extern struct page *mem_map;
+extern struct page **mem_map;
 /* number of pages */
 extern unsigned long page_fns;
 

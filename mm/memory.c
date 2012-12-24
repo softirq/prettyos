@@ -21,11 +21,11 @@ unsigned long low_mem_end = 0x1000000;
 /* number of the pages */
 unsigned long page_fns = 0;
 
-struct page * mem_map = NULL;
+struct page ** mem_map = NULL;
 
 struct mem_list buddy_list[NR_MEM_LISTS];
 
-/*static int count = 0;*/
+static int count = 0;
 
 #define  	copy_page(from, to) 	memcpy((void *)from, (void *)to, PAGE_SIZE)
 //static unsigned long free = 0;
@@ -53,7 +53,7 @@ static void buddy_list_init ()
 static int buddy_list_tidy()
 {
     int i ;
-    int count = 0;
+    int mycount = 0;
     struct mem_list *queue = NULL;
     struct page *page = NULL;
     struct list_head *head, *pos, *n;
@@ -62,17 +62,20 @@ static int buddy_list_tidy()
     {
         queue = buddy_list + i;
         printk("i = %d nr_free_pages = %d  ", i, queue->nr_free_pages);
-        head = &(queue->list);
 
-        pos = head->next;
-        while(pos && pos != head)
+        if(queue->nr_free_pages <= 0)
+            return 0;
+
+        head = &(queue->list);
+        /*pos = head->next;*/
+
+        /*while(pos != head)*/
+        list_for_each_safe(pos, n, head)
         {
             ++count;
-            if(count > 2400)
-            {
-                printk("%d ", count);
-                page = list_entry(pos, Page, list);
-            }
+            if(count > 28650)
+                printk("count=%d",count);
+            /*page = list_entry(pos, Page, list);*/
             pos = pos->next;
         }
     }
@@ -206,22 +209,22 @@ void do_wp_page(struct vm_area_struct *vma, unsigned long address, int write_acc
 
     /*(vma->vm_task->mm->min_flt)++;*/
 
-    if(mem_map[MAP_NR(old_page)].flags & PAGE_PRESENT)
-    {
-        if(new_page)
-        {
-            if(mem_map[MAP_NR(old_page)].flags & MAP_PAGE_RESERVED)
-                /*++(vma->vm_task->mm->rss);*/
-                copy_page(old_page, new_page);
-            *page_table = pte_mkwrite(pte_mkdirty(mk_pte((unsigned long)&new_page, vma->vm_page_prot)));
-            /*free_page(old_page);*/
-            return;
-        }
-        pte_val(*page_table) &= PAGE_BAD;
-        /*free_page(old_page);*/
-        oom();
-        return;
-    }
+    /*if(mem_map[MAP_NR(old_page)].flags & PAGE_PRESENT)
+      {
+      if(new_page)
+      {
+      if(mem_map[MAP_NR(old_page)].flags & MAP_PAGE_RESERVED)
+      [>++(vma->vm_task->mm->rss);<]
+      copy_page(old_page, new_page);
+     *page_table = pte_mkwrite(pte_mkdirty(mk_pte((unsigned long)&new_page, vma->vm_page_prot)));
+     [>free_page(old_page);<]
+     return;
+     }
+     pte_val(*page_table) &= PAGE_BAD;
+     [>free_page(old_page);<]
+     oom();
+     return;
+     }*/
     *page_table = pte_mkdirty(pte_mkwrite(pte));
     if(new_page)
         /*free_page(new_page);*/
@@ -287,32 +290,6 @@ static inline int add_buddy_queue (struct page *page, unsigned long order)
 
     struct mem_list *header = buddy_list + order;
     list_add(&(page->list),&(header->list));
-
-    /*struct list_head *head, *item; 
-      head = &(header->list); 
-      item = &(page->list);
-      if(head == NULL || item == NULL)
-      {
-      return -2;
-      }
-      [>head->next->prev = item;<]
-      item->next = head->next;
-      [>item->prev = head;<]
-      head->next = item;
-
-      tmp = head->next;
-      count = 0;
-
-      while(tmp && tmp != head)
-      {
-      ++count;
-      if(count > 2412)
-      {
-      printk(".%d.", count);
-      }
-
-      tmp = tmp->next;
-      }*/
 
     ++buddy_list[order].nr_free_pages;
 
@@ -398,12 +375,13 @@ void init_mem()
     printk("page_fns = %d\n", page_fns);
 
     /*alloc memory to mem_map;*/
-    mem_map = (struct page *)alloc_low_mem(page_fns * sizeof(struct page *));
+    mem_map = (struct page **)alloc_low_mem(page_fns * sizeof(struct page *));
     /* alloc memory to struct page */
     printk("%x.\n", low_mem_start);
     printk("buffer_memory_end = %x\n, buffer_memory_end");
     printk("page size = %d\n", sizeof(struct page));
     page_ptr_mem = alloc_low_mem(page_fns * sizeof(struct page));
+    printk("%x.\n", low_mem_start);
     printk("%x %x.\n", page_ptr_mem, page_ptr_mem + page_fns * sizeof(struct page));
 
     p = (struct page*)page_ptr_mem;
@@ -419,14 +397,14 @@ void init_mem()
         {
             p->flags |= SYS_RAM;
         }
-        p->address = address;
+        /*p->address = address;*/
         address += PAGE_SIZE;
-        *(mem_map + k ) = *p;
+        *(mem_map + k ) = p;
 
         free_page(p);
         ++p;
-    }
 
+    }
     buddy_list_tidy();
 
     return ;

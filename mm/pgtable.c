@@ -68,17 +68,20 @@ inline int pgd_clear(pgd_t pgd)
 
 inline struct page * pte_page(pte_t pte)
 {
-    return (mem_map + MAP_NR(pte_val(pte)));
+    /*return (mem_map + MAP_NR(pte_val(pte)));*/
+    return NULL;
 }
 
 inline struct page * pmd_page(pmd_t pmd)
 {
-    return (mem_map + MAP_NR(pmd_val(pmd)));
+    /*return (mem_map + MAP_NR(pmd_val(pmd)));*/
+    return NULL;
 }
 
 inline struct page * pgd_page(pgd_t pgd)
 {
-    return (mem_map + MAP_NR(pgd_val(pgd)));
+    /*return (mem_map + MAP_NR(pgd_val(pgd)));*/
+    return NULL;
 }
 
 inline void pte_free(pte_t pte)
@@ -98,18 +101,20 @@ inline void pgd_free(pgd_t pgd)
 
 inline int pte_inuse(pte_t *pte)
 {
-    return (mem_map[MAP_NR(pte)].flags == PAGE_PRESENT);
+    /*return (mem_map[MAP_NR(pte)].flags == PAGE_PRESENT);*/
+    return 0;
 }
 
 inline int pmd_inuse(pmd_t *pmd)
 {
-    return (mem_map[MAP_NR(pmd)].flags == PAGE_PRESENT);
+    /*return (mem_map[MAP_NR(pmd)].flags == PAGE_PRESENT);*/
+    return 0;
 }
 
 inline int pgd_inuse(pgd_t *pgd)
 {
-    return (mem_map[MAP_NR(pgd)].flags == PAGE_PRESENT);
-
+    /*return (mem_map[MAP_NR(pgd)].flags == PAGE_PRESENT);*/
+    return 0;
 }
 
 inline pte_t mk_pte(unsigned long address, pgprot_t pgprot)
@@ -204,8 +209,8 @@ static inline void forget_pte(pte_t page)
     if(pte_present(page))
     {
         free_page(pte_page(page));
-        if(mem_map[MAP_NR(&page)].flags == PAGE_PRESENT)
-            return;
+        /*if(mem_map[MAP_NR(&page)].flags == PAGE_PRESENT)*/
+            /*return;*/
         if(current->mm->rss <= 0)
             return;
         current->mm->rss--;
