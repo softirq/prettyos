@@ -8,9 +8,9 @@
 #include "mm.h"
 #include "printf.h"
 #include "list.h"
+#include "math.h"
 /*#include "pgtable.h"*/
 
-static long PAGING_PAGES = 0;
 int nr_swap_pages = 0;
 int nr_free_pages = 0;
 
@@ -39,6 +39,23 @@ static int count = 0;
    */
 /*free page list*/
 
+/*is page address is closed*/
+static inline int is_pageclosed(struct list_head *prev, struct list_head *next, int order)
+{
+    int index = 1;
+    struct page *prev_page = NULL,*next_page = NULL;
+
+    if(prev == NULL || next == NULL)
+        return 0;
+
+    prev_page = list_entry(prev, Page, list);
+    next_page = list_entry(next, Page, list);
+
+    index = power(order);
+
+    return ((prev_page->address + index * PAGE_SIZE == next_page->address) || (prev_page->address - index * PAGE_SIZE == next_page->address));
+}
+
 static void buddy_list_init ()
 {
     int i;
@@ -53,32 +70,55 @@ static void buddy_list_init ()
 static int buddy_list_tidy()
 {
     int i ;
-    int mycount = 0;
     struct mem_list *queue = NULL;
     struct page *page = NULL;
-    struct list_head *head, *pos, *n;
+    struct list_head *head, *pos ,*n;
 
     for(i = 0;i < NR_MEM_LISTS; i++)
+    /*for(i = 0;i < 3; i++)*/
     {
+        count = 0;
         queue = buddy_list + i;
-        printk("i = %d nr_free_pages = %d  ", i, queue->nr_free_pages);
+        printk("1 i = %d nr_free_pages = %d.\n", i, queue->nr_free_pages);
 
         if(queue->nr_free_pages <= 0)
             return 0;
 
-        head = &(queue->list);
-        /*pos = head->next;*/
+        /*list_for_each_safe(pos, n, head)*/
 
-        /*while(pos != head)*/
-        list_for_each_safe(pos, n, head)
+        head = &(queue->list);
+        pos = head->next;
+
+        while(pos && pos != head)
         {
-            ++count;
-            if(count > 28650)
-                printk("count=%d",count);
-            /*page = list_entry(pos, Page, list);*/
-            pos = pos->next;
+            n = pos->next;
+            if(pos->next != head)
+            {
+                /*printk("*");*/
+                if(is_pageclosed(pos,pos->next, i))
+                {
+                    ++count;
+                    /*printk("#");*/
+                    n = pos->next->next;
+                    list_del(pos->next);
+                    list_del(pos);
+                    queue->nr_free_pages -= 2;
+                    /*printk("@");*/
+                    page = list_entry(pos, Page, list);
+                    list_add(&(page->list),&((queue+1)->list));
+                    /*printk("&");*/
+                    ++(queue+1)->nr_free_pages;
+                }
+                else
+                {
+                    /*printk("#");*/
+                }
+            }
+            pos = n;
         }
+        printk("count=%d\n", count);
     }
+
 
     return 0;
 }
@@ -377,12 +417,12 @@ void init_mem()
     /*alloc memory to mem_map;*/
     mem_map = (struct page **)alloc_low_mem(page_fns * sizeof(struct page *));
     /* alloc memory to struct page */
-    printk("%x.\n", low_mem_start);
-    printk("buffer_memory_end = %x\n, buffer_memory_end");
-    printk("page size = %d\n", sizeof(struct page));
+    /*printk("%x.\n", low_mem_start);*/
+    /*printk("buffer_memory_end = %x\n, buffer_memory_end");*/
+    /*printk("page size = %d\n", sizeof(struct page));*/
     page_ptr_mem = alloc_low_mem(page_fns * sizeof(struct page));
-    printk("%x.\n", low_mem_start);
-    printk("%x %x.\n", page_ptr_mem, page_ptr_mem + page_fns * sizeof(struct page));
+    /*printk("%x.\n", low_mem_start);*/
+    /*printk("%x %x.\n", page_ptr_mem, page_ptr_mem + page_fns * sizeof(struct page));*/
 
     p = (struct page*)page_ptr_mem;
 
@@ -397,7 +437,8 @@ void init_mem()
         {
             p->flags |= SYS_RAM;
         }
-        /*p->address = address;*/
+
+        p->address = address;
         address += PAGE_SIZE;
         *(mem_map + k ) = p;
 
@@ -405,7 +446,18 @@ void init_mem()
         ++p;
 
     }
+
     buddy_list_tidy();
+
+    printk("\n---------------------------\n");
+
+    int i = 0;
+    struct mem_list *queue = NULL;
+    for(i = 0;i < NR_MEM_LISTS; i++)
+    {
+        queue = buddy_list + i;
+        printk("2 i = %d nr_free_pages = %d.\n", i, queue->nr_free_pages);
+    }
 
     return ;
 }

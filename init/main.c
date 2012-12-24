@@ -48,7 +48,7 @@ static void start_kernel()
     /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
     /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
     main_memory_end &= 0xfffff000;
-    printk("main memory end = %x\n",main_memory_end);
+    /*printk("main memory end = %x\n",main_memory_end);*/
 
     if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
     {
@@ -67,9 +67,9 @@ static void start_kernel()
 
     buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE
     buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
-    printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);
+    /*printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);*/
     init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
-    printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);
+    /*printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);*/
     paging_init();
 
     init_mem(); //memeory management init
@@ -106,7 +106,7 @@ static void init_task()
     t8 	rpl;
     int eflags;
 
-    disp_str("\t\tprocess init begins\n");
+    /*disp_str("\t\tprocess init begins\n");*/
     for(i=0;i<NR_PROCESS + NR_PROCS;i++,p_proc++)
     {
         if(i >= NR_SYSTEM_PROCS + NR_USER_PROCS)
@@ -173,8 +173,8 @@ static void init_task()
             int ret = get_kernel_map(&k_base,&k_limit);
             /*k_limit = 1000 * k_limit;*/
             /*printk(" wo shi init.............\n\n\n\n");*/
-            printk("k_base = %d k_limit = %d\n",k_base,k_limit);
-            printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);
+            /*printk("k_base = %d k_limit = %d\n",k_base,k_limit);*/
+            /*printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);*/
             assert(ret == 0);
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
