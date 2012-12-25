@@ -6,6 +6,7 @@
 #include "wait.h"
 #include "list.h"
 #include "buddy.h"
+#include "slab.h"
 
 #define     SYS_RESERVED    0x1
 #define     SYS_ROM         0x2

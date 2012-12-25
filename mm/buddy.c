@@ -6,10 +6,10 @@
 #include "list.h"
 #include "panic.h"
 #include "wait.h"
-#include "mm.h"
 #include "printf.h"
 #include "list.h"
 #include "math.h"
+#include "mm.h"
 
 /*static int count = 0;*/
 int nr_free_pages = 0;
