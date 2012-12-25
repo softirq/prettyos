@@ -53,12 +53,12 @@ inline void list_del_init(struct list_head *entry)
 
 inline int list_empty(const struct list_head *head)
 {
-    return (head->next == head);
+    return ((head->next == head) || (head->prev == head));
 }
 
 inline int list_empty_careful(const struct list_head *head)
 {
-    return (head->next == head) && (head == head->prev);
+    return ((head->next == head) && (head->prev == head));
 }
 
 inline int list_get_head(struct list_head *head, struct list_head **entry)
@@ -67,6 +67,7 @@ inline int list_get_head(struct list_head *head, struct list_head **entry)
     {
         return -1;
     }
+
     if(head->next != head)
     {
         *entry = head->next;
@@ -97,7 +98,7 @@ inline int list_get_tail(struct list_head *head, struct list_head **entry)
 
 inline int list_get_head_del(struct list_head *head, struct list_head **entry)
 {
-    if(list_get_head(head, entry))
+    if(list_get_head(head, entry) == 0)
     {
         if(*entry)
         {

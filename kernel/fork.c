@@ -53,6 +53,7 @@ static int find_empty_process(void)
 ////复制父进程的地址空间
 static int copy_mem(int pid,struct task_struct *p)
 {
+#if 0
     struct descriptor *dp = &proc_table[pid].ldts[INDEX_LDT_C];
     int text_base = get_base(dp);
     int text_limit = get_limit(dp);
@@ -68,14 +69,16 @@ static int copy_mem(int pid,struct task_struct *p)
             (text_size == data_size)
           );
 
-    int child_base = alloc_mem(p->pid,text_size);
+    /*int child_base = alloc_mem(p->pid,text_size);*/
 
     //	printk("child_base = %d\t text_base = %d\t text_size = %d\n",child_base,text_base,text_size);
     //	memcpy((void *)child_base,(void *)(text_base),text_size);
 
     //	printk("child_base = %d\t text_base = %d\t text_size = %d\n",child_base,text_base,text_size);
-    phys_copy((char *)child_base,(char *)(text_base),text_size);
+    /*phys_copy((char *)child_base,(char *)(text_base),text_size);*/
     return child_base;
+#endif
+    return 0;
 }
 
 int do_fork()

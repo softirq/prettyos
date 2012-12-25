@@ -45,21 +45,6 @@ extern int nr_free_pages;
 int alloc_mem(int pid,int memsize);
 void init_mem();
 
-typedef struct page
-{
-    struct list_head list;
-    struct address_space *mapping;
-    unsigned long address;
-    unsigned long index;
-    struct page *next_hash;
-    int count;
-    unsigned long flags;
-    struct list_head lru;
-    wait_queue_head_t wait;
-    struct buffer_head *buffers;
-    struct zone_struct *zone;
-}Page;
-
 #define oom() ({ panic ("memory fatal error!\n");})
 
 #define  GFP_BUFFER 	0x001
@@ -68,9 +53,7 @@ typedef struct page
 #define  GFP_KERNEL 	0x003
 
 //extern void free_pages(unsigned long addr, unsigned long order);
-extern int free_pages(struct page *page, const int order);
 extern unsigned long paging_init();
-extern inline unsigned long get_free_page(int priority);
 extern int zeromap_page_range(unsigned long address, unsigned long size, pgprot_t prot);
 
 #define free_page(page) 	free_pages((page), 0)
@@ -126,7 +109,5 @@ struct vm_operation_struct
 #define 	VM_EXECUTABLE  	0X1000
 #define 	VM_STACK_FLAGS 	0x0177
 
-extern unsigned long __get_free_pages(int priority, unsigned long gfporder);
-#define  	__get_free_page(priority) 		__get_free_pages((priority),0)
 
 #endif

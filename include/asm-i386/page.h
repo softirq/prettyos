@@ -34,7 +34,6 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define 	virt_to_page(addr)  	 (mem_map + ((unsigned long)(addr - PAGE_OFFSET) >> PAGE_SHIFT))
 #define 	page_to_virt(page) 		 (((page - mem_map) >> PAGE_SHIFT) + PAGE_OFFSET)
 
-
 #define 	PAGE_ALIGN(addr) 		( (addr + PAGE_SIZE -1) & PAGE_MASK )
 
 #define MAP_PAGE_RESERVED 	(1 << 15 )
@@ -42,5 +41,20 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define PAGE_OFFSET 	(unsigned long)__PAGE_OFFSET
 #define __pa(x) 	((unsigned long)(x) - PAGE_OFFSET)
 #define __va(x) 	((unsigned long)(x) + PAGE_OFFSET)
+
+typedef struct page
+{
+    struct list_head list;
+    struct address_space *mapping;
+    unsigned long address;
+    unsigned long index;
+    struct page *next_hash;
+    int count;
+    unsigned long flags;
+    struct list_head lru;
+    wait_queue_head_t wait;
+    struct buffer_head *buffers;
+    struct zone_struct *zone;
+}Page;
 
 #endif

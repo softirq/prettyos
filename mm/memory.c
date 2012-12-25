@@ -1,3 +1,4 @@
+/* memory managment */
 #include "type.h"
 #include "const.h"
 #include "string.h"
@@ -12,15 +13,12 @@
 /*#include "pgtable.h"*/
 
 int nr_swap_pages = 0;
-int nr_free_pages = 0;
 
 unsigned long low_mem_start = 0x600000;
 unsigned long low_mem_end = 0x1000000;
 
 /*unsigned long page_start_mem = 0;*/
 /* number of the pages */
-unsigned long page_fns = 0;
-
 struct page ** mem_map = NULL;
 
 /*static int count = 0;*/
@@ -49,42 +47,6 @@ unsigned long alloc_low_mem(int memsize)
     low_mem_start += (memsize + SAFE_GAP);
 
     return allow_mem;
-}
-
-int alloc_mem(int pid,int memsize)
-{
-    /*assert(pid < NR_PROCESS + NR_PROCS);
-      int base = 0;
-      if(memsize > PROC_IMAGE_SIZE_DEFAULT)
-      panic("unsupported memory request %d,shoud be less than %d\n",\
-      memsize,PROC_IMAGE_SIZE_DEFAULT);
-      [>
-      printk("NR_PROCESS = %d\n",NR_PROCESS);
-      printk("base = %d\n",base);
-
-      <]
-      base = (int)PROCS_BASE + (pid - ((int)NR_PROCESS)) * PROC_IMAGE_SIZE_DEFAULT;
-
-      [>	printk("proces_base = %d\n",PROCS_BASE);
-      printk("base = %d\n",base);
-      printk("memsize = %d\n",memsize);
-      printk("memory_size = %d\n",memory_size);
-      <]	
-      if(base + memsize >= memory_size)
-      panic("memory allocation failed pid %d\n",pid);
-      return base;
-      */
-    return 0;
-}
-
-inline unsigned long get_free_page(int priority)
-{
-    unsigned long page;
-    page = __get_free_page(priority);
-    if(page)
-        memset((void *)page, 0 ,PAGE_SIZE);
-
-    return page;
 }
 
 void do_no_page (struct vm_area_struct *vma,unsigned long addr, int access_write)
@@ -235,73 +197,6 @@ no_memory:
     oom();
 }
 
-static inline int free_pages_ok(struct page *page, const int order)
-{
-    if(page == NULL || order >= NR_MEM_LISTS)
-        return -1;
-
-    if(buddy_list_add(page, order) < 0)
-        return -2;
-
-    return 0;
-}
-
-int free_pages(struct page *page, const int order)
-{
-    if(page == NULL || order >= NR_MEM_LISTS)
-        return -1;
-
-    if(page->flags & SYS_RAM)
-    {
-        if(free_pages_ok(page, order) < 0)
-            return -2;
-    }
-
-    return 0;
-}
-
-unsigned long get_free_pages(unsigned long order)
-{
-    if(order >= NR_MEM_LISTS)
-        return -1;
-
-    struct buddy_list *queue = buddy_list + order;
-    struct page *page = NULL;
-    struct list_head *head = NULL, *item = NULL;
-
-    if(queue == NULL)
-        return -2;
-
-    /*unsigned long new_order = order;*/
-    do
-    {
-        if(queue->nr_free_pages > 0)
-        {
-            head = &(queue->list);
-            if(list_get_del(head, &item) != 0)
-                return -3;
-
-            page = list_entry(item,Page,list);
-            buddy_list_add(page, order);
-            return 0;
-        }
-
-        ++order;
-        ++queue;
-
-    }while(order < NR_MEM_LISTS);
-
-    return 0;
-}
-
-unsigned long __get_free_pages(int priority, unsigned long order)
-{
-    if(priority == GFP_ATOMIC)
-        return get_free_pages(order);
-
-    return 0;
-}
-
 void init_mem()
 {
     int k;
@@ -319,15 +214,8 @@ void init_mem()
     page_fns = MAP_NR(memory_size);
     printk("page_fns = %d\n", page_fns);
 
-    /*alloc memory to mem_map;*/
     mem_map = (struct page **)alloc_low_mem(page_fns * sizeof(struct page *));
-    /* alloc memory to struct page */
-    /*printk("%x.\n", low_mem_start);*/
-    /*printk("buffer_memory_end = %x\n, buffer_memory_end");*/
-    /*printk("page size = %d\n", sizeof(struct page));*/
     page_ptr_mem = alloc_low_mem(page_fns * sizeof(struct page));
-    /*printk("%x.\n", low_mem_start);*/
-    /*printk("%x %x.\n", page_ptr_mem, page_ptr_mem + page_fns * sizeof(struct page));*/
 
     p = (struct page*)page_ptr_mem;
 
@@ -335,7 +223,6 @@ void init_mem()
     {
         if(address < low_mem_end || address < buffer_memory_end)
         {
-            /* system reserved and read only */
             p->flags |= (SYS_RESERVED | SYS_ROM);
         }
         else
@@ -349,12 +236,18 @@ void init_mem()
 
         free_page(p);
         ++p;
-
     }
 
+    /* tidy the buddy list : merge and sort*/
     buddy_list_tidy();
+
+    print_buddy_list();
+    struct page* page = get_free_pages(4);
+    /*get_free_pages(2);*/
+    /*get_free_pages(1);*/
+    get_free_pages(0);
+    printk("page->address = %x.\n", page->address);
     print_buddy_list();
 
     return ;
 }
-
