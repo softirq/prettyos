@@ -7,14 +7,20 @@
 #define     BYTES_PER_WORD      sizeof(void *)
 #define     DEFAULT_SLAB_PAGES   2
 
-typedef struct slab
+typedef unsigned int kmem_bufctl_t;
+
+#define     BUFCTL_END      (((kmem_bufctl_t)(~0U))-0)
+#define     BUFCTL_FREE     (((kmem_bufctl_t)(~0U))-1)
+#define     SLAB_LIMIT      (((kmem_bufctl_t)(~0U))-2)
+
+struct slab
 {
     struct list_head list; 
     //unsigned int obj;   [> object in slab <] 
     void * s_mem;   /* the first object of slab */
     unsigned int free;  /* the next free object of slab */
-    int inuse;  /* number of objs inused in slab */
-}Slab;
+    unsigned int inuse;  /* number of objs inused in slab */
+};
 
 struct kmem_list
 {
@@ -29,8 +35,8 @@ typedef struct kmem_cache
     unsigned int nr_frees;  /* numbers of free */
     unsigned long free_limit;   /* free number limit */
 
-    int obj_size;   /* object size */
-    int num;        /* object number */
+    int obj_size;   /* each slab object size */
+    int obj_num;        /* each slab object number */
     unsigned long obj_offset;   /* object offset */
 
     //void (*ctor)(void *obj);  [> constructor of object <]

@@ -14,6 +14,43 @@
 struct kmem_list initkmem[NUM_INIT_LISTS];
 struct list_head cache_chain;
 
+unsigned int * slab_bufctl(struct slab *slabp)
+{
+    return (unsigned int *)(slabp + 1);
+}
+
+unsigned int obj_to_index(struct kmem_cache *cachep, struct slab *slabp, void *objp)
+{
+    return ((objp - slabp->s_mem)/cachep->obj_size);
+}
+
+void * index_to_obj(struct kmem_cache *cachep, struct slab *slabp, unsigned int free)
+{
+    return (slabp->s_mem + cachep->obj_size * free);
+}
+
+void * slab_get_obj(struct kmem_cache *cachep, struct slab *slabp)
+{
+    if(cachep == NULL || slabp == NULL)
+        return NULL;
+    void *objp = index_to_obj(cachep, slabp, slabp->free);
+    int next = slab_bufctl(slabp)[slabp->free];
+    slabp->inuse++;
+    slabp->free = next;
+
+    return objp;
+}
+
+void slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp)
+{
+    unsigned int objnr = obj_to_index(cachep, slabp, objp);
+    if(objnr > cachep->obj_num)
+        return;
+    slab_bufctl(slabp)[objnr] = slabp->free;
+    slabp->free = objnr;
+    slabp->inuse--;
+}
+
 /* alloc slab pages default for 4 pages */
 inline void * slab_alloc()
 {
@@ -30,27 +67,35 @@ inline int slab_estimate(const int obj_size, int *obj_num)
     return 0;
 }
 
-/* init slab */
-int slab_init(struct slab *slab, const int obj_size, const int obj_num, void *args)
+/* init slab 
+ * struct slab + obj_num * (unsigned int)*/
+int slab_init(struct kmem_cache *cachep, struct slab *slabp, void *args)
 {
+    int i = 0;
     void *ptr = args;
-    slab->s_mem = ptr;
-    slab->free = obj_num;
-    slab->inuse = 0;
-    INIT_LIST_HEAD(&(slab->list));
+    slabp->free = cachep->obj_num;
+    slabp->inuse = 0;
+    INIT_LIST_HEAD(&(slabp->list));
+    ptr += sizeof(cachep->obj_num * sizeof(unsigned int));
+    slabp->s_mem = ptr;
+    for(i = 0;i < cachep->obj_num; ++i)
+    {
+        slab_bufctl(slabp)[i] = i + 1;
+    }
+    slab_bufctl(slabp)[i - 1] =  BUFCTL_END;
 
     return 0;
 }
 
 /* add a slab to kmem_cache */
-int kmem_add_slab(struct kmem_cache *cachep, struct slab *slab)
+int kmem_add_slab(struct kmem_cache *cachep, struct slab *slabp)
 {
-    if(cachep == NULL || slab == NULL)
+    if(cachep == NULL || slabp == NULL)
         return -1;
 
-    cachep->num += slab->free;
-    cachep->nr_frees += slab->free;
-    list_add_tail(&(slab->list), &(cachep->lists.free));
+    /*cachep->obj_num += slabp->free;*/
+    cachep->nr_frees += slabp->free;
+    list_add_tail(&(slabp->list), &(cachep->lists.free));
 
     return 0;
 }
@@ -63,7 +108,7 @@ int cache_grow(struct kmem_cache *cachep, const int obj_size)
         return -1;
     }
     void *ptr;
-    struct slab *slab = NULL;
+    struct slab *slabp = NULL;
     /*unsigned long slab_size;*/
     int obj_num = 0;
 
@@ -71,13 +116,13 @@ int cache_grow(struct kmem_cache *cachep, const int obj_size)
 
     /*slab_size = sizeof(struct slab) + obj_size * obj_num;*/
 
-    slab = (struct slab *)ptr;
+    slabp = (struct slab *)ptr;
     slab_estimate(obj_size, &obj_num);
 
     ptr += sizeof(struct slab);
-    slab_init(slab, obj_size, obj_num, ptr);
+    slab_init(cachep, slabp, ptr);
     
-    kmem_add_slab(cachep, slab);
+    kmem_add_slab(cachep, slabp);
 
     return 0;
 }
@@ -89,7 +134,7 @@ int print_kmem_info(struct kmem_cache *cachep)
 
     printk("name = %s.", cachep->name);
     printk("obj_size = %d.", cachep->obj_size);
-    printk("obj_num = %d.", cachep->num);
+    /*printk("obj_num = %d.", cachep->objobj__num);*/
     printk("nr_frees = %d.\n", cachep->nr_frees);
 
     return 0;
@@ -201,7 +246,7 @@ int kmem_cache_create(char *name, size_t obj_size, unsigned long flags)
     strncpy(cachep->name, name, sizeof(cachep->name));
     cachep->obj_size = obj_size;
     cachep->nr_frees = 0;
-    cachep->num = 0;
+    cachep->obj_num = 0;
     cachep->flags = flags;
 
     kmem_list_init(&(cachep->lists));
@@ -210,4 +255,24 @@ int kmem_cache_create(char *name, size_t obj_size, unsigned long flags)
     /*print_kmem_info(cachep);*/
 
     return 0;
+}
+
+unsigned int kmem_cache_size(struct kmem_cache *cachep)
+{
+    return cachep->obj_size;
+}
+
+unsigned int kmem_cache_num(struct kmem_cache *cachep)
+{
+    return cachep->obj_num;
+}
+
+const char * kmem_cache_name(struct kmem_cache *cachep)
+{
+    return cachep->name;
+}
+
+unsigned int kmem_cache_frees(struct kmem_cache *cachep)
+{
+    return cachep->nr_frees;
 }
