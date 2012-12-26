@@ -17,13 +17,13 @@ inline void __list_add(struct list_head *item, struct list_head *prev, struct li
     prev->next = item;
 }
 
-inline void list_add_after(struct list_head *item, struct list_head *head)
+inline void list_add_tail(struct list_head *item, struct list_head *head)
 {
     if(item != NULL)
         __list_add(item, head, head->next);
 }
 
-inline void list_add_before(struct list_head *item, struct list_head *head)
+inline void list_add_head(struct list_head *item, struct list_head *head)
 {
     if(item != NULL)
         __list_add(item,head->prev, head);
@@ -61,6 +61,7 @@ inline int list_empty_careful(const struct list_head *head)
     return ((head->next == head) && (head->prev == head));
 }
 
+/* only get don't del */
 inline int list_get_head(struct list_head *head, struct list_head **entry)
 {
     if(head == NULL || entry == NULL)
@@ -71,10 +72,9 @@ inline int list_get_head(struct list_head *head, struct list_head **entry)
     if(head->next != head)
     {
         *entry = head->next;
-        list_del(head->next);
-
         return 0;
     }
+    printk("9");
 
     return -2;
 }

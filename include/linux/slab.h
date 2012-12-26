@@ -5,11 +5,12 @@
 #include "asm-i386/page.h"
 
 #define     BYTES_PER_WORD      sizeof(void *)
+#define     DEFAULT_SLAB_PAGES   2
 
 typedef struct slab
 {
     struct list_head list; 
-    unsigned int obj;   /* object in slab */ 
+    //unsigned int obj;   [> object in slab <] 
     void * s_mem;   /* the first object of slab */
     unsigned int free;  /* the next free object of slab */
     int inuse;  /* number of objs inused in slab */
@@ -32,12 +33,12 @@ typedef struct kmem_cache
     int num;        /* object number */
     unsigned long obj_offset;   /* object offset */
 
-    void (*ctor)(void *obj);  /* constructor of object */
-    void (*dtor)(void *obj);  /* destructor of object */
+    //void (*ctor)(void *obj);  [> constructor of object <]
+    //void (*dtor)(void *obj);  [> destructor of object <]
 
     char name[16];      /* name */
     struct list_head next;  /* next */
-    struct kmem_list *list;     /* lists */
+    struct kmem_list lists;     /* lists */
 }Kmem_cache;
 
 /* mm node */
@@ -47,6 +48,11 @@ typedef struct kmem_cache
 extern struct kmem_list  initkmem[NUM_INIT_LISTS];
 /* kmem_cache chain */
 extern struct list_head cache_chain;
+
+
+int kmem_cache_init();
+int kmem_cache_create(char *name, size_t obj_size, unsigned long flags);
+void printk_kmem_chain();
 
 
 #endif

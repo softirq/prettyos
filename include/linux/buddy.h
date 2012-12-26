@@ -31,11 +31,12 @@ extern int buddy_list_add_line(struct page *page, const int order);
 extern void buddy_list_init ();
 extern int buddy_list_tidy();
 
-extern struct page* get_free_pages(int order);
-extern struct page* get_free_page(int priority);
+extern unsigned long get_free_pages(int order);
+extern unsigned long get_free_page(int priority);
 extern int free_pages(struct page *page, const int order);
 //extern struct page*__get_free_pages(const int priority, const int gfporder);
 
 #define  	__get_free_page(priority) 		__get_free_pages((priority),0)
+#define     page_address(page)      (page->address)
 
 #endif

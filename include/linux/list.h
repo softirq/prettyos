@@ -16,11 +16,10 @@ struct list_head
 
 inline void INIT_LIST_HEAD(struct list_head *list);
 inline void __list_add(struct list_head *item, struct list_head *prev, struct list_head *next);
-inline void list_add_after(struct list_head *item, struct list_head *head);
-inline void list_add_before(struct list_head *item, struct list_head *head);
+inline void list_add_head(struct list_head *item, struct list_head *head);
+inline void list_add_tail(struct list_head *item, struct list_head *head);
 
-#define list_add 		list_add_after
-#define list_add_tail 	list_add_before
+#define list_add 		list_add_head
 
 inline void __list_del(struct list_head *prev, struct list_head *next);
 inline void list_del(struct list_head *entry);

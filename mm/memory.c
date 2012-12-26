@@ -51,14 +51,11 @@ unsigned long alloc_low_mem(int memsize)
 
 void do_no_page (struct vm_area_struct *vma,unsigned long addr, int access_write)
 {
-    unsigned long page;
-    page = get_free_page(GFP_KERNEL);
+    
+    unsigned long address;
+    address = get_free_page(GFP_KERNEL);
 
-    if(!page)
-    {
-        oom();
-        return;
-    }
+        /*oom();*/
     return ;
 }
 
@@ -242,11 +239,33 @@ void init_mem()
     buddy_list_tidy();
 
     print_buddy_list();
-    struct page* page = get_free_pages(4);
-    /*get_free_pages(2);*/
-    /*get_free_pages(1);*/
-    get_free_pages(0);
-    printk("page->address = %x.\n", page->address);
+    /*unsigned long addr = get_free_pages(0);*/
+    /*printk("addr = %x.", addr);*/
+    /*print_buddy_list();*/
+    /*addr = get_free_pages(2);*/
+    /*printk("addr = %x.", addr);*/
+    /*print_buddy_list();*/
+    /*addr = get_free_pages(0);*/
+    /*printk("addr = %x.", addr);*/
+    /*print_buddy_list();*/
+    /*addr = get_free_pages(2);*/
+    /*printk("addr = %x.", addr);*/
+    /*print_buddy_list();*/
+    /*[>get_free_pages(1);<]*/
+    /*get_free_pages(0);*/
+    /*printk("page->address = %x.\n", addr);*/
+
+    kmem_cache_init();
+    kmem_cache_create("slab16", 16, 0);
+    /*print_buddy_list();*/
+    /*printk_kmem_chain();*/
+    kmem_cache_create("slab32", 32, 0);
+    kmem_cache_create("slab64", 64, 0);
+    kmem_cache_create("slab128", 128, 0);
+    kmem_cache_create("slab256", 256, 0);
+    kmem_cache_create("slab512", 512, 0);
+    printk_kmem_chain();
+
     print_buddy_list();
 
     return ;

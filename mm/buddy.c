@@ -27,7 +27,7 @@ int print_buddy_list()
     for(i = 0;i < NR_MEM_LISTS; i++)
     {
         queue = buddy_list + i;
-        printk("2 i = %d nr_free_pages = %d.\t", i, queue->nr_free_pages);
+        printk("(%d  %d)  ", i, queue->nr_free_pages);
     }
 
     return 0;
@@ -53,7 +53,9 @@ int is_pageclosed(struct list_head *prev, struct list_head *next, int order)
 int buddy_list_del(struct list_head *head, const int order, struct list_head **item)
 {
     if(head == NULL || order >= NR_MEM_LISTS || item == NULL)
+    {
         return -1;
+    }
 
     if(list_get_del(head, item) != 0)
     {
@@ -205,7 +207,7 @@ int free_pages(struct page *page, const int order)
     return 0;
 }
 
-struct page* get_free_pages(int order)
+unsigned long  get_free_pages(int order)
 {
     if(order >= NR_MEM_LISTS)
         return NULL;
@@ -215,17 +217,17 @@ struct page* get_free_pages(int order)
     struct list_head *head = NULL, *item = NULL;
     int new_order = 0;
 
-    /*printk("order = %d.\n",order);*/
 repeat:
+
     queue = buddy_list + order;
     new_order = order;
     if(queue->nr_free_pages > 0)
     {
         head = &(queue->list);
         if(buddy_list_del(head, order, &item) != 0)
-            return NULL;
+            return -3;
         page = list_entry(item,Page,list);
-        return page;
+        return page_address(page);
         /*buddy_list_add(page, order);*/
     }
     else
@@ -239,11 +241,11 @@ repeat:
 
         head = &(queue->list);
         if(buddy_list_del(head, new_order, &item) != 0)
-            return NULL;
+            return -2;
         page = list_entry(item, Page, list);
         --new_order;
         buddy_list_add(page, new_order);
-        ++page;
+        page += power(new_order);
         buddy_list_add(page, new_order);
         goto repeat;
     }
@@ -251,7 +253,7 @@ repeat:
     return NULL;
 }
 
-struct page *__get_free_pages(const int priority, const int order)
+unsigned long __get_free_pages(const int priority, const int order)
 {
     if(priority == GFP_ATOMIC)
         return get_free_pages(order);
@@ -259,12 +261,12 @@ struct page *__get_free_pages(const int priority, const int order)
     return 0;
 }
 
-struct page* get_free_page(const int priority)
+unsigned long  get_free_page(const int priority)
 {
-    struct page* page;
-    page = __get_free_page(priority);
-    if(page)
-        memset((void *)page->address, 0 ,PAGE_SIZE);
+    unsigned long address; 
+    address = __get_free_page(priority);
+    memset((void *)address, 0 ,PAGE_SIZE);
 
-    return page;
+    return address;
+
 }
