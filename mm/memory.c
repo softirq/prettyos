@@ -238,7 +238,7 @@ void init_mem()
     /* tidy the buddy list : merge and sort*/
     buddy_list_tidy();
 
-    print_buddy_list();
+    /*print_buddy_list();*/
     /*unsigned long addr = get_free_pages(0);*/
     /*printk("addr = %x.", addr);*/
     /*print_buddy_list();*/
@@ -255,6 +255,9 @@ void init_mem()
     /*get_free_pages(0);*/
     /*printk("page->address = %x.\n", addr);*/
 
+
+    struct kmem_cache *cachep = NULL;
+    struct slab *slabp = NULL;
     kmem_cache_init();
     kmem_cache_create("slab16", 16, 0);
     /*print_buddy_list();*/
@@ -263,10 +266,41 @@ void init_mem()
     kmem_cache_create("slab64", 64, 0);
     kmem_cache_create("slab128", 128, 0);
     kmem_cache_create("slab256", 256, 0);
-    kmem_cache_create("slab512", 512, 0);
-    printk_kmem_chain();
+    cachep = kmem_cache_create("slab512", 512, 0);
+    /*print_kmem_info(cachep);*/
+    /*printk_kmem_chain();*/
+    slabp = kmem_get_slab(cachep);
+    void *objp = slab_get_obj(cachep, slabp);
+    printk("objp = %x.", objp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    void *objp1 = slab_get_obj(cachep, slabp);
+    void *objp2 = slab_get_obj(cachep, slabp);
+    void *objp3 = slab_get_obj(cachep, slabp);
+    void *objp4 = slab_get_obj(cachep, slabp);
+    void *objp5 = slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_get_obj(cachep, slabp);
+    slab_free_obj(cachep,slabp, objp3);
+    print_slab_info(slabp);
+    /*print_kmem_info(cachep);*/
 
-    print_buddy_list();
+    /*print_buddy_list();*/
 
     return ;
 }

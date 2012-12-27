@@ -57,8 +57,13 @@ extern struct list_head cache_chain;
 
 
 int kmem_cache_init();
-int kmem_cache_create(char *name, size_t obj_size, unsigned long flags);
-void printk_kmem_chain();
+struct kmem_cache * kmem_cache_create(char *name, size_t obj_size, unsigned long flags);
+struct slab * kmem_get_slab(struct kmem_cache *cachep);
+void * slab_get_obj(struct kmem_cache *cachep, struct slab *slabp);
+void slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp);
+int print_kmem_info(struct kmem_cache *cachep);
+void print_kmem_chain();
+int print_slab_info(struct slab *slabp);
 
 
 #endif

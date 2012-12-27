@@ -31,6 +31,7 @@ inline int list_get_head(struct list_head *head, struct list_head **entry);
 inline int list_get_tail(struct list_head *head, struct list_head **entry);
 inline int list_get_head_del(struct list_head *head, struct list_head **entry);
 inline int list_get_tail_del(struct list_head *head, struct list_head **entry);
+inline int list_num(struct list_head *head);
 
 #define     list_get        list_get_tail
 #define     list_get_del    list_get_head_del
