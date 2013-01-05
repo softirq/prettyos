@@ -12,14 +12,23 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define pgd_val(x)  ((x).pgd)
 #define pmd_val(x)  ((x).pmd)
 #define pte_val(x)  ((x).pte)
+
+#define ppgd_val(x)  ((x)->pgd)
+#define ppmd_val(x)  ((x)->pmd)
+#define ppte_val(x)  ((x)->pte)
+
 #define pgprot_val(x)   ((x).pgprot)
 
 #define PAGE_SHIFT 			12
-#define PGDIR_SHIFT 		22
-#define PGDIR_SIZE 			(1UL << PGDIR_SHIFT)
-#define PMDIR_SIZE 			PGDIR_SIZE
-#define PGDIR_MASK 			(~(PGDIR_SIZE - 1))
-#define PMDIR_MASK 			PGDIR_MASK
+
+#define PTE_SHIFT           12
+#define PMD_SHIFT           22
+#define PGD_SHIFT 		22
+
+#define PGD_SIZE 			(1UL << PGD_SHIFT)
+#define PMD_SIZE 			PGD_SIZE
+#define PGD_MASK 			(~(PGD_SIZE - 1))
+#define PMD_MASK 			PGD_MASK
 
 #define __PAGE_OFFSET 		(0xC0000000UL)
 

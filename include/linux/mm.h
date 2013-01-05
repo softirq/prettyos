@@ -89,6 +89,7 @@ struct vm_operation_struct
 {
     void (*open) (struct vm_area_struct *vma);
     void (*close) (struct vm_area_struct *vma);
+    void (*map)(struct vm_area_struct *area, unsigned long, size_t);
     void (*unmap)(struct vm_area_struct *area, unsigned long, size_t);
 };
 
@@ -109,6 +110,5 @@ struct vm_operation_struct
 
 #define 	VM_EXECUTABLE  	0X1000
 #define 	VM_STACK_FLAGS 	0x0177
-
 
 #endif

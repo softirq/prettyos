@@ -114,7 +114,7 @@ void do_wp_page(struct vm_area_struct *vma, unsigned long address, int write_acc
     pte = *page_table;
     if(!pte_present(pte))
         goto end_wp_page;
-    if(pte_write(pte))
+    if(pte_iswrite(pte))
         goto  end_wp_page;
     old_page = pte_page(pte)->address;
     if(old_page >= main_memory_end)

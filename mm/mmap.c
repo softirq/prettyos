@@ -303,7 +303,6 @@ static void printk_avl (struct vm_area_struct * tree)
     }
 }
 
-
 static char *avl_check_point = "somewhere";
 
 /* check a tree's consistency and balancing */
@@ -371,14 +370,13 @@ static void avl_check (struct task_struct * task, char *caller)
     avl_checkorder(task->mm->mmap_avl);
 }
 
-/* Build the AVL tree corresponding to the VMA list. */                                                                     
-void build_mmap_avl(struct task_struct * task)                                                                              
+/* Build the AVL tree corresponding to the VMA list. */ 
+void build_mmap_avl(struct task_struct * task) 
 {   
-    struct vm_area_struct * vma;                                                                                            
-
+    struct vm_area_struct * vma; 
     task->mm->mmap_avl = NULL; 
-    for (vma = task->mm->mmap; vma; vma = vma->vm_next)                                                                     
-        avl_insert(vma, &task->mm->mmap_avl);                                                                               
+    for (vma = task->mm->mmap; vma; vma = vma->vm_next) 
+        avl_insert(vma, &task->mm->mmap_avl);   
 }       
 /* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
 struct vm_area_struct * find_vma(struct task_struct *task, unsigned long addr)
@@ -462,7 +460,6 @@ void merge_segments (struct task_struct * task, unsigned long start_addr, unsign
 /*
  * insert vm struct into process list sotred by address and inot the inode's i_mmap ring
  */
-
 void insert_vm_struct (struct task_struct *task, struct vm_area_struct *vma)
 {
     struct vm_area_struct *share;

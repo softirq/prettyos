@@ -46,11 +46,13 @@ inline int pgd_bad(pgd_t pgd)
     return 0;
 }
 
+/*is page present*/
 inline int pte_present(pte_t pte)
 {
     return (pte_val(pte) & PAGE_PRESENT);
 }
 
+/*clear the pte*/
 inline int pte_clear(pte_t pte)
 {
     return pte_val(pte) = 0;
@@ -68,20 +70,18 @@ inline int pgd_clear(pgd_t pgd)
 
 inline struct page * pte_page(pte_t pte)
 {
-    /*return (mem_map + MAP_NR(pte_val(pte)));*/
-    return NULL;
+    return mem_map[MAP_NR(pte_val(pte))];
+    /*return *(mem_map + MAP_NR(pte_val(pte)));*/
 }
 
 inline struct page * pmd_page(pmd_t pmd)
 {
-    /*return (mem_map + MAP_NR(pmd_val(pmd)));*/
-    return NULL;
+    return mem_map[MAP_NR(pmd_val(pmd))];
 }
 
 inline struct page * pgd_page(pgd_t pgd)
 {
-    /*return (mem_map + MAP_NR(pgd_val(pgd)));*/
-    return NULL;
+    return mem_map[MAP_NR(pgd_val(pgd))];
 }
 
 inline void pte_free(pte_t pte)
@@ -101,56 +101,55 @@ inline void pgd_free(pgd_t pgd)
 
 inline int pte_inuse(pte_t *pte)
 {
-    /*return (mem_map[MAP_NR(pte)].flags == PAGE_PRESENT);*/
-    return 0;
+    return (mem_map[MAP_NR(ppte_val(pte))]->flags & PAGE_PRESENT);
 }
 
 inline int pmd_inuse(pmd_t *pmd)
 {
-    /*return (mem_map[MAP_NR(pmd)].flags == PAGE_PRESENT);*/
-    return 0;
+    return (mem_map[MAP_NR(ppmd_val(pmd))]->flags & PAGE_PRESENT);
 }
 
 inline int pgd_inuse(pgd_t *pgd)
 {
-    /*return (mem_map[MAP_NR(pgd)].flags == PAGE_PRESENT);*/
-    return 0;
+    return (mem_map[MAP_NR(ppgd_val(pgd))]->flags & PAGE_PRESENT);
 }
 
-inline pte_t mk_pte(unsigned long address, pgprot_t pgprot)
+inline pte_t mk_pte(unsigned long addr, pgprot_t pgprot)
 {
     pte_t pte;
-    pte_val(pte) = __va(address) | pgprot_val(pgprot);
+    pte_val(pte) = __va(addr) | pgprot_val(pgprot);
     return pte;
 }
 
-inline pgd_t mk_pgd(unsigned long address, pgprot_t pgprot)
+inline pgd_t mk_pgd(unsigned long addr, pgprot_t pgprot)
 {
     pgd_t pgd;
-    pgd_val(pgd) = __va(address) | pgprot_val(pgprot);
+    pgd_val(pgd) = __va(addr) | pgprot_val(pgprot);
     return pgd;
 }
 
-inline pte_t * pte_offset(pmd_t *pmd, unsigned long address)
+/*  return the item addr of the addr in the pmd */
+inline pte_t * pte_offset(pmd_t *pmd, unsigned long addr)
 {
-    return (pte_t *)(pmd_page(*pmd) + ((address > PAGE_SHIFT) & (PTRS_PER_PTE - 1)));
+    return (pte_t *)(page_address(pmd_page(*pmd)) + ((addr> PTE_SHIFT) & (PTRS_PER_PTE - 1)));
 }
 
-inline pmd_t * pmd_offset(pgd_t *pgd, unsigned long address)
+inline pmd_t * pmd_offset(pgd_t *pgd, unsigned long addr)
+{
+    return (pmd_t *)(page_address(pgd_page(*pgd)) + ((addr > PMD_SHIFT) & (PTRS_PER_PMD - 1)));
+}
+
+inline pgd_t * pgd_offset(struct task_struct *tsk, unsigned long addr)
+{
+    return (pgd_t *)(tsk->tss.cr3 + (addr >> PGD_SHIFT));
+}
+
+inline pmd_t * pmd_alloc (pgd_t *pgd, unsigned long addr)
 {
     return (pmd_t *)pgd;
 }
-inline pgd_t * pgd_offset(struct task_struct *tsk, unsigned long address)
-{
-    return (pgd_t *)(tsk->tss.cr3 + (address >> PGDIR_SHIFT));
-}
 
-inline pmd_t * pmd_alloc (pgd_t *pgd, unsigned long address)
-{
-    return (pmd_t *)pgd;
-}
-
-inline int pte_write(pte_t pte)
+inline int pte_iswrite(pte_t pte)
 {
     return (pte_val(pte) & PAGE_RW);
 }
@@ -173,9 +172,10 @@ inline pte_t pte_mkdirty(pte_t pte)
     return pte;
 }
 
-inline pte_t * pte_alloc (pmd_t *pmd, unsigned long address)
+inline pte_t * pte_alloc (pmd_t *pmd, unsigned long addr)
 {
-    address = (address >> PAGE_SHIFT) & (PTRS_PER_PTE -1);
+    addr = (addr >> PTE_SHIFT) & (PTRS_PER_PTE -1);
+
     if(pmd_none(*pmd))
     {
         pte_t *page = (pte_t*)get_free_page(GFP_KERNEL);
@@ -184,7 +184,7 @@ inline pte_t * pte_alloc (pmd_t *pmd, unsigned long address)
             if(page)
             {
                 pmd_val(*pmd) = (PAGE_TABLE | (unsigned long)page) ;
-                return page + address;
+                return page + addr;
             }
             pmd_val(*pmd) = (PAGE_TABLE | PAGE_BAD);
             return NULL;
@@ -198,17 +198,17 @@ inline pte_t * pte_alloc (pmd_t *pmd, unsigned long address)
         return NULL;
     }
 
-    return (pte_t *)(pmd_page(*pmd) + address);
+    return (pte_t *)(pmd_page(*pmd) + addr);
 }
 
-static inline void forget_pte(pte_t page)
+static inline void forget_pte(pte_t pte)
 {
-    if(pte_none(page))
+    if(pte_none(pte))
         return;
 
-    if(pte_present(page))
+    if(pte_present(pte))
     {
-        free_page(pte_page(page));
+        free_page(pte_page(pte));
         /*if(mem_map[MAP_NR(&page)].flags == PAGE_PRESENT)*/
             /*return;*/
         if(current->mm->rss <= 0)
@@ -216,7 +216,7 @@ static inline void forget_pte(pte_t page)
         current->mm->rss--;
         return;
     }
-    swap_free(*((swap_entry_t *)&(pte_val(page))));
+    swap_free(*((swap_entry_t *)&(pte_val(pte))));
     return;
 }
 
@@ -344,10 +344,10 @@ static inline void unmap_pte_range(pmd_t *pmd, unsigned long addr, unsigned long
     }
 
     pte = pte_offset(pmd, addr);
-    addr &= ~PMDIR_MASK;
+    addr &= ~PMD_MASK;
     end = addr + size;
-    if(end >= PMDIR_SIZE)
-        end = PMDIR_SIZE;
+    if(end >= PMD_SIZE)
+        end = PMD_SIZE;
     do
     {
         pte_t page = *pte;
@@ -375,13 +375,13 @@ static inline void unmap_pmd_range(pgd_t *pgd, unsigned long addr, unsigned long
     }
 
     pmd = pmd_offset(pgd, addr);
-    addr &= ~PMDIR_MASK;
+    addr &= ~PMD_MASK;
     end = addr + size;
-    if(end > PGDIR_SIZE)
-        end = PGDIR_SIZE;
+    if(end > PGD_SIZE)
+        end = PGD_SIZE;
     do{
         unmap_pte_range(pmd, addr, end - addr);
-        addr = (addr + PMDIR_SIZE) & PMDIR_MASK;
+        addr = (addr + PMD_SIZE) & PMD_MASK;
         pmd++;
     }while(addr < end);
     return; 
@@ -397,7 +397,7 @@ int unmap_page_range(unsigned long addr, unsigned long size)
         return -1;
     do{
         unmap_pmd_range(pgd, addr, end - addr);
-        addr = (addr + PGDIR_SIZE) & PGDIR_MASK;
+        addr = (addr + PGD_SIZE) & PGD_MASK;
         pgd++;
     }while(addr < end);
     return 0;
@@ -408,7 +408,7 @@ int unmap_page_range(unsigned long addr, unsigned long size)
 unsigned long paging_init()
 {
     int i = 0, j = 0;
-    unsigned long address = 0;
+    unsigned long addr = 0;
 
     struct boot_params bp;
     get_boot_params(&bp);
@@ -434,15 +434,15 @@ unsigned long paging_init()
         *pg_dir = mk_pgd((unsigned long)pg_table, PAGE_SHARED);
         for(j = 0;j < PTRS_PER_PTE; ++j)
         {
-            if(address < memory_size)
+            if(addr < memory_size)
             {
-                *pg_table = mk_pte(address, PAGE_SHARED);
-                address += PAGE_SIZE;
+                *pg_table = mk_pte(addr, PAGE_SHARED);
+                addr += PAGE_SIZE;
                 ++pg_table;
             }
             else
             {
-                /*printk("address = %x", address);*/
+                /*printk("addr = %x", addr);*/
                 return 0;
             }
         }

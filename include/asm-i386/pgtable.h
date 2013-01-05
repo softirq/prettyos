@@ -39,7 +39,7 @@ extern inline pte_t  pte_mkdirty(pte_t pte);
 extern inline pte_t	 pte_mkwrite(pte_t pte);
 extern inline int pte_present(pte_t pte);
 extern inline int pte_none(pte_t pte);
-extern inline int pte_write(pte_t pte);
+extern inline int pte_iswrite(pte_t pte);
 extern inline pte_t * pte_offset(pmd_t *pmd, unsigned long address);
 extern inline struct page* pte_page(pte_t pte);
 
