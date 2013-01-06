@@ -4,7 +4,43 @@
 #include "signal.h"
 #include "fs.h"
 #include "mm.h"
+#include "rbtree.h"
 #include "asm-i386/processor.h"
+
+struct cfs_rq
+{
+    unsigned long nr_running;
+
+    struct rb_root task_timeline;
+    struct rb_node *rb_leftmost;
+
+    unsigned long rq_weight;
+};
+
+struct rq
+{
+    unsigned long nr_running;
+    struct cfs_rq cfs;  /* cfs schedule */
+};
+
+struct sched_entity
+{
+    struct rb_node run_node;
+    u64 vruntime;
+};
+
+struct sched_class
+{
+    const struct sched_class *next;
+
+    void (*enqueue_task) (struct rq *rq, struct task_struct *p, int wakeup,bool head);
+    void (*dequeue_task) (struct rq *rq, struct task_struct *p, int sleep);
+    struct task_struct * (*pick_next_task) (struct rq *rq);
+
+    void (*switched_from) (struct rq *this_rq, struct task_struct *task,int running);
+    void (*switched_to) (struct rq *this_rq, struct task_struct *task,int running);
+    void (*prio_changed) (struct rq *this_rq, struct task_struct *task,int oldprio, int running);
+};
 
 typedef struct s_stackframe {	
     t32	gs;		
@@ -53,6 +89,8 @@ typedef struct task_struct
     struct mm_struct *mm;
     int 		exit_code;
     struct task_struct *parent, *next, *sibling;
+    struct sched_class *sched_class;
+    struct sched_entity se;
 
 }PROCESS;
 

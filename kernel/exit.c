@@ -23,6 +23,7 @@ int release_process(struct task_struct *p)
     return 0;
 }
 
+#if 0
 static void tell_father(pid)
 {
     struct task_struct *iter = NULL;
@@ -41,6 +42,7 @@ static void tell_father(pid)
     }
     /*release_process(current);*/
 }
+#endif
 
 int do_exit()
 {

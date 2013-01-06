@@ -265,9 +265,9 @@ void init_mem()
     slabp = kmem_get_slab(vma_cachep);
     void *objp = kmem_get_obj(vma_cachep);
     printk("objp = %x.\n",objp);
-    print_slab_info(slabp);
+    /*print_slab_info(slabp);*/
     kmem_free_obj(vma_cachep, objp);
-    print_slab_info(slabp);
+    /*print_slab_info(slabp);*/
 
     /*kmem_cache_create("slab16", 16, 0);*/
     /*print_buddy_list();*/

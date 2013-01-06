@@ -5,6 +5,7 @@ typedef	int		    t32;
 typedef	short		t16;
 typedef	char		t8;
 typedef	int			tbool;
+typedef char        bool;
 //设置 设备号类型
 typedef int 			dev_t;
 

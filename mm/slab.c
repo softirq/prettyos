@@ -193,7 +193,6 @@ int kmem_free_obj(struct kmem_cache *cachep, void *objp)
     /*unsigned long address = ((unsigned long )objp & (~(DEFAULT_SLAB_PAGES * PAGE_SIZE) + 1));*/
     unsigned long address = ((unsigned long )objp & VALUE_MASK(DEFAULT_SLAB_PAGES * PAGE_SIZE));
     struct slab *slabp = (struct slab *)address;
-    print_slab_info(slabp);
 
     return slab_free_obj(cachep,slabp,objp);
 }
