@@ -5,7 +5,7 @@
 #include "asm-i386/page.h"
 
 #define     BYTES_PER_WORD      sizeof(void *)
-#define     DEFAULT_SLAB_PAGES   2
+#define     DEFAULT_SLAB_PAGES   4
 
 typedef unsigned int kmem_bufctl_t;
 
@@ -55,6 +55,7 @@ extern struct kmem_list  initkmem[NUM_INIT_LISTS];
 /* kmem_cache chain */
 extern struct list_head cache_chain;
 extern struct kmem_cache *vma_cachep;
+extern struct kmem_cache *tsk_cachep;
 
 int kmem_cache_init();
 struct kmem_cache * kmem_cache_create(char *name, size_t obj_size, unsigned long flags);

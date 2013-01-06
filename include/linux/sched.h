@@ -5,7 +5,9 @@
 #include "fs.h"
 #include "mm.h"
 #include "rbtree.h"
+#include "list.h"
 #include "asm-i386/processor.h"
+#include "asm-i386/traps.h"
 
 struct cfs_rq
 {
@@ -91,6 +93,7 @@ typedef struct task_struct
     struct task_struct *parent, *next, *sibling;
     struct sched_class *sched_class;
     struct sched_entity se;
+    struct list_head list;
 
 }PROCESS;
 
@@ -102,8 +105,8 @@ typedef struct s_task
 }TASK;
 
 extern struct task_struct *current;
-extern struct task_struct *run_queue;
 extern struct task_struct *init;
+extern struct list_head run_queue;
 
 #define NR_SYSTEM_PROCS 	1 //system process : tty  
 #define NR_USER_PROCS 		5 //user process : testA testB testC testD init

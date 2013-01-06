@@ -46,16 +46,21 @@ static void tell_father(pid)
 
 int do_exit()
 {
-    struct task_struct *p = current, *iter = NULL;
+    struct task_struct *p = current, *tsk = NULL;
     int pid = p->pid;	
     printk("\nexit process pid = %d\n",pid);
-    for(iter = run_queue; iter; iter = iter->next)
+
+    struct list_head *head, *pos, *n;
+    head = &(run_queue);
+    list_for_each_safe(pos, n, head)
     {
-        if(iter->parent->pid == pid)
+        tsk = list_entry(pos, struct task_struct, list);
+
+        if(tsk->parent->pid == pid)
         {
             /*parent is init task*/
-            iter->parent = init;
-            if(iter->state == TASK_WAITING && iter->state == TASK_ZOMBIE)
+            tsk->parent = init;
+            if(tsk->state == TASK_WAITING && tsk->state == TASK_ZOMBIE)
             {
                 //			release_process(&proc_table[i]);
             }

@@ -106,6 +106,7 @@ static void init_task()
     t8 	rpl;
     int eflags;
 
+    INIT_LIST_HEAD(&run_queue);
     /*disp_str("\t\tprocess init begins\n");*/
     for(i=0;i<NR_PROCESS + NR_PROCS;i++,p_proc++)
     {

@@ -9,7 +9,7 @@
 #include "mm.h"
 #include "printf.h"
 #include "list.h"
-#include "math.h"
+#include "sched.h"
 /*#include "pgtable.h"*/
 
 int nr_swap_pages = 0;
@@ -261,6 +261,7 @@ void init_mem()
     /*struct kmem_cache *cachep = NULL;*/
     struct slab *slabp = NULL;
 
+    tsk_cachep = kmem_cache_create("tsk",sizeof(struct task_struct),0);
     vma_cachep = kmem_cache_create("vma", sizeof(struct vm_area_struct),0);
     slabp = kmem_get_slab(vma_cachep);
     void *objp = kmem_get_obj(vma_cachep);
