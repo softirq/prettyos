@@ -51,7 +51,8 @@ int do_exit()
     printk("\nexit process pid = %d\n",pid);
 
     struct list_head *head, *pos, *n;
-    head = &(run_queue);
+    /*head = &(run_queue);*/
+    head = &(rr_runqueue.rr_rq_list);
     list_for_each_safe(pos, n, head)
     {
         tsk = list_entry(pos, struct task_struct, list);
@@ -69,7 +70,9 @@ int do_exit()
 
     p->state = TASK_ZOMBIE;
 
-    delete_rq(p);
+    /*delete_rq(p);*/
+    p->sched_class->dequeue_task(&(sched_rq),p,0);
+    
     //	p->exit_code = code;
     /*tell_father(p->parent);*/
     schedule();

@@ -9,21 +9,57 @@
 #include "asm-i386/processor.h"
 #include "asm-i386/traps.h"
 
+#define     SCHED_RR    0x01
+#define     SCHED_FIFO  0x02
+#define     SCHED_RT    0x04
+#define     SCHED_OTHER   0x08
+
 struct cfs_rq
 {
-    unsigned long nr_running;
+    unsigned long cfs_nr_running;
 
     struct rb_root task_timeline;
     struct rb_node *rb_leftmost;
 
     unsigned long rq_weight;
+    struct rq *rq;  /* back pointer to rq */
+};
+
+struct rt_rq
+{
+    unsigned long rt_nr_running;
+    struct list_head rt_rq_list;
+    struct rq *rq;  /* back pointer to rq */
+};
+
+struct fifo_rq
+{
+    unsigned long fifo_nr_running;
+    struct list_head fifo_rq_list;
+    struct rq *rq;  /* back pointer to rq */
+};
+
+struct rr_rq
+{
+    unsigned long rr_nr_running;
+    struct list_head rr_rq_list;
+    struct rq *rq;  /* back pointer to rq */
 };
 
 struct rq
 {
-    unsigned long nr_running;
-    struct cfs_rq cfs;  /* cfs schedule */
+    union {
+        struct cfs_rq cfs;  /* cfs schedule */
+        struct rt_rq rt;
+        struct rr_rq rr;
+        struct fifo_rq fifo;
+    }u;
 };
+
+#define     rr_runqueue  (sched_rq.u.rr)
+#define     rt_runqueue  (sched_rq.u.rt)
+//#define     cfs_runqueue  (sched_rq.u.cfs)
+#define     fifo_runqueue  (sched_rq.u.fifo)
 
 struct sched_entity
 {
@@ -106,7 +142,9 @@ typedef struct s_task
 
 extern struct task_struct *current;
 extern struct task_struct *init;
-extern struct list_head run_queue;
+
+extern struct rq sched_rq;
+extern struct sched_class rr_sched;
 
 #define NR_SYSTEM_PROCS 	1 //system process : tty  
 #define NR_USER_PROCS 		5 //user process : testA testB testC testD init
@@ -144,7 +182,8 @@ extern struct list_head run_queue;
 #define TASK_STOPPED		4	//being traced
 #define TASK_WAITING 	TASK_UNINTERRUPTIBLE
 
-int insert_rq(struct task_struct *p);
-int delete_rq(struct task_struct *p);
+//int insert_rq(struct task_struct *p);
+//int delete_rq(struct task_struct *p);
+void init_rq();
 
 #endif
