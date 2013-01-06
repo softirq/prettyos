@@ -4,7 +4,8 @@
 #undef  NULL
 #define NULL ((void *)0)
 
-#define offsetof(TYPE,MEMBER)  (size_t)(&((TYPE*)0->MEMBER))
+//#define     offsetof(TYPE,MEMBER)  (size_t)(&((TYPE*)0->MEMBER))
+#define     VALUE_MASK(value)   (~(value) + 1)
 /* 
  * #define container_of(ptr, type, memeber) ({ \
 		const typeof((type *)0->member) *_mptr = ptr;\

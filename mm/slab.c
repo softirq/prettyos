@@ -10,9 +10,12 @@
 #include "mm.h"
 #include "list.h"
 #include "math.h"
+#include "stddef.h"
 
 struct kmem_list initkmem[NUM_INIT_LISTS];
 struct list_head cache_chain;
+
+struct kmem_cache *vma_cachep = NULL;
 
 unsigned int * slab_bufctl(struct slab *slabp)
 {
@@ -23,6 +26,7 @@ int print_slab_info(struct slab *slabp)
 {
     if(slabp == NULL)
     {
+        printk("****");
         return -1;
     }
 
@@ -33,7 +37,7 @@ int print_slab_info(struct slab *slabp)
     int tmp = slabp->free;
     while(tmp != BUFCTL_END)
     {
-        printk("next = %d.",tmp);
+        /*printk("next = %d.",tmp);*/
         tmp = slab_bufctl(slabp)[tmp];
     }
 
@@ -73,16 +77,16 @@ void * slab_get_obj(struct kmem_cache *cachep, struct slab *slabp)
     return objp;
 }
 
-void slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp)
+int slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp)
 {
     if(cachep == NULL || slabp == NULL || objp == NULL)
-        return ;
+        return -1;
 
     struct list_head *item = NULL;
 
     unsigned int objnr = obj_to_index(cachep, slabp, objp);
     if(objnr > cachep->obj_num)
-        return;
+        return -2;
     slab_bufctl(slabp)[objnr] = slabp->free;
     slabp->free = objnr;
     slabp->inuse--;
@@ -94,6 +98,8 @@ void slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp)
         list_del(item);
         list_add(item, &(cachep->lists.free));
     }
+
+    return 0;
 }
 
 /* alloc slab pages default for 4 pages */
@@ -171,6 +177,25 @@ struct slab * kmem_get_slab(struct kmem_cache *cachep)
 
     slabp = list_entry(pos, struct slab, list);
     return slabp;
+}
+
+void * kmem_get_obj(struct kmem_cache *cachep)
+{
+    struct slab *slabp = kmem_get_slab(cachep);
+    return slab_get_obj(cachep, slabp);
+}
+
+int kmem_free_obj(struct kmem_cache *cachep, void *objp)
+{
+    if(cachep == NULL || objp == NULL)
+        return -1;
+
+    /*unsigned long address = ((unsigned long )objp & (~(DEFAULT_SLAB_PAGES * PAGE_SIZE) + 1));*/
+    unsigned long address = ((unsigned long )objp & VALUE_MASK(DEFAULT_SLAB_PAGES * PAGE_SIZE));
+    struct slab *slabp = (struct slab *)address;
+    print_slab_info(slabp);
+
+    return slab_free_obj(cachep,slabp,objp);
 }
 
 /* add a slab to kmem_cache */
@@ -268,7 +293,6 @@ int kmem_list_init(struct kmem_list *parent)
 /* the slab system start  */
 int kmem_cache_init()
 {
-
     INIT_LIST_HEAD(&cache_chain);
 
     return 0;

@@ -54,13 +54,15 @@ typedef struct kmem_cache
 extern struct kmem_list  initkmem[NUM_INIT_LISTS];
 /* kmem_cache chain */
 extern struct list_head cache_chain;
-
+extern struct kmem_cache *vma_cachep;
 
 int kmem_cache_init();
 struct kmem_cache * kmem_cache_create(char *name, size_t obj_size, unsigned long flags);
 struct slab * kmem_get_slab(struct kmem_cache *cachep);
+void * kmem_get_obj(struct kmem_cache *cachep);
+int kmem_free_obj(struct kmem_cache *cachep, void *objp);
 void * slab_get_obj(struct kmem_cache *cachep, struct slab *slabp);
-void slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp);
+int slab_free_obj(struct kmem_cache *cachep, struct slab *slabp, void *objp);
 int print_kmem_info(struct kmem_cache *cachep);
 void print_kmem_chain();
 int print_slab_info(struct slab *slabp);

@@ -201,7 +201,10 @@ void init_mem()
     unsigned long page_ptr_mem = 0;
     unsigned long address = 0;
 
+    /* buddy init */
     buddy_list_init();
+    /* slab init */
+    kmem_cache_init();
 
     struct boot_params bp;
     get_boot_params(&bp);
@@ -255,50 +258,56 @@ void init_mem()
     /*get_free_pages(0);*/
     /*printk("page->address = %x.\n", addr);*/
 
-
-    struct kmem_cache *cachep = NULL;
+    /*struct kmem_cache *cachep = NULL;*/
     struct slab *slabp = NULL;
-    kmem_cache_init();
-    kmem_cache_create("slab16", 16, 0);
+
+    vma_cachep = kmem_cache_create("vma", sizeof(struct vm_area_struct),0);
+    slabp = kmem_get_slab(vma_cachep);
+    void *objp = kmem_get_obj(vma_cachep);
+    printk("objp = %x.\n",objp);
+    print_slab_info(slabp);
+    kmem_free_obj(vma_cachep, objp);
+    print_slab_info(slabp);
+
+    /*kmem_cache_create("slab16", 16, 0);*/
     /*print_buddy_list();*/
     /*printk_kmem_chain();*/
-    kmem_cache_create("slab32", 32, 0);
-    kmem_cache_create("slab64", 64, 0);
-    kmem_cache_create("slab128", 128, 0);
-    kmem_cache_create("slab256", 256, 0);
-    cachep = kmem_cache_create("slab512", 512, 0);
+    /*kmem_cache_create("slab32", 32, 0);*/
+    /*kmem_cache_create("slab64", 64, 0);*/
+    /*kmem_cache_create("slab128", 128, 0);*/
+    /*kmem_cache_create("slab256", 256, 0);*/
+    /*cachep = kmem_cache_create("slab512", 512, 0);*/
     /*print_kmem_info(cachep);*/
     /*printk_kmem_chain();*/
-    slabp = kmem_get_slab(cachep);
-    void *objp = slab_get_obj(cachep, slabp);
-    printk("objp = %x.", objp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    void *objp1 = slab_get_obj(cachep, slabp);
-    void *objp2 = slab_get_obj(cachep, slabp);
-    void *objp3 = slab_get_obj(cachep, slabp);
-    void *objp4 = slab_get_obj(cachep, slabp);
-    void *objp5 = slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_get_obj(cachep, slabp);
-    slab_free_obj(cachep,slabp, objp3);
-    print_slab_info(slabp);
-    /*print_kmem_info(cachep);*/
+    /*void *objp = slab_get_obj(cachep, slabp);*/
+    /*printk("objp = %x.", objp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*void *objp1 = slab_get_obj(cachep, slabp);*/
+    /*void *objp2 = slab_get_obj(cachep, slabp);*/
+    /*void *objp3 = slab_get_obj(cachep, slabp);*/
+    /*void *objp4 = slab_get_obj(cachep, slabp);*/
+    /*void *objp5 = slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_get_obj(cachep, slabp);*/
+    /*slab_free_obj(cachep,slabp, objp3);*/
+    /*print_slab_info(slabp);*/
+    /*[>print_kmem_info(cachep);<]*/
 
     /*print_buddy_list();*/
 
