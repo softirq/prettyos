@@ -16,7 +16,7 @@ INITOBJS:=init/main.o
 KERNELOBJS:=kernel/core.o kernel/start.o kernel/i8259.o kernel/global.o kernel/traps.o kernel/clock.o \
 	kernel/syscall.o kernel/console.o kernel/keyboard.o kernel/sched.o kernel/sys.o kernel/tty.o \
 	kernel/printf.o kernel/vsprintf.o kernel/proc.o kernel/panic.o kernel/signal.o kernel/hd.o kernel/fork.o \
-	kernel/exit.o kernel/bitops.o kernel/wait.o kernel/sched_entity.o
+	kernel/exit.o kernel/bitops.o kernel/wait.o kernel/cfs.o
 
 FSOBJS:=fs/bitmap.o fs/super.o fs/inode.o fs/stat.o fs/fcntl.o fs/fs.o fs/namei.o fs/open.o fs/file_dev.o \
 	fs/read_write.o  fs/buffer.o fs/link.o

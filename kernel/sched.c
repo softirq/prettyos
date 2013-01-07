@@ -16,6 +16,7 @@
 #include "printf.h"
 #include "asm-i386/system.h"
 #include "asm-i386/panic.h"
+#include "cfs.h"
 
 struct task_struct *current = NULL;
 struct task_struct *init = &proc_table[1];
@@ -23,10 +24,15 @@ struct kernel_stat kstat = { 0 };
 
 struct rq sched_rq;
 
+#define se_entry(ptr, type, member) container_of(ptr, type, member)
+
 void init_rq()
 {
     rr_runqueue.rr_nr_running = 0;
     INIT_LIST_HEAD(&(rr_runqueue.rr_rq_list));
+
+    cfs_runqueue.cfs_nr_running = 0;
+    cfs_runqueue.task_timeline.rb_node = NULL;
 }
 
 void unblock(struct task_struct *p)
@@ -40,7 +46,12 @@ void block(struct task_struct *p)
     schedule();
 }
 
-struct task_struct * rr_next_task(struct rq *rq)
+void switch_to(PROCESS *prev,PROCESS *next)
+{
+}
+
+/* sched_rr  */
+static struct task_struct * rr_next_task(struct rq *rq)
 {
     struct task_struct *p = NULL, *tsk = NULL;
     struct list_head *head, *pos, *n;
@@ -80,42 +91,8 @@ rr_repeat:
     return p;
 }
 
-#if 0
-int goodness(struct task_struct **p)
-{
-    int greatest_ticks = 0;	
-    /*struct task_struct *iter = NULL;*/
-    struct list_head *head, *pos, *n;
-
-    head = &(fifo_queue);
-
-    if(list_empty_careful(head))
-    {
-        panic("no task in running queue.");
-    }
-
-    list_for_each_safe(pos, n, head)
-    {
-        struct task_struct *tsk = list_entry(pos, struct task_struct, list);
-        assert(tsk->state == TASK_RUNNING);
-        if(tsk->ticks > greatest_ticks)
-        {
-            greatest_ticks = tsk->ticks;
-            *p = tsk ;	
-        }	
-    }
-
-    /*disp_int(greatest_ticks);*/
-    return greatest_ticks;
-}
-#endif
-
-void switch_to(PROCESS *prev,PROCESS *next)
-{
-}
-
-/*插入到running queue*/
-void rr_enqueue(struct rq *rq, struct task_struct *p, int wakeup,bool head)
+/* sched_rr */
+static void rr_enqueue(struct rq *rq, struct task_struct *p, int wakeup,bool head)
 {
     if(p)
     {
@@ -124,20 +101,8 @@ void rr_enqueue(struct rq *rq, struct task_struct *p, int wakeup,bool head)
     }
 }
 
-#if 0
-int insert_rq(struct task_struct *p)
-{
-    if(p)
-    {
-        list_add(&(p->list), &fifo_queue);
-        return 0;
-    }
-
-    return -1;
-}
-#endif
-
-void rr_dequeue(struct rq *rq, struct task_struct *p, int sleep)
+/* sched_rr  */
+static void rr_dequeue(struct rq *rq, struct task_struct *p, int sleep)
 {
     if(p)
     {
@@ -146,38 +111,47 @@ void rr_dequeue(struct rq *rq, struct task_struct *p, int sleep)
     }
 }
 
-#if 0
-int delete_rq(struct task_struct *p)
+/* cfs enqueue  */
+static void cfs_enqueue(struct rq *rq, struct task_struct *p, int wakeup,bool head)
 {
-    if(p)
-    {
-        list_del(&(p->list));
-        return 0;
-    }
-
-    return -1;
+    struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
+    ts_insert(root, &(p->sched_entity));
 }
-#endif
+
+static void cfs_dequeue(struct rq *rq, struct task_struct *p, int sleep)
+{
+    struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
+    ts_earse(root, &(p->sched_entity));
+}
+
+static struct task_struct * cfs_next_task(struct rq *rq)
+{
+    struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
+    struct sched_entity *se = ts_leftmost(root);
+    struct task_struct *tsk = se_entry(se, struct task_struct, sched_entity);
+    /*printk("tsk->name = %s", tsk->name);*/
+
+    ts_earse(root, &(tsk->sched_entity));
+    /*tsk->sched_entity.vruntime = tsk->priority;*/
+    tsk->sched_entity.vruntime = jiffies%11;
+    ts_insert(root, &(tsk->sched_entity));
+
+    return tsk;
+}
 
 struct sched_class rr_sched = 
 {
     .enqueue_task = rr_enqueue,
     .dequeue_task = rr_dequeue,
     .pick_next_task = rr_next_task,
+    /*.enqueue_task = cfs_enqueue,*/
+    /*.dequeue_task = cfs_dequeue,*/
+    /*.pick_next_task = cfs_next_task,*/
     .switched_from = NULL,
     .switched_to = NULL,
     .prio_changed = NULL,
 };
 
-struct sched_class cfs_sched = 
-{
-    .enqueue_task = NULL,
-    .dequeue_task = NULL,
-    .pick_next_task = NULL,
-    .switched_from = NULL,
-    .switched_to = NULL,
-    .prio_changed = NULL,
-};
 
 void schedule()
 {
@@ -200,8 +174,10 @@ void schedule()
             current = p;
         }
     }
-
-    // if all processes execuse over ,asign time to each one,then choose a process
+    else
+    {
+        printk("*");
+    }
 
     enable_int();
 }

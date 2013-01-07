@@ -58,13 +58,15 @@ struct rq
 
 #define     rr_runqueue  (sched_rq.u.rr)
 #define     rt_runqueue  (sched_rq.u.rt)
-//#define     cfs_runqueue  (sched_rq.u.cfs)
+#define     cfs_runqueue  (sched_rq.u.cfs)
 #define     fifo_runqueue  (sched_rq.u.fifo)
+
+#define     CFS_RUNQUEUE(rq)    (rq->u.cfs)
 
 struct sched_entity
 {
     struct rb_node run_node;
-    u64 vruntime;
+    u32 vruntime;
 };
 
 struct sched_class
@@ -128,7 +130,7 @@ typedef struct task_struct
     int 		exit_code;
     struct task_struct *parent, *next, *sibling;
     struct sched_class *sched_class;
-    struct sched_entity se;
+    struct sched_entity sched_entity;
     struct list_head list;
 
 }PROCESS;
@@ -182,8 +184,6 @@ extern struct sched_class rr_sched;
 #define TASK_STOPPED		4	//being traced
 #define TASK_WAITING 	TASK_UNINTERRUPTIBLE
 
-//int insert_rq(struct task_struct *p);
-//int delete_rq(struct task_struct *p);
 void init_rq();
 
 #endif

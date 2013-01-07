@@ -13,6 +13,7 @@
 #include "proc.h"
 #include "stdlib.h"
 #include "linux/net.h"
+#include "cfs.h"
 #include "printf.h"
 
 /*#define EXT_MEM_K 	(*(unsigned short*)0x8002)*/
@@ -106,7 +107,7 @@ static void init_task()
     t8 	rpl;
     int eflags;
 
-    void init_rq();
+    init_rq();
 
     /*disp_str("\t\tprocess init begins\n");*/
     for(i=0;i<NR_PROCESS + NR_PROCS;i++,p_proc++)
@@ -202,9 +203,14 @@ static void init_task()
         //printk("NT_TASKS+ NR_NATIVE_PROCS = %d\n",NR_TASKS + NR_NATIVE_PROCS);
         /*insert into running queue*/
         /*insert_rq(p_proc);*/
+        p_proc->sched_entity.vruntime = i;
         p_proc->sched_class = &rr_sched;
         p_proc->sched_class->enqueue_task(&(sched_rq),p_proc,0,0);
     }
+
+    /*struct rb_root *root = &(cfs_runqueue.task_timeline);*/
+    /*rb_print(root->rb_node);*/
+    /*printk("\n");*/
     //proc_table[1].signal |= (1 << (2));
 
     k_reenter	= 0;

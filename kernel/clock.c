@@ -15,9 +15,10 @@
 
 void clock_handler(int irq)
 {
-    jiffies++;
-    ticks++;
-    current->ticks--;
+    ++jiffies;
+    ++ticks;
+    --current->ticks;
+    --current->sched_entity.vruntime;
 
     //interrupt reenter
     if (k_reenter != 0) 

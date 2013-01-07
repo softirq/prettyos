@@ -42,6 +42,12 @@ struct sched_entity *se_search(struct rb_root *root, int vruntime)
     return NULL;
 }
 
+int ts_earse(struct rb_root *root, struct sched_entity *se)
+{
+    rb_erase(&(se->run_node),root);
+    return 0;
+}
+
 int ts_insert(struct rb_root *root, struct sched_entity *se)
 {
     int result = 0;
@@ -51,7 +57,6 @@ int ts_insert(struct rb_root *root, struct sched_entity *se)
     while (*new) {
         struct sched_entity *this = container_of(*new, struct sched_entity, run_node);
         if(this)
-            /*int result = strcmp(task->string, this->string);*/
             result = se->vruntime - this->vruntime;
         else
             break;
@@ -72,6 +77,13 @@ int ts_insert(struct rb_root *root, struct sched_entity *se)
     return 1;
 }
 
+struct sched_entity * ts_leftmost(struct rb_root *root)
+{
+    struct rb_node *pnode = rb_first(root);
+    struct sched_entity *se = rb_entry(pnode, struct sched_entity, run_node);
+    return se;
+}
+
 void ts_free(struct sched_entity *se)
 {
 }
@@ -85,7 +97,8 @@ void rb_print(struct rb_node *pnode)
             rb_print(pnode->rb_left);
         }
 
-        printk("key = %d\t", rb_entry(pnode, struct sched_entity, run_node)->vruntime);
+        printk("key = %d color = %d\t", rb_entry(pnode, struct sched_entity, run_node)->vruntime, rb_color(pnode));
+        /*printk("key = %d color = %d\t", rb_entry(pnode, struct sched_entity, run_node)->vruntime, pnode->rb_parent_color);*/
 
         if (pnode->rb_right != NULL) 
         {
