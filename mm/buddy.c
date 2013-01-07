@@ -23,7 +23,6 @@ int print_buddy_list()
     int i = 0;
     struct buddy_list *queue = NULL;
 
-    printk("\n---------------------------\n");
     for(i = 0;i < NR_MEM_LISTS; i++)
     {
         queue = buddy_list + i;
@@ -268,5 +267,4 @@ unsigned long  get_free_page(const int priority)
     memset((void *)address, 0 ,PAGE_SIZE);
 
     return address;
-
 }

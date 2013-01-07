@@ -33,6 +33,7 @@ void init_rq()
 
     cfs_runqueue.cfs_nr_running = 0;
     cfs_runqueue.task_timeline.rb_node = NULL;
+    cfs_runqueue.min_vruntime = MIN_VRUNTIME;
 }
 
 void unblock(struct task_struct *p)
@@ -115,38 +116,49 @@ static void rr_dequeue(struct rq *rq, struct task_struct *p, int sleep)
 static void cfs_enqueue(struct rq *rq, struct task_struct *p, int wakeup,bool head)
 {
     struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
+
+    /*wakeup */
+    if(wakeup == 0)
+    {
+        p->sched_entity.vruntime += CFS_RUNQUEUE(rq).min_vruntime; 
+    }
+
     ts_insert(root, &(p->sched_entity));
 }
 
 static void cfs_dequeue(struct rq *rq, struct task_struct *p, int sleep)
 {
     struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
+    /*sleep long time*/
+    if(sleep == 1)
+        p->sched_entity.vruntime -= CFS_RUNQUEUE(rq).min_vruntime; 
     ts_earse(root, &(p->sched_entity));
 }
 
 static struct task_struct * cfs_next_task(struct rq *rq)
 {
     struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
+
+    current->sched_entity.vruntime -= cfs_runqueue.min_vruntime;
+    cfs_dequeue(rq,current,0);
+
     struct sched_entity *se = ts_leftmost(root);
     struct task_struct *tsk = se_entry(se, struct task_struct, sched_entity);
-    /*printk("tsk->name = %s", tsk->name);*/
 
-    ts_earse(root, &(tsk->sched_entity));
-    /*tsk->sched_entity.vruntime = tsk->priority;*/
-    tsk->sched_entity.vruntime = jiffies%11;
-    ts_insert(root, &(tsk->sched_entity));
+    CFS_RUNQUEUE(rq).min_vruntime = se->vruntime;
+    cfs_enqueue(rq,current,0,0);
 
     return tsk;
 }
 
 struct sched_class rr_sched = 
 {
-    .enqueue_task = rr_enqueue,
-    .dequeue_task = rr_dequeue,
-    .pick_next_task = rr_next_task,
-    /*.enqueue_task = cfs_enqueue,*/
-    /*.dequeue_task = cfs_dequeue,*/
-    /*.pick_next_task = cfs_next_task,*/
+    /*.enqueue_task = rr_enqueue,*/
+    /*.dequeue_task = rr_dequeue,*/
+    /*.pick_next_task = rr_next_task,*/
+    .enqueue_task = cfs_enqueue,
+    .dequeue_task = cfs_dequeue,
+    .pick_next_task = cfs_next_task,
     .switched_from = NULL,
     .switched_to = NULL,
     .prio_changed = NULL,
@@ -160,7 +172,7 @@ void schedule()
     struct task_struct *p = NULL;
 
     //based on PRI
-        //choose the best process
+    //choose the best process
     /*greatest_ticks = goodness(&p);*/
     p = current->sched_class->pick_next_task(&sched_rq); 
 

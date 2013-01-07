@@ -62,7 +62,7 @@ void TestB()
         //		panic("no error\n");
         //		TestA();
         milli_delay(100);
-        exit();
+        /*exit();*/
     }
 }
 

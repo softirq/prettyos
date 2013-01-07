@@ -14,6 +14,8 @@
 #define     SCHED_RT    0x04
 #define     SCHED_OTHER   0x08
 
+#define     MIN_VRUNTIME    100
+
 struct cfs_rq
 {
     unsigned long cfs_nr_running;
@@ -22,6 +24,7 @@ struct cfs_rq
     struct rb_node *rb_leftmost;
 
     unsigned long rq_weight;
+    unsigned int min_vruntime;
     struct rq *rq;  /* back pointer to rq */
 };
 
@@ -66,7 +69,7 @@ struct rq
 struct sched_entity
 {
     struct rb_node run_node;
-    u32 vruntime;
+    unsigned int vruntime;
 };
 
 struct sched_class
@@ -153,7 +156,7 @@ extern struct sched_class rr_sched;
 //total procs in this system
 #define NR_PROCS		32 // 
 
-#define NR_PROCESS		NR_SYSTEM_PROCS+ NR_USER_PROCS
+#define NR_PROCESS		(NR_SYSTEM_PROCS + NR_USER_PROCS)
 
 #define STACK_SIZE_DEFAULT	0x4000
 #define STACK_SIZE_TTY		STACK_SIZE_DEFAULT

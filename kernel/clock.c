@@ -18,7 +18,8 @@ void clock_handler(int irq)
     ++jiffies;
     ++ticks;
     --current->ticks;
-    --current->sched_entity.vruntime;
+    /*vruntime increased and cfs choose the smallest one*/
+    ++current->sched_entity.vruntime;
 
     //interrupt reenter
     if (k_reenter != 0) 
@@ -28,15 +29,10 @@ void clock_handler(int irq)
 
     //add something about timer
     //
-    if (current->ticks > 0) 
-    {
-        return;
-    }
-    else 
-    {
+    if(jiffies%NR_PROCESS == 0)
         schedule();
-    }
 }
+
 //every clock interrupt is 10ms HZ=100
 void milli_delay(int milli_sec)
 {
