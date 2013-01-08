@@ -24,16 +24,10 @@ struct kernel_stat kstat = { 0 };
 
 struct rq sched_rq;
 
-/*#define se_entry(ptr, type, member) container_of(ptr, type, member)*/
-
-void init_sched()
+/* set process pid */
+int setpid()
 {
-    rr_runqueue.rr_nr_running = 0;
-    INIT_LIST_HEAD(&(rr_runqueue.rr_rq_list));
-
-    cfs_runqueue.cfs_nr_running = 0;
-    cfs_runqueue.task_timeline.rb_node = NULL;
-    cfs_runqueue.min_vruntime = MIN_VRUNTIME;
+    return 0;
 }
 
 void unblock(struct task_struct *p)
@@ -45,6 +39,17 @@ void block(struct task_struct *p)
 {
     p->state = TASK_INTERRUPTIBLE;
     schedule();
+}
+
+/* init the sched_rq  */
+void init_sched()
+{
+    rr_runqueue.rr_nr_running = 0;
+    INIT_LIST_HEAD(&(rr_runqueue.rr_rq_list));
+
+    cfs_runqueue.cfs_nr_running = 0;
+    cfs_runqueue.task_timeline.rb_node = NULL;
+    cfs_runqueue.min_vruntime = MIN_VRUNTIME;
 }
 
 void switch_to(PROCESS *prev,PROCESS *next)
@@ -173,7 +178,7 @@ struct sched_class rr_sched =
     .prio_changed = NULL,
 };
 
-
+/* schedule the process  */
 void schedule()
 {
     disable_int();

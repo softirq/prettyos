@@ -62,7 +62,11 @@ void * slab_get_obj(struct kmem_cache *cachep, struct slab *slabp)
 
     struct list_head *item = NULL;
 
-    /*print_slab_info(slabp);*/
+    if(slabp->free == BUFCTL_END)
+    {
+        printk("not free obj.");
+        return NULL;
+    }
     void *objp = index_to_obj(cachep, slabp, slabp->free);
     unsigned int next = slab_bufctl(slabp)[slabp->free];
     /*printk("next = %d",next);*/

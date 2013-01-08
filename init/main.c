@@ -41,8 +41,6 @@ static int get_memsize(unsigned long *mem_size)
 
 static void start_kernel()
 {
-    //	init_trap();// define in kernel/start.c
-
     init_clock(); //clock interrupt init
 
     get_memsize(&main_memory_end);
@@ -203,18 +201,26 @@ static void init_task()
     ticks		= 0;
 
     /*current 	= proc_table;*/
+}
+
+/* choose a task and begin to run */
+static void run_task()
+{
     struct rb_root *root = &(cfs_runqueue.task_timeline);
     struct sched_entity *se = ts_leftmost(root);
     current = se_entry(se, struct task_struct, sched_entity);
+
+    move_to_user_mode();
+
 }
 
+/* the kernel main func */
 int pretty_main()
 {
     start_kernel();
     init_task();
+    run_task();
 
     /* from kernel mode to user mode and scheduler process */
-    move_to_user_mode();
-
     return 0;
 }

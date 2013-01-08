@@ -32,22 +32,10 @@ int get_base(struct descriptor *dp)
     return 0;
 }
 
-static int find_empty_process(void)
+static struct task_struct * get_empty_process(void)
 {
-    int i;
-    //排除任务0
-    for(i = 0;i < NR_PROCESS + NR_PROCS;i++)
-    {
-        if(proc_table[i].flags == FREE_SLOT)
-            break;
-        //	else
-        //		printk("i = %d\t",i);
-    }
-    if((i >= NR_PROCESS + NR_PROCS))
-        return -1;
-    else 
-        return i;
-
+    struct task_struct *tsk = (struct task_struct *)kmem_get_obj(tsk_cachep);
+    return tsk;
 }
 
 ////复制父进程的地址空间
@@ -83,28 +71,24 @@ static int copy_mem(int pid,struct task_struct *p)
 
 int do_fork()
 {
-    //	int i = 0;
-    int child_pid = -1; 	//child process pid
+    /*int ret = -1;*/
+    /*int child_pid = -1; 	//child process pid*/
     int pid = current->pid; //parent process pid;
-    int ret = -1;
     int child_base = 0;
     struct task_struct *p; 
     //	struct file *f;
     //	p = (struct task_struct *)get_free_page();
-    ret = find_empty_process();
-    if(ret == -1) 
-        panic("cannot find empty process\n");
-    else 
-        child_pid = ret;
-    p = proc_table + child_pid;
+    p = get_empty_process();
 
-    *p = proc_table[3]; //*p = *current;
+    if(p == NULL)
+        panic("cannot get empty task_struct struct \n");
+
 
     p->state = TASK_UNINTERRUPTIBLE;
-    p->pid = child_pid;
+    /*p->pid = child_pid;*/
     p->parent = current;
     p->regs.eflags = 0x1202;
-    sprintf(p->name,"%s-%d",p->name,p->pid);
+    /*sprintf(p->name,"%s-%d",p->name,p->pid);*/
     //	printk("p->name= %s\n",p->name);
     child_base = copy_mem(pid,p);
     /*
@@ -120,9 +104,9 @@ int do_fork()
        if(current->root)
        current->root->i_count++;
        */	
-    p->state = TASK_RUNNING;
     init_descriptor(&p->ldts[INDEX_LDT_C],child_base,(PROC_IMAGE_SIZE_DEFAULT - 1)>>LIMIT_4K_SHIFT,DA_LIMIT_4K | DA_32 |DA_C|PRIVILEGE_USER << 5);
     init_descriptor(&p->ldts[INDEX_LDT_D],child_base,(PROC_IMAGE_SIZE_DEFAULT - 1)>>LIMIT_4K_SHIFT,DA_LIMIT_4K | DA_32 |DA_DRW|PRIVILEGE_USER << 5);
+    p->state = TASK_RUNNING;
     return pid;
 }
 
@@ -134,6 +118,6 @@ int sys_fork()
 
 int getpid()
 {
-    return 0;
+    return current->pid;
 }
 
