@@ -24,9 +24,9 @@ struct kernel_stat kstat = { 0 };
 
 struct rq sched_rq;
 
-#define se_entry(ptr, type, member) container_of(ptr, type, member)
+/*#define se_entry(ptr, type, member) container_of(ptr, type, member)*/
 
-void init_rq()
+void init_sched()
 {
     rr_runqueue.rr_nr_running = 0;
     INIT_LIST_HEAD(&(rr_runqueue.rr_rq_list));
@@ -131,7 +131,9 @@ static void cfs_dequeue(struct rq *rq, struct task_struct *p, int sleep)
     struct rb_root *root = &(CFS_RUNQUEUE(rq).task_timeline);
     /*sleep long time*/
     if(sleep == 1)
+    {
         p->sched_entity.vruntime -= CFS_RUNQUEUE(rq).min_vruntime; 
+    }
     ts_earse(root, &(p->sched_entity));
 }
 
@@ -146,7 +148,14 @@ static struct task_struct * cfs_next_task(struct rq *rq)
     struct task_struct *tsk = se_entry(se, struct task_struct, sched_entity);
 
     CFS_RUNQUEUE(rq).min_vruntime = se->vruntime;
-    cfs_enqueue(rq,current,0,0);
+
+    if(current->state != TASK_RUNNING)
+    {
+    }
+    else
+    {
+        cfs_enqueue(rq,current,0,0);
+    }
 
     return tsk;
 }
@@ -170,11 +179,10 @@ void schedule()
     disable_int();
 
     struct task_struct *p = NULL;
-
     //based on PRI
     //choose the best process
-    /*greatest_ticks = goodness(&p);*/
     p = current->sched_class->pick_next_task(&sched_rq); 
+    /*printk("name=%s.",p->name);*/
 
     if(p)
     {

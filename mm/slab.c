@@ -35,12 +35,12 @@ int print_slab_info(struct slab *slabp)
     printk("free = %d.", slabp->free);
     printk("inuse = %d.\n", slabp->inuse);
 
-    int tmp = slabp->free;
+    /*int tmp = slabp->free;
     while(tmp != BUFCTL_END)
     {
-        /*printk("next = %d.",tmp);*/
+        printk("next = %d.",tmp);
         tmp = slab_bufctl(slabp)[tmp];
-    }
+    }*/
 
     return 0;
 }
@@ -62,8 +62,10 @@ void * slab_get_obj(struct kmem_cache *cachep, struct slab *slabp)
 
     struct list_head *item = NULL;
 
+    /*print_slab_info(slabp);*/
     void *objp = index_to_obj(cachep, slabp, slabp->free);
-    int next = slab_bufctl(slabp)[slabp->free];
+    unsigned int next = slab_bufctl(slabp)[slabp->free];
+    /*printk("next = %d",next);*/
     slabp->inuse++;
     slabp->free = next;
 
@@ -129,7 +131,10 @@ int slab_init(struct kmem_cache *cachep, struct slab *slabp, void *args)
     slabp->free = 0;
     slabp->inuse = 0;
     INIT_LIST_HEAD(&(slabp->list));
-    ptr += sizeof(cachep->obj_num * sizeof(unsigned int));
+
+    /*printk("obj num = %d.",cachep->obj_num);*/
+    ptr += (cachep->obj_num + 1) * sizeof(unsigned int);
+
     slabp->s_mem = ptr;
     for(i = 0;i < cachep->obj_num; ++i)
     {
@@ -162,10 +167,8 @@ struct slab * kmem_get_slab(struct kmem_cache *cachep)
         }
         else
         {
-            printk("1");
             if(list_get_del(head, &item) != 0)
                 return NULL;
-            printk("2");
             list_add(item, &(cachep->lists.partial));
         }
     }

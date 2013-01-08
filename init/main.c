@@ -74,6 +74,8 @@ static void start_kernel()
     paging_init();
 
     init_mem(); //memeory management init
+    /* scheduler init */
+    init_sched(); 
 
     /*init_hd(); //hard disk init*/
 
@@ -81,11 +83,9 @@ static void start_kernel()
 
     /*init_sock();*/
 
-    move_to_user_mode();
-
-    while(1){}
 }
 
+/*static struct task_struct g_task[6];*/
 /*-----------------------------------------------------------------------------
  *  init the first process
  *-----------------------------------------------------------------------------*/
@@ -93,12 +93,12 @@ static void init_task()
 {
     int ret;
 
-    disp_str("\tpretty initialize begin\n");
+    disp_str("\tpretty initialize begin\n\n");
 
-    TASK*	p_task;
-    //		= task_table;
-    PROCESS*	p_proc		= proc_table;
-    char*	p_task_stack	= task_stack + STACK_SIZE_TOTAL;
+    TASK* p_task;
+    PROCESS* p_proc	= proc_table;
+    struct task_struct *tsk = NULL;
+    char*	p_task_stack = task_stack + STACK_SIZE_TOTAL;
     t16	selector_ldt	= SELECTOR_LDT_FIRST;
     int i,j;
 
@@ -107,14 +107,11 @@ static void init_task()
     t8 	rpl;
     int eflags;
 
-    init_rq();
-
     /*disp_str("\t\tprocess init begins\n");*/
-    for(i=0;i<NR_PROCESS + NR_PROCS;i++,p_proc++)
+    for(i=0;i<NR_PROCESS + NR_PROCS;++i,++p_proc)
     {
         if(i >= NR_SYSTEM_PROCS + NR_USER_PROCS)
         {
-            //	printk(" i = %d\t ",i);
             p_proc->flags = FREE_SLOT;
             continue;
         }
@@ -139,89 +136,85 @@ static void init_task()
             prio = 5;
         }
 
-        //		memset(p_proc,0,sizeof(struct task_struct));
-        p_proc->state = TASK_RUNNING;
-        /*p_proc->flags = 1;*/
-        ret = strcpy(p_proc->name, p_task->name);	// name of the process
-        p_proc->pid = i;			// pid
-        /*disp_str("*****************\n");*/
-        /*p_proc->parent = NO_PARENT;*/
+        tsk = (struct task_struct *)kmem_get_obj(tsk_cachep);
 
-        /*proces family */
-        p_proc->parent = init;
-        p_proc->next = p_proc->sibling = NULL;
+        tsk->state = TASK_RUNNING;
+        ret = strcpy(tsk->name, p_task->name);	// name of the process
+        tsk->pid = i;
+        tsk->parent = init;
+        tsk->next = tsk->sibling = NULL;
 
         proc_table[0].nr_tty = 0;		// tty 
         for(j = 0; j < NR_SIGNALS;j++)
         {
-            p_proc->sig_action[j].sa_flags = 0;
-            p_proc->sig_action[j].sa_handler = do_signal;
+            tsk->sig_action[j].sa_flags = 0;
+            tsk->sig_action[j].sa_handler = do_signal;
         }
-        //	p_proc->sig_blocked = 0; //设置信号屏蔽字为空
-        p_proc->signal = 0x0; //设置信号为空
-        p_proc->ldt_sel	= selector_ldt;
-        if(strncmp(p_proc->name,"init",strlen("init")) != 0)
+        tsk->signal = 0x0; //设置信号为空
+        tsk->ldt_sel	= selector_ldt;
+
+        if(strncmp(tsk->name,"init",strlen("init")) != 0)
         {
             p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
-            //memcpy(&p_proc->ldts[INDEX_LDT_C], &gdt[SELECTOR_KERNEL_CS >> 3], sizeof(DESCRIPTOR));
+            tsk->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
             p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
-            //memcpy(&p_proc->ldts[INDEX_LDT_D], &gdt[SELECTOR_KERNEL_DS >> 3], sizeof(DESCRIPTOR));
+            tsk->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
             p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
+            tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
             p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
+            tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
         }
         else
         {
             unsigned int k_base;
             unsigned int k_limit;
             int ret = get_kernel_map(&k_base,&k_limit);
-            /*k_limit = 1000 * k_limit;*/
-            /*printk(" wo shi init.............\n\n\n\n");*/
-            /*printk("k_base = %d k_limit = %d\n",k_base,k_limit);*/
-            /*printk("k_base = 0x%x k_limit = 0x%x\n",k_base,k_limit);*/
             assert(ret == 0);
+
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+
+            init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
+            init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
         }
 
-        p_proc->regs.cs		= ((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
-        p_proc->regs.ds		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
-        p_proc->regs.es		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
-        p_proc->regs.fs		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
-        p_proc->regs.ss		= ((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl;
-        p_proc->regs.gs		= (SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl;
+        tsk->regs.cs		= (unsigned int)(((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.ds		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.es		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.fs		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.ss		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.gs		= (unsigned int)((SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl);
 
-        p_proc->regs.eip	= (t32)p_task->initial_eip;
-        /*disp_int(p_proc->regs.eip);*/
+        tsk->regs.eip = (t32)p_task->initial_eip;
 
-        p_proc->regs.esp	= (t32)p_task_stack;
-        p_proc->regs.eflags	= eflags;	
-        p_proc->ticks = p_proc->priority = prio;
+        tsk->regs.esp	= (t32)p_task_stack;
+        tsk->regs.eflags	= eflags;	
+        tsk->ticks = tsk->priority = prio;
 
         p_task_stack -= p_task->stacksize;
         p_task++;
         selector_ldt += 1 << 3;
-        //printk("NT_TASKS+ NR_NATIVE_PROCS = %d\n",NR_TASKS + NR_NATIVE_PROCS);
-        /*insert into running queue*/
-        /*insert_rq(p_proc);*/
-        p_proc->sched_entity.vruntime = i;
-        p_proc->sched_class = &rr_sched;
-        p_proc->sched_class->enqueue_task(&(sched_rq),p_proc,0,0);
+        tsk->sched_entity.vruntime = i;
+        tsk->sched_class = &rr_sched;
+        tsk->sched_class->enqueue_task(&(sched_rq),tsk,0,0);
     }
-
-    /*struct rb_root *root = &(cfs_runqueue.task_timeline);*/
-    /*rb_print(root->rb_node);*/
-    /*printk("\n");*/
-    //proc_table[1].signal |= (1 << (2));
 
     k_reenter	= 0;
     ticks		= 0;
 
-    current 	= proc_table;
+    /*current 	= proc_table;*/
+    struct rb_root *root = &(cfs_runqueue.task_timeline);
+    struct sched_entity *se = ts_leftmost(root);
+    current = se_entry(se, struct task_struct, sched_entity);
 }
 
 int pretty_main()
 {
-    init_task();
     start_kernel();
+    init_task();
+
+    /* from kernel mode to user mode and scheduler process */
+    move_to_user_mode();
+
     return 0;
 }

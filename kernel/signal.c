@@ -22,7 +22,6 @@ void do_signal(int signr)
     //	disp_int(~(i<<signr));
     current->signal &= ~(1 << signr );
     disp_str("do signal\n");
-
 }
 
 int send_signal(int signr,int pid)

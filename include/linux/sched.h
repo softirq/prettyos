@@ -66,6 +66,8 @@ struct rq
 
 #define     CFS_RUNQUEUE(rq)    (rq->u.cfs)
 
+#define se_entry(ptr, type, member) container_of(ptr, type, member)
+
 struct sched_entity
 {
     struct rb_node run_node;
@@ -85,33 +87,34 @@ struct sched_class
     void (*prio_changed) (struct rq *this_rq, struct task_struct *task,int oldprio, int running);
 };
 
-typedef struct s_stackframe {	
-    t32	gs;		
-    t32	fs;		
-    t32	es;		
-    t32	ds;		
-    t32	edi;		
-    t32	esi;		
-    t32	ebp;		
-    t32	kernel_esp;	
-    t32	ebx;		
-    t32	edx;		
-    t32	ecx;		
-    t32	eax;		
-    t32	retaddr;	
-    t32	eip;		
-    t32	cs;		
-    t32	eflags;		
-    t32	esp;		
-    t32	ss;		
+typedef struct stackframe {	
+    unsigned int    gs;		
+    unsigned int    fs;		
+    unsigned int    es;		
+    unsigned int    ds;		
+    unsigned int	edi;		
+    unsigned int	esi;		
+    unsigned int	ebp;		
+    unsigned int	kernel_esp;	
+    unsigned int	ebx;		
+    unsigned int	edx;		
+    unsigned int	ecx;		
+    unsigned int	eax;		
+    unsigned int	retaddr;	
+    unsigned int	eip;		
+    unsigned int    cs;		
+    unsigned int	eflags;		
+    unsigned int	esp;		
+    unsigned int    ss;		
 }STACK_FRAME;
 
 typedef struct task_struct 
 {
-    STACK_FRAME	regs;			
+    struct stackframe regs;			
     t16		ldt_sel;		
     DESCRIPTOR	ldts[LDT_SIZE];		
-    struct 	sigaction sig_action[32];//32个信号 
+    //struct 	sigaction sig_action[NR_SIGNALS];//32个信号 
+    struct 	sigaction sig_action[NR_SIGNALS];//32个信号 
     int 		state;
     unsigned long signal; //信号位图
     unsigned long blocked; //信号屏蔽字段
@@ -135,7 +138,6 @@ typedef struct task_struct
     struct sched_class *sched_class;
     struct sched_entity sched_entity;
     struct list_head list;
-
 }PROCESS;
 
 typedef struct s_task 
@@ -187,6 +189,6 @@ extern struct sched_class rr_sched;
 #define TASK_STOPPED		4	//being traced
 #define TASK_WAITING 	TASK_UNINTERRUPTIBLE
 
-void init_rq();
+void init_sched();
 
 #endif

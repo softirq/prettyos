@@ -5,7 +5,7 @@
 #include "asm-i386/page.h"
 
 #define     BYTES_PER_WORD      sizeof(void *)
-#define     DEFAULT_SLAB_PAGES   4
+#define     DEFAULT_SLAB_PAGES   1
 
 typedef unsigned int kmem_bufctl_t;
 

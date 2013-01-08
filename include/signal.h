@@ -32,4 +32,6 @@ typedef struct sigaction
 #define SIGTTIN		21
 #define SIGTTOU		22
 
+extern void do_signal(int signr);
+
 #endif
