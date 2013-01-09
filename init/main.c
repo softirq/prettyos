@@ -92,7 +92,7 @@ static void init_task()
 {
     int ret;
 
-    disp_str("\tpretty initialize begin\n\n");
+    disp_str("\tpretty initialize begin\n\n\n\n\n\n\n");
 
     TASK* p_task;
     PROCESS* p_proc	= proc_table;
@@ -139,7 +139,7 @@ static void init_task()
 
         tsk->state = TASK_RUNNING;
         ret = strcpy(tsk->name, p_task->name);	// name of the process
-        if((tsk->pid = get_bitmap()) < 0)
+        if((tsk->pid = get_pidmap()) < 0)
             return;
         tsk->parent = init;
         tsk->next = tsk->sibling = NULL;
@@ -213,7 +213,6 @@ static void run_task()
     current = se_entry(se, struct task_struct, sched_entity);
 
     move_to_user_mode();
-
 }
 
 /* the kernel main func */

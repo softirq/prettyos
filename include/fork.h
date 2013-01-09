@@ -12,6 +12,6 @@ extern unsigned char pidmap[MAX_PIDNUM/8];
 extern int fork();
 extern int getpid();
 void init_pidmap();
-int get_bitmap();
+pid_t get_pidmap();
 
 #endif

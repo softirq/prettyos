@@ -206,7 +206,7 @@ int free_pages(struct page *page, const int order)
     return 0;
 }
 
-unsigned long  get_free_pages(int order)
+unsigned long get_free_pages(int order)
 {
     if(order >= NR_MEM_LISTS)
         return NULL;
@@ -260,11 +260,17 @@ unsigned long __get_free_pages(const int priority, const int order)
     return 0;
 }
 
-unsigned long  get_free_page(const int priority)
+unsigned long get_free_page(const int priority)
 {
     unsigned long address; 
     address = __get_free_page(priority);
     memset((void *)address, 0 ,PAGE_SIZE);
 
     return address;
+}
+
+unsigned long alloc_mem(const size_t size)
+{
+    int order = power(size>>PAGE_SHIFT);
+    return get_free_pages(order);
 }

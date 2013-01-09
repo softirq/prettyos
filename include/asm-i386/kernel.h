@@ -17,6 +17,7 @@ extern void	TestA();
 extern void	TestB();
 extern void	TestC();
 extern void	TestD();
+extern void	ChildProc();
 extern void 	init_p();
 
 /* i8259.c */

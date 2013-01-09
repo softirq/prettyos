@@ -5,15 +5,6 @@
 #include "asm-i386/page.h"
 
 #define NR_MEM_LISTS   10 
-/*
- * 1 page  1024
- * 2 pages 512
- * 3 pages 256 
- * 4 pages 128 
- * 5 pages 64 
- * 6 pages 32 
- *
- * */
 
 struct buddy_list 
 {

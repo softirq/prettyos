@@ -6,6 +6,7 @@
 #include "mm.h"
 #include "rbtree.h"
 #include "list.h"
+#include "fork.h"
 #include "asm-i386/processor.h"
 #include "asm-i386/traps.h"
 
@@ -124,7 +125,7 @@ typedef struct task_struct
     int		priority;
     int 		nr_tty;
     //int 		parent;
-    t32		pid;			
+    pid_t pid;			
     char		name[16];		
     struct 	file 	*filp[NR_OPEN];
     //	struct task_struct *parent;

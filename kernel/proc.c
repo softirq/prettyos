@@ -69,12 +69,13 @@ void TestB()
 void TestC()
 {
     //	int i = 0;
-    while(1){
+    /*while(1){*/
         disp_str("C");
         //		waitpid(current->pid);
         milli_delay(100);
+        fork();
         exit();
-    }
+    /*}*/
 }
 
 void TestD()
@@ -82,6 +83,15 @@ void TestD()
     while(1)
     {
         disp_str("D");
+        milli_delay(100);
+    }
+}
+
+void ChildProc()
+{
+    while(1)
+    {
+        disp_str("Child");
         milli_delay(100);
     }
 }
