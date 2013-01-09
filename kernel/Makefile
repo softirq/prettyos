@@ -3,8 +3,7 @@ include $(TOPDIR)/Generic.mak
 
 OBJS:=core.o start.o i8259.o global.o traps.o hd.o \
 	clock.o syscall.o console.o keyboard.o sched.o sys.o tty.o printf.o\
-	vsprintf.o proc.o panic.o signal.o  fork.o exit.o timer.o bitops.o \
-	wait.o cfs.o
+	vsprintf.o proc.o panic.o signal.o  fork.o exit.o timer.o wait.o sched_fair.o
 
 KERNEL=kernel.o
 

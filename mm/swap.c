@@ -14,7 +14,7 @@
 #include "global.h"
 #include "pgtable.h"
 #include "swap.h"
-#include "bitops.h"
+#include "bitmap.h"
 #include "kstat.h"
 #include "proc.h"
 
@@ -102,8 +102,8 @@ void rw_swap_page(int rw, swap_entry_t entry, char *buf)
         printk("Trying to use unallocated swap (%08lx)\n", entry.val);
         return;
     }
-    while(set_bit(offset, p->lock_map))
-        interruptible_sleep_on(&lock_queue);
+    /*while(__set_bit(offset, p->lock_map))*/
+        /*interruptible_sleep_on(&lock_queue);*/
     if(rw == READ)
         kstat.pswpin++;
     else 
@@ -120,8 +120,8 @@ void rw_swap_page(int rw, swap_entry_t entry, char *buf)
     else
         printk("re_swap_page: no swap file or device\n");
 
-    if (offset && !clear_bit(offset,p->lock_map))
-        printk("rw_swap_page: lock already cleared\n");
+    /*if (offset && !__clear_bit(offset,p->lock_map))*/
+        /*printk("rw_swap_page: lock already cleared\n");*/
     wake_up_interruptible(&lock_queue);
 
 bad_nofile:

@@ -48,7 +48,6 @@ void keyboard_handler(int irq)
 	}
 }
 
-
 void init_keyboard()
 {
 	kb_in.count = 0;
@@ -61,7 +60,6 @@ void init_keyboard()
 	put_irq_handler(KEYBOARD_IRQ, keyboard_handler);
 	enable_irq(KEYBOARD_IRQ);		
 }
-
 
 void keyboard_read(TTY* p_tty)
 {
@@ -124,7 +122,7 @@ void keyboard_read(TTY* p_tty)
 				}
 			}
 		}
-//???? PAUSEBREAK ?? PRINTSCREEN????????
+
 		if ((key != PAUSEBREAK) && (key != PRINTSCREEN)) 
 		{
 			make = (scan_code & FLAG_BREAK ? FALSE : TRUE);
@@ -148,9 +146,6 @@ void keyboard_read(TTY* p_tty)
 				column = 2;
 			}
 
-//l_shift ????2a ?keyrow???? key = SHIFT_L; 
-//?bool shift_l???true ??????? ?key ????????? ?????????????
-			
 			key = keyrow[column];
 
 			switch(key) 
@@ -292,7 +287,6 @@ void keyboard_read(TTY* p_tty)
 	}
 }
 
-
 static t8 get_byte_from_kb_buf()	
 {
 	t8	scan_code;
@@ -318,7 +312,6 @@ static t8 get_byte_from_kb_buf()
 	return scan_code;
 }
 
-
 static void kb_wait()
 {
 	t8 kb_stat;
@@ -329,7 +322,6 @@ static void kb_wait()
 	} while (kb_stat & 0x02);
 }
 
-
 static void kb_ack()
 {
 	t8 kb_read;
@@ -339,7 +331,6 @@ static void kb_ack()
 		kb_read = in_byte(KB_DATA);
 	} while (kb_read != KB_ACK);
 }
-
 
 static void set_leds()
 {
@@ -353,5 +344,3 @@ static void set_leds()
 	out_byte(KB_DATA, leds);
 	kb_ack();
 }
-
-

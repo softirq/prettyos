@@ -200,7 +200,7 @@ int memcmp(char *dst, char *src,int len)
     return -5;
 }
 
-int memset(char *dst,char ch,int size)
+inline int memset(char *dst,char ch,int size)
 {
     if(dst == NULL || size <= 0)
         return -1;
@@ -213,4 +213,9 @@ int memset(char *dst,char ch,int size)
     }
 
     return 0;
+}
+
+int bzero(void *dst, size_t size)
+{
+    return memset((char *)dst, 0,size);
 }

@@ -6,13 +6,18 @@
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
+#include "stddef.h"
+#include "bitmap.h"
 #include "global.h"
 #include "kernel.h"
-//#include "string.h"
+#include "string.h"
 #include "stdlib.h"
 #include "panic.h"
 #include "proc.h"
 #include "printf.h"
+#include "fork.h"
+
+unsigned char pidmap[MAX_PIDNUM/8] = {0};
 
 int get_limit(struct descriptor *dp)
 {
@@ -30,6 +35,22 @@ int get_base(struct descriptor *dp)
         return ((dp->base_high << DP_BASE_HIGH_SHIFT) + (dp->base_mid << DP_BASE_MID_SHIFT) + dp->base_low);
     }
     return 0;
+}
+
+int getpid()
+{
+    return current->pid;
+}
+
+void init_pidmap()
+{
+    bzero((void *)pidmap,sizeof(pidmap)); 
+}
+
+int get_bitmap()
+{
+    int first = set_first_bit(pidmap,ARRAY_SIZE(pidmap));
+    return first;
 }
 
 static struct task_struct * get_empty_process(void)
@@ -115,9 +136,3 @@ int sys_fork()
     //	int flag;
     return do_fork();
 }
-
-int getpid()
-{
-    return current->pid;
-}
-

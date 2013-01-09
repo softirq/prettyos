@@ -13,8 +13,9 @@
 #include "proc.h"
 #include "stdlib.h"
 #include "linux/net.h"
-#include "cfs.h"
+#include "sched_fair.h"
 #include "printf.h"
+#include "fork.h"
 
 /*#define EXT_MEM_K 	(*(unsigned short*)0x8002)*/
 //long memory_start = 0;
@@ -138,7 +139,8 @@ static void init_task()
 
         tsk->state = TASK_RUNNING;
         ret = strcpy(tsk->name, p_task->name);	// name of the process
-        tsk->pid = i;
+        if((tsk->pid = get_bitmap()) < 0)
+            return;
         tsk->parent = init;
         tsk->next = tsk->sibling = NULL;
 

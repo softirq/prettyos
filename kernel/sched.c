@@ -16,7 +16,8 @@
 #include "printf.h"
 #include "asm-i386/system.h"
 #include "asm-i386/panic.h"
-#include "cfs.h"
+#include "sched_fair.h"
+#include "fork.h"
 
 struct task_struct *current = NULL;
 struct task_struct *init = &proc_table[1];
@@ -50,6 +51,8 @@ void init_sched()
     cfs_runqueue.cfs_nr_running = 0;
     cfs_runqueue.task_timeline.rb_node = NULL;
     cfs_runqueue.min_vruntime = MIN_VRUNTIME;
+
+    init_pidmap();
 }
 
 void switch_to(PROCESS *prev,PROCESS *next)

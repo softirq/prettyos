@@ -16,7 +16,6 @@
 #include "asm-i386/system.h"
 #include "rbtree.h"
 
-
 #if defined(rb_entry)
 #undef rb_entry
 #define rb_entry(ptr, type, member) container_of(ptr, type, member)

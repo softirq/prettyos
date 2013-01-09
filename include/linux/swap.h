@@ -8,8 +8,8 @@ struct swap_info_struct
     unsigned int flags;
     struct inode *swap_file;
     unsigned int swap_device;
-    unsigned short *swap_map;
-    unsigned short *lock_map;
+    unsigned char *swap_map;
+    unsigned char *lock_map;
     unsigned int lowest_bit;
     unsigned int highest_bit;
     unsigned long max;

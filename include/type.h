@@ -42,9 +42,4 @@ typedef __kernel_size_t size_t;
 typedef __kernel_ssize_t	ssize_t;
 #endif
 
-#ifndef _PID_T
-#define _PID_T
-typedef unsigned int 		pid_t;
-#endif
-
 #endif

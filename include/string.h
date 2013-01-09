@@ -11,4 +11,6 @@ extern	int 	strlen(const char *str);
 extern int      strncmp(char *str1,char *str2,int len);
 extern int      strcmp(char *str1,char *str2);
 
+extern int bzero(char *dst, size_t size);
+
 #endif	
