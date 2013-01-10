@@ -55,8 +55,7 @@ pid_t get_pidmap()
 
 static struct task_struct * get_empty_process(void)
 {
-    struct task_struct *tsk = (struct task_struct *)kmem_get_obj(tsk_cachep);
-    return tsk;
+    return (struct task_struct *)kmem_get_obj(tsk_cachep);
 }
 
 static void copy_regs(struct task_struct *p)
@@ -71,12 +70,13 @@ static void copy_regs(struct task_struct *p)
     p->regs.esp = current->regs.esp;
     p->regs.eflags = current->regs.eflags;
     p->ticks = current->ticks;
+    p->priority = current->priority;
 }
 
 //copy the parent process address space
 static int copy_mem(struct task_struct *p)
 {
-    struct descriptor *dp = &current->ldts[INDEX_LDT_C];
+    /*struct descriptor *dp = &current->ldts[INDEX_LDT_C];
     int text_base = get_base(dp);
     int text_limit = get_limit(dp);
     int text_size = (text_limit + 1) * ((dp->limit_high_attr2 * 0x80)?4096:1);
@@ -90,7 +90,7 @@ static int copy_mem(struct task_struct *p)
             (text_limit == data_limit) &&
             (text_size == data_size)
           );
-
+*/
     /*unsigned long child_base = alloc_mem(text_size);*/
 
     //	printk("child_base = %d\t text_base = %d\t text_size = %d\n",child_base,text_base,text_size);
@@ -99,7 +99,7 @@ static int copy_mem(struct task_struct *p)
     //	printk("child_base = %d\t text_base = %d\t text_size = %d\n",child_base,text_base,text_size);
     /*phys_copy((char *)child_base,(char *)(text_base),text_size);*/
 
-    unsigned int k_base;
+    /*unsigned int k_base;
     unsigned int k_limit;
     int ret = get_kernel_map(&k_base,&k_limit);
     assert(ret == 0); 
@@ -107,46 +107,49 @@ static int copy_mem(struct task_struct *p)
 
     init_descriptor(&p->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
     init_descriptor(&p->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege <<5);            
-
-    /*init_descriptor(&p->ldts[INDEX_LDT_C],child_base,(PROC_IMAGE_SIZE_DEFAULT - 1)>>LIMIT_4K_SHIFT,DA_LIMIT_4K | DA_32 |DA_C|PRIVILEGE_USER << 5);*/
-    /*init_descriptor(&p->ldts[INDEX_LDT_D],child_base,(PROC_IMAGE_SIZE_DEFAULT - 1)>>LIMIT_4K_SHIFT,DA_LIMIT_4K | DA_32 |DA_DRW|PRIVILEGE_USER << 5);*/
+*/
+    memcpy(&p->ldts,&current->ldts, sizeof(current->ldts));
 
     return 0;
 }
 
 int do_fork()
 {
-    struct task_struct *p; 
-
-    p = get_empty_process();
+    int i = 0;
+    struct task_struct *p = get_empty_process();
     if(p == NULL)
         panic("cannot get empty task_struct struct \n");
 
-    memcpy(p,current,sizeof(struct task_struct));
-
-    p->state = TASK_UNINTERRUPTIBLE;
 
     if((p->pid = get_pidmap()) < 0)
         return -1;
 
     p->parent = current;
-    /*p->regs.eflags = 0x1202;*/
+    p->next = p->sibling = NULL;
 
-    sprintf(p->name,"%s",current->name);
+    for(i = 0; i < NR_SIGNALS;++i)
+    {
+        p->sig_action[i].sa_flags = 0;
+        p->sig_action[i].sa_handler = do_signal;
+    }
 
-    /*copy_mem(p);*/
+    p->signal = 0x0; //设置信号为空
 
-    p->state = TASK_RUNNING;
+    /* inherit the parent scheduler class */
+    p->sched_class = current->sched_class;
+
+    /* share ldt selector with the parent process
+     * it import for fork */
+    p->ldt_sel = current->ldt_sel;
+
+    copy_mem(p);
+    copy_regs(p);
+
+    p->regs.eip = (unsigned int)ChildProc;
 
     p->sched_entity.vruntime = 10;
-    /*p->sched_class = &rr_sched;*/
+    p->state = TASK_RUNNING;
     p->sched_class->enqueue_task(&(sched_rq),p,0,0);
-
-    /*printk("fork name = %s.\n",p->name);*/
-    /*printk("eip = %x.\n",p->regs.eip);*/
-    /*printk("eip = %x.\n",&p->regs.eip);*/
-    /*copy_regs(p);*/
-    p->regs.eip = (unsigned int)ChildProc;
 
     return p->pid;
 }

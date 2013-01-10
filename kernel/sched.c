@@ -25,6 +25,14 @@ struct kernel_stat kstat = { 0 };
 
 struct rq sched_rq;
 
+/*register unsigned long current_stack_pointer asm("esp") __used;*/
+
+/*  how to get the thread information struct from C */
+static inline struct thread_info *current_thread_info(void)
+{
+    return (struct thread_info *)(current_stack_pointer & ~(THREAD_SIZE - 1));
+}
+
 /* set process pid */
 int setpid()
 {

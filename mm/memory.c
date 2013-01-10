@@ -194,7 +194,7 @@ no_memory:
     oom();
 }
 
-void init_mem()
+int init_mem()
 {
     int k;
     struct page *p = NULL;
@@ -263,34 +263,43 @@ void init_mem()
     /*void *objp = NULL;*/
     /*struct task_struct *tsk = NULL;*/
 
+    thread_union_cachep =  kmem_cache_create("task_union",sizeof(union thread_union),0);
+    if(thread_union_cachep == NULL)
+        return -2;
+
     tsk_cachep = kmem_cache_create("tsk",sizeof(struct task_struct),0);
+    if(tsk_cachep == NULL)
+        return -1;
+
     vma_cachep = kmem_cache_create("vma", sizeof(struct vm_area_struct),0);
+    if(vma_cachep == NULL)
+        return -3;
 
     /*print_kmem_info(tsk_cachep);
-    slabp = kmem_get_slab(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    print_slab_info(slabp);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);
-    objp = kmem_get_obj(tsk_cachep);*/
+      slabp = kmem_get_slab(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      print_slab_info(slabp);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);
+      objp = kmem_get_obj(tsk_cachep);*/
     /*objp = kmem_get_obj(tsk_cachep);*/
     /*objp = kmem_get_obj(tsk_cachep);*/
     /*print_slab_info(slabp);*/
 
     /*print_buddy_list();*/
 
-    return ;
+    return 0;
 }

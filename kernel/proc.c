@@ -69,13 +69,13 @@ void TestB()
 void TestC()
 {
     //	int i = 0;
-    /*while(1){*/
+    while(1){
         disp_str("C");
         //		waitpid(current->pid);
         milli_delay(100);
-        fork();
-        exit();
-    /*}*/
+        /*fork();*/
+        /*exit();*/
+    }
 }
 
 void TestD()

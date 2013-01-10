@@ -1,6 +1,7 @@
 #ifndef     _SCHED_H_
 #define     _SCHED_H_
 
+#include "init.h"
 #include "signal.h"
 #include "fs.h"
 #include "mm.h"
@@ -10,12 +11,17 @@
 #include "asm-i386/processor.h"
 #include "asm-i386/traps.h"
 
+//#define     TASK_STRUCT_SLAB_SIZE   (2*PAGE_SIZE)
+
 #define     SCHED_RR    0x01
 #define     SCHED_FIFO  0x02
 #define     SCHED_RT    0x04
 #define     SCHED_OTHER   0x08
 
 #define     MIN_VRUNTIME    100
+
+#define THREAD_SIZE_ORDER   1
+#define THREAD_SIZE         (PAGE_SIZE << THREAD_SIZE_ORDER)
 
 struct cfs_rq
 {
@@ -134,12 +140,34 @@ typedef struct task_struct
     struct m_inode 	*executable;
     struct thread_struct tss;
     struct mm_struct *mm;
-    int 		exit_code;
+    int exit_code;
     struct task_struct *parent, *next, *sibling;
     struct sched_class *sched_class;
     struct sched_entity sched_entity;
     struct list_head list;
+
 }PROCESS;
+
+struct thread_info
+{
+    struct task_struct *task;
+};
+
+union thread_union 
+{
+    struct thread_info thread_info;
+    unsigned int stack[2048];
+};
+
+/*how to get the current stack pointer from C*/
+register unsigned long current_stack_pointer asm("esp") __used;
+
+static inline struct task_struct *get_current(void)
+{
+    return ((struct thread_info *)(current_stack_pointer & ~(THREAD_SIZE - 1)))->task;
+}
+
+#define     CURRENT     get_current()
 
 typedef struct s_task 
 {
@@ -161,7 +189,7 @@ extern struct sched_class rr_sched;
 
 #define NR_PROCESS		(NR_SYSTEM_PROCS + NR_USER_PROCS)
 
-#define STACK_SIZE_DEFAULT	0x4000
+#define STACK_SIZE_DEFAULT  4192	
 #define STACK_SIZE_TTY		STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
 #define STACK_SIZE_TESTB	STACK_SIZE_DEFAULT

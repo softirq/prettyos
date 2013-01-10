@@ -25,6 +25,7 @@ unsigned long main_memory_end = 0;
 unsigned long main_memory_start = 0;
 unsigned long memory_size = 0;
 
+unsigned short selector_ldt	= SELECTOR_LDT_FIRST;
 //init process pid = 0;
 //
 //get memory size
@@ -96,9 +97,11 @@ static void init_task()
 
     TASK* p_task;
     PROCESS* p_proc	= proc_table;
+    /*memcpy(p,current,sizeof(struct task_struct));*/
     struct task_struct *tsk = NULL;
+    union thread_union *thread_union = NULL;
+
     char*	p_task_stack = task_stack + STACK_SIZE_TOTAL;
-    t16	selector_ldt	= SELECTOR_LDT_FIRST;
     int i,j;
 
     int prio;
@@ -122,7 +125,7 @@ static void init_task()
             rpl = RPL_TASK;
             // IF=1, IOPL=1, bit 2 is always 1.
             eflags = 0x1202;
-            prio = 25;
+            prio = KERNEL_PRIOR;
         }
         else if(i < NR_SYSTEM_PROCS + NR_USER_PROCS)
         {
@@ -132,10 +135,18 @@ static void init_task()
             rpl = RPL_USER;
             // IF=1, IOPL=0, bit 2 is always 1. IO is blocked
             eflags = 0x1202;
-            prio = 5;
+            prio = USER_PRIO;
         }
 
         tsk = (struct task_struct *)kmem_get_obj(tsk_cachep);
+        if(tsk == NULL)
+            return;
+
+        thread_union = (union thread_union*)kmem_get_obj(thread_union_cachep);
+        if(thread_union == NULL)
+            return;
+
+        thread_union->thread_info.task = tsk;
 
         tsk->state = TASK_RUNNING;
         ret = strcpy(tsk->name, p_task->name);	// name of the process
@@ -145,13 +156,13 @@ static void init_task()
         tsk->next = tsk->sibling = NULL;
 
         proc_table[0].nr_tty = 0;		// tty 
-        for(j = 0; j < NR_SIGNALS;j++)
+        for(j = 0; j < NR_SIGNALS;++j)
         {
             tsk->sig_action[j].sa_flags = 0;
             tsk->sig_action[j].sa_handler = do_signal;
         }
         tsk->signal = 0x0; //设置信号为空
-        tsk->ldt_sel	= selector_ldt;
+        tsk->ldt_sel = selector_ldt;
 
         if(strncmp(tsk->name,"init",strlen("init")) != 0)
         {
@@ -178,17 +189,24 @@ static void init_task()
             init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
         }
 
-        tsk->regs.cs		= (unsigned int)(((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
-        tsk->regs.ds		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
-        tsk->regs.es		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
-        tsk->regs.fs		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
-        tsk->regs.ss		= (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
-        tsk->regs.gs		= (unsigned int)((SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl);
+        tsk->regs.cs = (unsigned int)(((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.ds = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.es = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.fs = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.ss = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.gs = (unsigned int)((SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl);
 
-        tsk->regs.eip = (t32)p_task->initial_eip;
+        tsk->regs.eip = (unsigned int)p_task->initial_eip;
+        tsk->regs.esp	= (unsigned int)p_task_stack;
+        /*printk("regs.esp = %x.",tsk->regs.esp);*/
 
-        tsk->regs.esp	= (t32)p_task_stack;
-        tsk->regs.eflags	= eflags;	
+        /*unsigned int *stack = thread_union->stack;
+        printk("stack = %x.",stack);
+        [>stack += sizeof(struct thread_info);<]
+        tsk->regs.esp = stack + 2048;
+        printk("regs.esp = %x.\n",tsk->regs.esp);*/
+
+        tsk->regs.eflags = eflags;	
         tsk->ticks = tsk->priority = prio;
 
         p_task_stack -= p_task->stacksize;

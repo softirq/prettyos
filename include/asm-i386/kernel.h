@@ -1,6 +1,8 @@
 #ifndef     _KERNEL_H_
 #define     _KERNEL_H_
 
+#define     KERNEL_PRIOR    25
+#define     USER_PRIO       5
 /* traps.c */
 extern void	init_trap();
 // t32	seg2phys(t_16 seg);
@@ -13,12 +15,14 @@ extern void	restart();
 extern void	move_to_user_mode();
 
 /* main.c */
+
+extern unsigned short selector_ldt;
 extern void	TestA();
 extern void	TestB();
 extern void	TestC();
 extern void	TestD();
 extern void	ChildProc();
-extern void 	init_p();
+extern void init_p();
 
 /* i8259.c */
 extern void	put_irq_handler(int iIRQ, irq_handler_ptr handler);

@@ -17,6 +17,7 @@ struct list_head cache_chain;
 
 struct kmem_cache *vma_cachep = NULL;
 struct kmem_cache *tsk_cachep = NULL;
+struct kmem_cache *thread_union_cachep = NULL;
 
 unsigned int * slab_bufctl(struct slab *slabp)
 {

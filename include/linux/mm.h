@@ -44,7 +44,7 @@ extern int nr_swap_pages;
 extern int nr_free_pages;
 
 unsigned long alloc_mem(const size_t size);
-void init_mem();
+int init_mem();
 
 #define oom() ({ panic ("memory fatal error!\n");})
 
