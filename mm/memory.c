@@ -263,10 +263,6 @@ int init_mem()
     /*void *objp = NULL;*/
     /*struct task_struct *tsk = NULL;*/
 
-    thread_union_cachep =  kmem_cache_create("task_union",sizeof(union thread_union),0);
-    if(thread_union_cachep == NULL)
-        return -2;
-
     tsk_cachep = kmem_cache_create("tsk",sizeof(struct task_struct),0);
     if(tsk_cachep == NULL)
         return -1;
@@ -274,6 +270,12 @@ int init_mem()
     vma_cachep = kmem_cache_create("vma", sizeof(struct vm_area_struct),0);
     if(vma_cachep == NULL)
         return -3;
+
+
+    thread_union_cachep =  kmem_cache_create("task_union",sizeof(union thread_union),0);
+    if(thread_union_cachep == NULL)
+        return -2;
+
 
     /*print_kmem_info(tsk_cachep);
       slabp = kmem_get_slab(tsk_cachep);

@@ -187,6 +187,9 @@ static void init_task()
             tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
             p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
             tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
+
+            char *stack = (char *)thread_union->stack;
+            tsk->regs.esp = (unsigned int)(stack + sizeof(union thread_union));
         }
         else
         {
@@ -197,6 +200,8 @@ static void init_task()
 
             init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
             init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+            tsk->regs.esp	= (unsigned int)p_task_stack;
+            p_task_stack -= STACK_SIZE_INIT;
         }
 
         tsk->regs.cs = (unsigned int)(((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
@@ -205,21 +210,11 @@ static void init_task()
         tsk->regs.fs = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
         tsk->regs.ss = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
         tsk->regs.gs = (unsigned int)((SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl);
-
         tsk->regs.eip = (unsigned int)p_task->initial_eip;
-        tsk->regs.esp	= (unsigned int)p_task_stack;
-        /*printk("regs.esp = %x.",tsk->regs.esp);*/
-
-        /*unsigned int *stack = thread_union->stack;
-          printk("stack = %x.",stack);
-          [>stack += sizeof(struct thread_info);<]
-          tsk->regs.esp = stack + 2048;
-          printk("regs.esp = %x.\n",tsk->regs.esp);*/
 
         tsk->regs.eflags = eflags;	
         tsk->ticks = tsk->priority = prio;
 
-        p_task_stack -= p_task->stacksize;
         p_task++;
         selector_ldt += 1 << 3;
         tsk->sched_entity.vruntime = i;

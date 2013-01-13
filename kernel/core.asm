@@ -407,18 +407,17 @@ in_byte:
     ret 
 
 move_to_user_mode:
-        mov     esp, [current];process switch
-        lldt    [esp + P_LDT_SEL]
-        ;save sp0 stack
-        lea     eax, [esp + P_STACKTOP]
-        mov     dword [tss + TSS3_S_SP0], eax
-       	dec     dword [k_reenter]
-        pop     gs
-        pop     fs
-        pop     es
-        pop     ds
-        popad   
-        
-        add     esp, 4
-        iretd   
-
+    mov     esp, [current];process switch
+    lldt    [esp + P_LDT_SEL]
+    ;save sp0 stack
+    lea     eax, [esp + P_STACKTOP]
+    mov     dword [tss + TSS3_S_SP0], eax
+    dec     dword [k_reenter]
+    pop     gs
+    pop     fs
+    pop     es
+    pop     ds
+    popad   
+    
+    add     esp, 4
+    iretd   

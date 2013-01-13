@@ -190,7 +190,7 @@ void schedule()
     //based on PRI
     //choose the best process
     p = current->sched_class->pick_next_task(&sched_rq); 
-    /*printk("name=%s.",p->name);*/
+    /*printk("name=%s.",p->command);*/
 
     if(p)
     {

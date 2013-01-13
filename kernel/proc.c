@@ -12,6 +12,7 @@
 #include "clock.h"
 #include "pid.h"
 #include "stdlib.h"
+#include "exit.h"
 
 t8      gdt_ptr[6]; // 0~15:Limit  16~47:Base
 DESCRIPTOR  gdt[GDT_SIZE];
@@ -47,8 +48,8 @@ void TestA()
         //syscall sys_get_ticks
         //		disp_int(get_ticks());
         disp_str("A");
-        //		printf("sunkang A:%s",get_ticks());
         milli_delay(100);
+        /*exit();*/
     }
 }
 
@@ -59,6 +60,7 @@ void TestB()
     while(1)
     {
         disp_str("B");
+        /*printk("%x.",current->regs.esp);*/
         //	printf("%d %s %c\t",i,"sunkang",'k');
         //		i++;
         //		assert(i ==1);
@@ -74,9 +76,10 @@ void TestC()
     //	int i = 0;
     while(1){
         disp_str("C");
+        /*printk("%x.",current->regs.esp);*/
         //		waitpid(current->pid);
         milli_delay(100);
-        /*fork();*/
+        fork();
         /*exit();*/
     }
 }
@@ -86,6 +89,7 @@ void TestD()
     while(1)
     {
         disp_str("D");
+        /*printk("%x.",current->regs.esp);*/
         milli_delay(100);
     }
 }
@@ -122,17 +126,17 @@ char	task_stack[STACK_SIZE_TOTAL];
 //system process tables
 TASK	\
             task_table[NR_SYSTEM_PROCS] = { 
-                {task_tty, STACK_SIZE_TTY, "tty"}
+                {task_tty, "tty"}
             };
 
 //user process tables;only for test now
 TASK 	\
             user_proc_table[NR_USER_PROCS] = { 
-                {init_p, 	STACK_SIZE_INIT,   "init"},
-                {TestA, STACK_SIZE_TESTA, "TestA"},
-                {TestB, STACK_SIZE_TESTB, "TestB"},
-                {TestC, STACK_SIZE_TESTC, "TestC"},
-                {TestD, STACK_SIZE_TESTD, "TestD"}
+                {init_p,   "init"},
+                {TestA, "TestA"},
+                {TestB, "TestB"},
+                {TestC, "TestC"},
+                {TestD, "TestD"}
             };
 
 

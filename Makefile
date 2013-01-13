@@ -1,7 +1,7 @@
 TOPDIR=.
 include $(TOPDIR)/Generic.mak
 
-DEBUG=true 
+#DEBUG=true 
 
 ifdef DEBUG
 BOOT:=boot/boot.com

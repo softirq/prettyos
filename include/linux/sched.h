@@ -181,7 +181,7 @@ static inline struct task_struct *get_current(void)
 typedef struct s_task 
 {
     t_pf_task	initial_eip;
-    int			stacksize;
+    //int			stacksize;
     char		command[32];
 }TASK;
 
@@ -198,20 +198,17 @@ extern struct sched_class rr_sched;
 
 #define NR_PROCESS		(NR_SYSTEM_PROCS + NR_USER_PROCS)
 
-#define STACK_SIZE_DEFAULT  4192	
-#define STACK_SIZE_TTY		STACK_SIZE_DEFAULT
-#define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
-#define STACK_SIZE_TESTB	STACK_SIZE_DEFAULT
-#define STACK_SIZE_TESTC	STACK_SIZE_DEFAULT
-#define STACK_SIZE_TESTD	STACK_SIZE_DEFAULT
-#define STACK_SIZE_INIT		STACK_SIZE_DEFAULT
+#define STACK_SIZE_DEFAULT      4192	
 
-#define STACK_SIZE_TOTAL	(STACK_SIZE_TTY + \
-        STACK_SIZE_INIT + \
-        STACK_SIZE_TESTA + \
-        STACK_SIZE_TESTB + \
-        STACK_SIZE_TESTC + \
-        STACK_SIZE_TESTD)
+//#define STACK_SIZE_TTY		STACK_SIZE_DEFAULT
+//#define STACK_SIZE_TESTA	STACK_SIZE_DEFAULT
+//#define STACK_SIZE_TESTB	STACK_SIZE_DEFAULT
+//#define STACK_SIZE_TESTC	STACK_SIZE_DEFAULT
+//#define STACK_SIZE_TESTD	STACK_SIZE_DEFAULT
+//
+//
+#define STACK_SIZE_INIT		STACK_SIZE_DEFAULT
+#define STACK_SIZE_TOTAL	STACK_SIZE_INIT 
 
 #define proc2pid(p) (p - proc_table)
 #define pid2proc(pid) (proc_table + pid)
