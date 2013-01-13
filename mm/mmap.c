@@ -1,22 +1,15 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
-#include "string.h"
-#include "tty.h"
-#include "panic.h"
 #include "errno.h"
-#include "console.h"
-#include "printf.h"
 #include "fork.h"
 #include "wait.h"
 #include "mm.h"
 #include "fs.h"
 #include "sched.h"
-#include "global.h"
-#include "proc.h"
 #include "mmap.h"
 #include "pgtable.h"
 #include "malloc.h"
+#include "printf.h"
 
 
 #define avl_empty   (struct vm_area_struct *) NULL

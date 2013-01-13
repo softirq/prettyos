@@ -4,7 +4,7 @@
 #include "string.h"
 #include "tty.h"
 #include "console.h"
-#include "wait.h"
+/*#include "wait.h"*/
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
@@ -16,6 +16,7 @@
 #include "sched_fair.h"
 #include "printf.h"
 #include "fork.h"
+#include "clock.h"
 
 /*#define EXT_MEM_K 	(*(unsigned short*)0x8002)*/
 //long memory_start = 0;

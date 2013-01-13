@@ -1,5 +1,5 @@
-#ifndef     _TIMER_H_
-#define     _TIMER_H_
+#ifndef     _CLOCK_H_
+#define     _CLOCK_H_
 
 /* 8253/8254 PIT (Programmable Interval Timer) */
 #define TIMER0          0x40	/* I/O port for timer channel 0 */
@@ -8,6 +8,11 @@
 #define TIMER_FREQ	1193182L/* clock frequency for timer in PC and AT */
 #define HZ		100	/* clock freq (software settable on IBM-PC) */
 
-/* AT keyboard */
+extern  long 		jiffies;
+extern	int		ticks;
+
+extern void	clock_handler(int irq);
+extern void	milli_delay(int milli_sec);
+extern void 	init_clock();
 
 #endif

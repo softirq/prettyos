@@ -32,6 +32,10 @@ typedef struct sigaction
 #define SIGTTIN		21
 #define SIGTTOU		22
 
-extern void do_signal(int signr);
+#define NR_SIGNALS	32
+
+extern void 	do_signal(int signr);
+extern int 	get_signal_bitmap();
+extern int 	send_signal(int signr,int pid);
 
 #endif

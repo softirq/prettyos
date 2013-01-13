@@ -13,5 +13,6 @@ extern int fork();
 extern int getpid();
 void init_pidmap();
 pid_t get_pidmap();
+int sys_fork();
 
 #endif

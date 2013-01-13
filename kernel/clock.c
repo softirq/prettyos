@@ -1,17 +1,23 @@
 #include "type.h"
 #include "const.h"
-#include "timer.h"
-#include "traps.h"
-//#include "string.h"
-#include "tty.h"
-#include "console.h"
+#include "list.h"
 #include "wait.h"
-#include "mm.h"
+#include "traps.h"
+#include "timer.h"
+//#include "string.h"
+/*#include "tty.h"*/
+/*#include "console.h"*/
+/*#include "mm.h"*/
+#include "irq.h"
 #include "sched.h"
-#include "global.h"
-#include "kernel.h"
+/*#include "global.h"*/
+/*#include "kernel.h"*/
 #include "syscall.h"
 #include "stdlib.h"
+#include "clock.h"
+
+long jiffies = 0;
+int ticks = 0;
 
 void clock_handler(int irq)
 {

@@ -3,5 +3,6 @@
 
 extern int exit();
 extern int waitpid(int pid);
+int sys_exit();
 
 #endif

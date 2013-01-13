@@ -1,10 +1,9 @@
-/* slab system */
 #include "type.h"
 #include "const.h"
 #include "string.h"
 #include "stdlib.h"
 #include "list.h"
-#include "panic.h"
+/*#include "panic.h"*/
 #include "wait.h"
 #include "printf.h"
 #include "mm.h"

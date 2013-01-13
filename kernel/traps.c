@@ -1,10 +1,11 @@
 
 #include "type.h"
 #include "const.h"
+#include "list.h"
+#include "wait.h"
 #include "traps.h"
 #include "tty.h"
 #include "console.h"
-#include "wait.h"
 #include "mm.h"
 #include "sched.h"
 #include "proc.h"
@@ -14,7 +15,7 @@
 #include "syscall.h"
 #include "stdlib.h"
 #include "system.h"
-
+#include "i8259.h"
 
 static void init_idt_desc(unsigned int n, t8 desc_type, t_pf_int_handler handler, unsigned char privilege);
 static t32 seg2phys(t16 seg);
@@ -58,6 +59,8 @@ extern void	hwint13();
 extern void	hd_intr();   //irq 14: hard disk interrupt
 extern void	hwint15();
 
+t32     k_reenter;
+TSS tss;
 
 void init_trap()
 {

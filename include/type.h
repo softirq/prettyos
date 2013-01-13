@@ -19,7 +19,7 @@ typedef char*			va_list;
 
 typedef	void	(*t_pf_int_handler)	();	
 typedef	void	(*t_pf_task)		();
-typedef	void	(*irq_handler_ptr)	(int irq);
+//typedef	void	(*irq_handler)	(int irq);
 
 typedef	void*	syscall_ptr;
 

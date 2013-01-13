@@ -49,6 +49,13 @@ global	page_fault
 global	copr_error
 global 	clock_intr	
 global 	kb_intr	
+global  enable_irq
+global  disable_irq
+global  enable_int
+global  disable_int
+global  out_byte
+global  in_byte
+
 global	hwint02
 global	hwint03
 global	hwint04
@@ -338,3 +345,80 @@ move_to_user_mode:
         
         add     esp, 4
         iretd   
+
+
+disable_irq:
+    mov ecx, [esp + 4]          
+    pushf
+    cli 
+    mov ah, 1
+    rol ah, cl              
+    cmp cl, 8
+    jae disable_8           
+disable_0:
+    in  al, INT_M_CTLMASK
+    test    al, ah
+    jnz dis_already         
+    or  al, ah
+    out INT_M_CTLMASK, al   
+    popf
+    mov eax, 1              
+    ret 
+disable_8:
+    in  al, INT_S_CTLMASK
+    test    al, ah
+    jnz dis_already         
+    or  al, ah
+    out INT_S_CTLMASK, al   
+    popf
+    mov eax, 1              
+    ret 
+dis_already:
+    popf
+    xor eax, eax            
+    ret
+
+enable_irq:
+        mov ecx, [esp + 4]      
+        pushf
+        cli
+        mov ah, ~1
+        rol ah, cl          
+        cmp cl, 8
+        jae enable_8        
+enable_0:
+        in  al, INT_M_CTLMASK
+        and al, ah
+        out INT_M_CTLMASK, al   
+        popf
+        ret
+enable_8:
+        in  al, INT_S_CTLMASK
+        and al, ah
+        out INT_S_CTLMASK, al   
+        popf
+        ret
+disable_int: 
+        ;关中断
+        cli
+        ret
+enable_int:
+        ;开中断
+        sti
+        ret
+
+out_byte:
+    mov edx, [esp + 4]      
+    mov al, [esp + 4 + 4]   
+    out dx, al
+    nop 
+    nop 
+    ret 
+
+in_byte:
+    mov edx, [esp + 4]      
+    xor eax, eax 
+    in  al, dx
+    nop 
+    nop 
+    ret 

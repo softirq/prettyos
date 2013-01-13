@@ -1,12 +1,6 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
 #include "string.h"
-#include "sched.h"
-#include "tty.h"
-#include "console.h"
-#include "global.h"
-#include "kernel.h"
 #include "errno.h"
 
 #include "linux/net.h"

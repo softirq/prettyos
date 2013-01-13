@@ -1,10 +1,9 @@
 #include "type.h"
 #include "stddef.h"
 #include "errno.h"
-#include "lib.h"
-#include "printf.h"
-#include "traps.h"
 #include "fcntl.h"
+#include "string.h"
+#include "printf.h"
 
 #include "asm-i386/system.h"
 #include "asm-i386/byteorder.h"

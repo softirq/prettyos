@@ -1,15 +1,6 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
-//#include "string.h"
-#include "tty.h"
-#include "console.h"
-#include "wait.h"
-#include "mm.h"
 #include "sched.h"
-#include "global.h"
-#include "proc.h"
-#include "kernel.h"
 #include "panic.h"
 #include "stdlib.h"
 #include "hd.h"
@@ -59,7 +50,7 @@ int open(char* filename,int mode,int flag)
     }
     if(fd < 0 || fd > NR_OPEN)
     {
-        panic("filp is full (PID %d)\n",proc2pid(current)); 
+        /*panic("filp is full (PID %d)\n",proc2pid(current)); */
     }
     f = file_table;
     for(i = 0;i < NR_FILE;i++,f++)
@@ -71,7 +62,7 @@ int open(char* filename,int mode,int flag)
     }
     if(i < 0 || i > NR_FILE)
     {
-        panic("file_table is full (PID %d)\n",proc2pid(current));
+        /*panic("file_table is full (PID %d)\n",proc2pid(current));*/
     }
     (current->filp[fd] = f)->f_count++;
     //	printk("root_inode->i_dev = %d\n",root_inode->i_dev);

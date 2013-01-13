@@ -1,10 +1,11 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
-//#include "string.h"
-#include "tty.h"
-#include "console.h"
+#include "list.h"
 #include "wait.h"
+#include "traps.h"
+#include "clock.h"
+#include "tty.h"
+#include "irq.h"
 #include "mm.h"
 #include "sched.h"
 #include "proc.h"
@@ -12,8 +13,12 @@
 #include "keyboard.h"
 #include "kernel.h"
 #include "stdlib.h"
+#include "console.h"
 
+CONSOLE			console_table[NR_CONSOLES];
 
+int nr_current_console;
+int disp_pos;
 static void	set_cursor(unsigned int position);
 static void	set_video_start_addr(t32 addr);
 static void	flush(CONSOLE* p_con);
@@ -104,7 +109,7 @@ void out_char(CONSOLE* p_con, char ch)
 }
 
 
-tbool is_current_console(CONSOLE* p_con)
+bool is_current_console(CONSOLE* p_con)
 {
     return (p_con == &console_table[nr_current_console]);
 }

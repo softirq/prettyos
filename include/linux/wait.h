@@ -31,4 +31,7 @@ extern void remove_wait_queue(struct wait_queue **wq, struct wait_queue *wait);
 extern void down(struct semaphore *sem);
 extern void up(struct semaphore *sem);
 
+extern void 	wake_up(struct  wait_queue **wq);
+extern void 	sleep_on(struct wait_queue **wq);
+
 #endif

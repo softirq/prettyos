@@ -1,7 +1,7 @@
 #include "type.h"
 #include "const.h"
 /*#include "traps.h"*/
-/*#include "tty.h"*/
+#include "tty.h"
 /*#include "console.h"*/
 /*#include "wait.h"*/
 /*#include "mm.h"*/

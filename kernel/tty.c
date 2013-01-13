@@ -1,21 +1,18 @@
-
 #include "type.h"
 #include "const.h"
 #include "traps.h"
-//#include "string.h"
+#include "list.h"
+#include "wait.h"
 #include "tty.h"
 #include "console.h"
-#include "wait.h"
-#include "mm.h"
-#include "sched.h"
-#include "global.h"
-#include "proc.h"
 #include "keyboard.h"
-#include "kernel.h"
-#include "stdlib.h"
+#include "irq.h"
+/*#include "stdlib.h"*/
 
 #define TTY_FIRST	(tty_table)
 #define TTY_END		(tty_table + NR_CONSOLES)
+
+TTY			tty_table[NR_CONSOLES];
 
 static void	init_tty(TTY* p_tty);
 static void	tty_do_read(TTY* p_tty);
@@ -154,14 +151,9 @@ void tty_write(TTY *p_tty,char *buf,int len)
         i--;
     }
 }
-/*
-   int sys_write(char *buf,int len,struct task_struct *p_proc)
-   {
-   tty_write(&tty_table[p_proc->nr_tty],buf,len);
-   return 0;
-   }
-   */
-int sys_printx(char *s,int len,struct task_struct *p_proc)
+ 
+/*int sys_printx(char *s,int len,struct task_struct *p_proc)*/
+int sys_printx(char *s,int len)
 {
     const char *p;
     char ch;
@@ -169,7 +161,7 @@ int sys_printx(char *s,int len,struct task_struct *p_proc)
 
     if(k_reenter == 0)	//用户态下
     {
-        p = (char *)va2la(proc2pid(p_proc),s);
+        /*p = (char *)va2la(proc2pid(p_proc),s);*/
     }
     else if(k_reenter > 0) //内核态
     {
@@ -181,7 +173,8 @@ int sys_printx(char *s,int len,struct task_struct *p_proc)
     }
 
     ch = *p;
-    if((ch == MAG_CH_PANIC) || (ch == MAG_CH_ASSERT && current < &proc_table[NR_SYSTEM_PROCS]))
+    /*if((ch == MAG_CH_PANIC) || (ch == MAG_CH_ASSERT && current < &proc_table[NR_SYSTEM_PROCS]))*/
+    if((ch == MAG_CH_PANIC) || (ch == MAG_CH_ASSERT ))
     {
         disable_int(); //关中断
         char *v = (char *)V_MEM_BASE;
@@ -200,7 +193,7 @@ int sys_printx(char *s,int len,struct task_struct *p_proc)
 
         while((ch = *p++) != 0)	
         {
-            out_char(tty_table[p_proc->nr_tty].p_console,ch);
+            out_char(tty_table[current->nr_tty].p_console,ch);
         }
     }
 

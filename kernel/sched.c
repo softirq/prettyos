@@ -1,27 +1,19 @@
 #include "type.h"
 #include "const.h"
 #include "traps.h"
-//#include "string.h"
-#include "tty.h"
-#include "console.h"
+#include "irq.h"
+#include "list.h"
 #include "wait.h"
-#include "mm.h"
 #include "sched.h"
-#include "global.h"
 #include "proc.h"
-#include "kernel.h"
-#include "stdlib.h"
-#include "timer.h"
-#include "kstat.h"
-#include "printf.h"
-#include "asm-i386/system.h"
 #include "asm-i386/panic.h"
 #include "sched_fair.h"
 #include "fork.h"
+#include "printf.h"
 
 struct task_struct *current = NULL;
 struct task_struct *init = &proc_table[1];
-struct kernel_stat kstat = { 0 };
+/*struct kernel_stat kstat = { 0 };*/
 
 struct rq sched_rq;
 

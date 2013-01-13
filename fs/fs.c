@@ -1,21 +1,13 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
-//#include "string.h"
-#include "tty.h"
 #include "console.h"
-#include "wait.h"
-#include "mm.h"
-#include "sched.h"
-#include "global.h"
-#include "kernel.h"
-#include "panic.h"
 #include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
 #include "fcntl.h"
 #include "string.h"
 #include "printf.h"
+#include "panic.h"
 
 //一个扇区大小
 //public u8 fs_buf[SECTOR_SIZE];

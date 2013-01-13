@@ -1,3 +1,5 @@
+#include "bitmap.h"
+
 inline int set_bit(int nr, void * addr)
 {
     int oldbit;

@@ -215,5 +215,6 @@ extern  u8 hd_buf[];
 #define S_ISREG(m)	((m & I_ALL) == I_REGULAR)	
 #define S_ISPIFO(m)	((m & I_ALL) == I_NAMED_PIFO)	
 
+int sys_write(unsigned int fd,char *buf,int count);
 
 #endif

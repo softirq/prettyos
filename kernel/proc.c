@@ -1,20 +1,22 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
-//#include "string.h"
-#include "tty.h"
-#include "console.h"
+#include "list.h"
 #include "wait.h"
-#include "mm.h"
+#include "traps.h"
+#include "tty.h"
 #include "sched.h"
-#include "global.h"
 #include "proc.h"
 #include "kernel.h"
-#include "stdlib.h"
 #include "sys.h"
-#include "fork.h"
-#include "exit.h"
 #include "printf.h"
+#include "clock.h"
+#include "stdlib.h"
+
+t8      gdt_ptr[6]; // 0~15:Limit  16~47:Base
+DESCRIPTOR  gdt[GDT_SIZE];
+t8      idt_ptr[6]; // 0~15:Limit  16~47:Base
+GATE        idt[IDT_SIZE];
+
 
 void init_p()
 {
@@ -110,3 +112,26 @@ void* va2la(int pid,void *va)
     u32 la = seg_base + (u32)va;
     return (void *)la;
 }
+
+//public	PROCESS	proc_table[NR_TASKS + NR_NATIVE_PROCS];
+struct task_struct proc_table[NR_PROCESS + NR_PROCS];
+
+char	task_stack[STACK_SIZE_TOTAL];
+
+//system process tables
+TASK	\
+            task_table[NR_SYSTEM_PROCS] = { 
+                {task_tty, STACK_SIZE_TTY, "tty"}
+            };
+
+//user process tables;only for test now
+TASK 	\
+            user_proc_table[NR_USER_PROCS] = { 
+                {init_p, 	STACK_SIZE_INIT,   "init"},
+                {TestA, STACK_SIZE_TESTA, "TestA"},
+                {TestB, STACK_SIZE_TESTB, "TestB"},
+                {TestC, STACK_SIZE_TESTC, "TestC"},
+                {TestD, STACK_SIZE_TESTD, "TestD"}
+            };
+
+

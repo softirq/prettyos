@@ -1,6 +1,7 @@
 #ifndef     _HD_H_
 #define     _HD_H_
 
+#include "fs.h"
 #define HD_TIMEOUT 	10000
 
 #define MAKE_DEVICE_REG(lba,drive,lba_highest) ((lba << 6) | (drive << 4) | (lba_highest & 0xf) | 0xA0)
@@ -110,4 +111,11 @@ struct hard_disk_info
 };
 
 struct hard_disk_info hd_info[MAX_DRIVES];
+
+extern void 	ha_handler(int irq);
+extern void 	init_hd();
+extern void 	hd_identify(int drive);
+extern void 	hd_rw(int net_device,int start_sect,int nr_sects,int flag,struct buffer_head *bh);
+extern void 	hd_open(int net_device);
+
 #endif

@@ -2,11 +2,12 @@
 #define     _SCHED_H_
 
 #include "init.h"
+#include "list.h"
+#include "wait.h"
 #include "signal.h"
 #include "fs.h"
 #include "mm.h"
 #include "rbtree.h"
-#include "list.h"
 #include "fork.h"
 #include "asm-i386/processor.h"
 #include "asm-i386/traps.h"
@@ -219,5 +220,8 @@ extern struct sched_class rr_sched;
 #define TASK_WAITING 	TASK_UNINTERRUPTIBLE
 
 void init_sched();
+extern void	schedule();
+//extern int 	goodness(PROCESS **p);
+extern void 	switch_to(PROCESS *prev,PROCESS *next);
 
 #endif

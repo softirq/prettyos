@@ -105,6 +105,30 @@
 #define PAD_MID		PAD_5			/* Middle key	*/
 #define PAD_DEL		PAD_DOT			/* Del		*/
 
+#define	KB_DATA		0x60	/* I/O port for keyboard data
+					Read : Read Output Buffer 
+					Write: Write Input Buffer(8042 Data&8048 Command) */
+#define	KB_CMD		0x64	/* I/O port for keyboard command
+					Read : Read Status Register
+					Write: Write Input Buffer(8042 Command) */
+#define	LED_CODE	0xED
+#define	KB_ACK		0xFA
+
+/* Color */
+/*
+* e.g.	MAKE_COLOR(BLUE, RED)
+*	MAKE_COLOR(BLACK, RED) | BRIGHT
+*	MAKE_COLOR(BLACK, RED) | BRIGHT | FLASH
+*/
+#define	BLACK	0x0	/* 0000 */
+#define	WHITE	0x7	/* 0111 */
+#define	RED	0x4	/* 0100 */
+#define	GREEN	0x2	/* 0010 */
+#define	BLUE	0x1	/* 0001 */
+#define	FLASH	0x80	/* 1000 0000 */
+#define	BRIGHT	0x08	/* 0000 1000 */
+#define	MAKE_COLOR(x,y)	((x<<4) | y)	/* MAKE_COLOR(Background,Foreground) */
+
 
 //键盘缓冲区 采用队列结构
 typedef struct s_kb {
@@ -115,6 +139,8 @@ typedef struct s_kb {
 	char	buf[KB_IN_BYTES];
 }KB_INPUT;
 
-
+extern void	keyboard_handler(int irq);
+extern void	keyboard_read(TTY* p_tty);
+extern void 	init_keyboard();
 
 #endif 

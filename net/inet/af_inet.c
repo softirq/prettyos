@@ -1,14 +1,15 @@
 #include "type.h"
-#include "const.h"
-#include "traps.h"
+/*#include "const.h"*/
+/*#include "traps.h"*/
 //#include "string.h"
-#include "sched.h"
-#include "tty.h"
-#include "console.h"
-#include "global.h"
-#include "kernel.h"
-#include "lib.h"
+/*#include "sched.h"*/
+/*#include "tty.h"*/
+/*#include "console.h"*/
+/*#include "global.h"*/
+/*#include "kernel.h"*/
+/*#include "lib.h"*/
 #include "stddef.h"
+#include "printf.h"
 
 #include "asm-i386/system.h"
 #include "linux/net.h"
@@ -21,7 +22,6 @@
 #include "tcp.h"
 #include "udp.h"
 #include "raw.h"
-
 #include "sock.h"
 static struct proto_ops inet_protocol =
 {

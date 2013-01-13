@@ -1,23 +1,21 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
+/*#include "traps.h"*/
 #include "string.h"
-#include "tty.h"
-#include "console.h"
+/*#include "tty.h"*/
+/*#include "console.h"*/
 #include "panic.h"
 #include "printf.h"
-#include "fork.h"
+/*#include "fork.h"*/
 #include "stdlib.h"
 #include "wait.h"
-#include "mm.h"
+/*#include "mm.h"*/
 #include "sched.h"
-#include "global.h"
+/*#include "global.h"*/
 #include "pgtable.h"
 #include "page.h"
 #include "swap.h"
-#include "bitops.h"
-#include "kstat.h"
-#include "proc.h"
+#include "mm.h"
 
 pgd_t *swapper_pg_dir = NULL;
 

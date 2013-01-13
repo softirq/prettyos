@@ -1,21 +1,23 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
-#include "tty.h"
-#include "console.h"
+#include "list.h"
+/*#include "traps.h"*/
+/*#include "tty.h"*/
+/*#include "console.h"*/
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
 #include "stddef.h"
 #include "bitmap.h"
-#include "global.h"
-#include "kernel.h"
+/*#include "global.h"*/
+/*#include "kernel.h"*/
 #include "string.h"
-#include "stdlib.h"
+/*#include "stdlib.h"*/
 #include "panic.h"
-#include "proc.h"
+/*#include "proc.h"*/
 #include "printf.h"
 #include "fork.h"
+#include "start.h"
 
 unsigned char pidmap[MAX_PIDNUM/8] = {0};
 

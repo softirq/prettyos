@@ -1,22 +1,15 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
 #include "string.h"
-#include "tty.h"
-#include "console.h"
 #include "panic.h"
 #include "printf.h"
-#include "fork.h"
 #include "stdlib.h"
 #include "wait.h"
-#include "mm.h"
-#include "sched.h"
 #include "global.h"
 #include "pgtable.h"
 #include "swap.h"
 #include "bitmap.h"
-#include "kstat.h"
-#include "proc.h"
+#include "mm.h"
 
 /*
  * buddy system
@@ -104,10 +97,10 @@ void rw_swap_page(int rw, swap_entry_t entry, char *buf)
     }
     /*while(__set_bit(offset, p->lock_map))*/
         /*interruptible_sleep_on(&lock_queue);*/
-    if(rw == READ)
-        kstat.pswpin++;
-    else 
-        kstat.pswpout++;
+    /*if(rw == READ)*/
+        /*kstat.pswpin++;*/
+    /*else */
+        /*kstat.pswpout++;*/
     if(p->swap_device)
     {
         //		ll_rw_page(rw, p->swap_device, offset, buf);

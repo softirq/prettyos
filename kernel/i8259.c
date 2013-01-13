@@ -1,17 +1,19 @@
 #include "type.h"
 #include "const.h"
+#include "list.h"
+#include "irq.h"
 #include "traps.h"
-//#include "string.h"
-#include "tty.h"
-#include "console.h"
-#include "wait.h"
-#include "mm.h"
-#include "sched.h"
-#include "global.h"
-#include "kernel.h"
+/*#include "wait.h"*/
+/*#include "mm.h"*/
+/*#include "sched.h"*/
+/*#include "global.h"*/
+/*#include "kernel.h"*/
 #include "stdlib.h"
+#include "i8259.h"
 
 static void reserved_irq(int irq);
+//irq handler table
+irq_handler		irq_table[NR_IRQ];
 
 void init_8259A()
 {
@@ -37,7 +39,7 @@ void init_8259A()
 }
 
 //set interrupt handler
-void put_irq_handler(int irq, irq_handler_ptr handler)
+void put_irq_handler(int irq, irq_handler handler)
 {
     disable_irq(irq);
     irq_table[irq] = handler;

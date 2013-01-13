@@ -1,18 +1,19 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
+/*#include "traps.h"*/
 //#include "string.h"
-#include "sched.h"
-#include "tty.h"
-#include "console.h"
-#include "global.h"
-#include "kernel.h"
+/*#include "sched.h"*/
+/*#include "tty.h"*/
+/*#include "console.h"*/
+/*#include "global.h"*/
+/*#include "kernel.h"*/
 #include "lib.h"
 #include "asm-i386/byteorder.h"
 
 #include "linux/netdevice.h"
 #include "linux/if_ether.h"
 #include "arp.h"
+#include "printf.h"
 
 int eth_header(unsigned char *buff,struct net_device *dev,unsigned short type,void *daddr, void *saddr,unsigned int len,struct sk_buff *skb)
 {

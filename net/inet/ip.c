@@ -1,9 +1,8 @@
 #include "type.h"
 #include "stddef.h"
 #include "errno.h"
+#include "string.h"
 #include "asm-i386/byteorder.h"
-#include "lib.h"
-#include "printf.h"
 
 #include "asm-i386/system.h"
 #include "asm-i386/param.h"
@@ -18,6 +17,7 @@
 #include "ip.h"
 #include "sock.h"
 #include "route.h"
+#include "printf.h"
 
 #define 	LOOPBACK(x) 	(((x) & htonl(0xff000000)) == htonl(0x7f000000))
 

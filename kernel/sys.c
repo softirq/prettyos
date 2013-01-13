@@ -1,16 +1,15 @@
 #include "type.h"
 #include "const.h"
-#include "traps.h"
+#include "list.h"
+#include "wait.h"
 #include "string.h"
 #include "tty.h"
-#include "wait.h"
-#include "mm.h"
-#include "sched.h"
-#include "console.h"
-#include "proc.h"
-#include "global.h"
-#include "kernel.h"
-#include "errno.h"
+#include "fs.h"
+#include "exit.h"
+#include "fork.h"
+#include "clock.h"
+#include "printf.h"
+#include "sys.h"
 
 int sys_get_ticks()
 {
@@ -20,7 +19,8 @@ int sys_get_ticks()
 int sys_waitpid(int pid)
 {
     /*struct task_struct *p;*/
-    int i;
+    /*int i;*/
+#if 0
     for(i = 0;i < NR_PROCESS + NR_PROCS;i++)
     {
         if(!pid)
@@ -56,6 +56,7 @@ int sys_waitpid(int pid)
         schedule();
         break;
     }
+#endif
     return 0;
 }
 
@@ -63,3 +64,14 @@ int sys_wakeup()
 {
     return 0;
 }
+
+//system call table
+syscall_ptr		\
+                    sys_call_table[NR_SYS_CALL] = {
+                        sys_get_ticks,
+                        sys_write,
+                        sys_printx,
+                        sys_fork,
+                        sys_exit,
+                        sys_waitpid
+                    };

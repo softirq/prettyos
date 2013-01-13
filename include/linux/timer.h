@@ -20,9 +20,9 @@ extern int  del_timer(struct timer_list * timer);
 extern int  add_timer(struct timer_list * timer);  
 extern int  init_timer(struct timer_list *timer);
 
-#ifndef _V_JIFFIES
-extern long jiffies;
-#endif
+//#ifndef _V_JIFFIES
+//extern long jiffies;
+//#endif
 
 void do_gettimeofday(struct timeval *tv);
 

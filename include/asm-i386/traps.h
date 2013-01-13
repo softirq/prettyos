@@ -5,6 +5,8 @@
 #define DP_BASE_MID_SHIFT 	16
 #define DP_LIMIT_SHIFT 		16
 
+extern  t32     k_reenter;
+
 typedef struct descriptor		
 {
 	t16	limit_low;		
@@ -137,5 +139,8 @@ typedef struct s_tss {
 #define vir2phys(seg_base, vir)	(t32)(((t32)seg_base) + (t32)(vir))
 
 #define LIMIT_4K_SHIFT 	12
+
+extern void	init_trap();
+extern void init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t16 attribute);
 
 #endif 

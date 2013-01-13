@@ -5,8 +5,6 @@
 //       klib.asm 
 extern void     out_byte(t_port port, t8 value);
 t8      		in_byte(t_port port);
-extern void     disable_int();
-extern void     enable_int();
 extern void     disp_str(char * info);
 // void     disp_int(int i);
 extern void     disp_color_str(char * info, int color);
