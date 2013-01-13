@@ -5,6 +5,7 @@
 #include "tty.h"
 #include "console.h"
 /*#include "wait.h"*/
+#include "elf.h"
 #include "mm.h"
 #include "sched.h"
 #include "global.h"
@@ -40,6 +41,16 @@ static int get_memsize(unsigned long *mem_size)
     /*printk("memsize = %x\n", *mem_size);*/
 
     return 0;
+}
+
+/* get kernel elf map */
+static int get_kernel_map(unsigned int *base, unsigned int *limit)
+{
+    struct boot_params bp;
+    get_boot_params(&bp);
+    Elf32_Ehdr *elf_header = (Elf32_Ehdr *)(bp.kernel_addr);
+
+    return get_elf_map(bp.kernel_addr, elf_header, base, limit);
 }
 
 static void start_kernel()
@@ -86,10 +97,7 @@ static void start_kernel()
 
 }
 
-/*static struct task_struct g_task[6];*/
-/*-----------------------------------------------------------------------------
- *  init the first process
- *-----------------------------------------------------------------------------*/
+/*init the first process*/
 static void init_task()
 {
     int ret;
@@ -109,6 +117,10 @@ static void init_task()
     t8 	privilege;
     t8 	rpl;
     int eflags;
+
+    unsigned int k_base;
+    unsigned int k_limit;
+    ret = get_kernel_map(&k_base,&k_limit);
 
     /*disp_str("\t\tprocess init begins\n");*/
     for(i=0;i<NR_PROCESS + NR_PROCS;++i,++p_proc)
@@ -150,7 +162,7 @@ static void init_task()
         thread_union->thread_info.task = tsk;
 
         tsk->state = TASK_RUNNING;
-        ret = strcpy(tsk->name, p_task->name);	// name of the process
+        ret = strcpy(tsk->command, p_task->command);	// name of the process
         if((tsk->pid = get_pidmap()) < 0)
             return;
         tsk->parent = init;
@@ -165,7 +177,7 @@ static void init_task()
         tsk->signal = 0x0; //设置信号为空
         tsk->ldt_sel = selector_ldt;
 
-        if(strncmp(tsk->name,"init",strlen("init")) != 0)
+        if(strncmp(tsk->command,"init",strlen("init")) != 0)
         {
             p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
             tsk->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
@@ -178,9 +190,6 @@ static void init_task()
         }
         else
         {
-            unsigned int k_base;
-            unsigned int k_limit;
-            int ret = get_kernel_map(&k_base,&k_limit);
             assert(ret == 0);
 
             init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
@@ -202,10 +211,10 @@ static void init_task()
         /*printk("regs.esp = %x.",tsk->regs.esp);*/
 
         /*unsigned int *stack = thread_union->stack;
-        printk("stack = %x.",stack);
-        [>stack += sizeof(struct thread_info);<]
-        tsk->regs.esp = stack + 2048;
-        printk("regs.esp = %x.\n",tsk->regs.esp);*/
+          printk("stack = %x.",stack);
+          [>stack += sizeof(struct thread_info);<]
+          tsk->regs.esp = stack + 2048;
+          printk("regs.esp = %x.\n",tsk->regs.esp);*/
 
         tsk->regs.eflags = eflags;	
         tsk->ticks = tsk->priority = prio;

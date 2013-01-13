@@ -136,7 +136,7 @@ typedef struct task_struct
     pid_t pid, pgrp;    /* pid, group pid, */
     struct wait_queue *wait_exit;
 
-    char command[16];		
+    char command[32];		
     struct file *filp[NR_OPEN];
 
     //	struct task_struct *parent;
@@ -182,7 +182,7 @@ typedef struct s_task
 {
     t_pf_task	initial_eip;
     int			stacksize;
-    char		name[32];
+    char		command[32];
 }TASK;
 
 extern struct task_struct *current;

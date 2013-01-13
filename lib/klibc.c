@@ -1,15 +1,8 @@
 #include "type.h"
 #include "const.h"
-/*#include "traps.h"*/
 #include "tty.h"
-/*#include "console.h"*/
-/*#include "wait.h"*/
-/*#include "mm.h"*/
-/*#include "sched.h"*/
-/*#include "global.h"*/
 #include "printf.h"
 #include "config.h"
-#include "elf.h"
 #include "stdlib.h"
 
 void spin(char *str)
@@ -55,39 +48,6 @@ void get_boot_params(struct boot_params *bp)
     bp->kernel_addr = (unsigned char *)(p[BP_KERNEL_ADDR]);
 
     return ;
-}
-
-int get_kernel_map(unsigned int * base, unsigned int * limit)
-{
-    struct boot_params bp;
-    get_boot_params(&bp);
-
-    //	printk("mem_size = %d kernel_addr = %d\n",bp.mem_size,bp.kernel_addr);
-    Elf32_Ehdr *elf_header = (Elf32_Ehdr *)(bp.kernel_addr);
-
-    *base = ~0;
-    unsigned int t = 0;
-    int i = 0;
-    //	printk("elf_header->e_shnum = %d\n",elf_header->e_shnum);
-    //	printk("elf_header->e_entry = %d\n",elf_header->e_entry);
-    //	printk("elf_header->e_machine= %d\n",elf_header->e_machine);
-    for(;i < elf_header->e_shnum;i++)
-    {
-        Elf32_Shdr * section_header = (Elf32_Shdr *)(bp.kernel_addr + elf_header->e_shoff + i * elf_header->e_shentsize);
-        if(section_header->sh_flags & SHF_ALLOC)
-        {
-            int bottom = section_header->sh_addr;
-            int top = section_header->sh_addr + section_header->sh_size;
-            //		printk("bottom = %d top = %d\n",bottom,top);
-            if(*base > bottom)
-                *base = bottom;
-            if(t< top)
-                t = top;
-        }
-
-    }
-    *limit = t - *base - 1;
-    return 0;
 }
 
 int phys_copy(char *dst, char *src,int size)

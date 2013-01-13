@@ -8,7 +8,7 @@ typedef int 		Elf32_Sword;
 typedef unsigned int 	Elf32_Word;
 
 #define EI_NIDENT 16
-typedef struct{
+typedef struct elf32_ehdr{
 	unsigned char e_ident[EI_NIDENT];
 	Elf32_Half e_type;
 	Elf32_Half e_machine;
@@ -25,7 +25,7 @@ typedef struct{
 	Elf32_Half e_shstrndx;
 }Elf32_Ehdr;
 
-typedef struct{
+typedef struct elf32_shdr{
 	Elf32_Word sh_name;
 	Elf32_Word sh_type;
 	Elf32_Word sh_flags;
@@ -39,5 +39,8 @@ typedef struct{
 }Elf32_Shdr;
 
 #define SHF_ALLOC 	 0x02
+
+//int get_elf_map(struct Elf32_Ehdr *elf_header, unsigned int *base, unsigned int *limit);
+int get_elf_map(unsigned char *address, struct elf32_ehdr *elf_header, unsigned int *base, unsigned int *limit);
 
 #endif

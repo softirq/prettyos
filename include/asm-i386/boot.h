@@ -7,7 +7,7 @@
 struct boot_params 
 {
 	int mem_size;
-	unsigned char * kernel_addr;
+	unsigned char *kernel_addr;
 };
 
 #endif

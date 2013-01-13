@@ -28,7 +28,7 @@ extern int 		strncpy(char *dst,char *src,int size);
 */
 
 extern void 	get_boot_params(struct boot_params *bp);
-extern int 		get_kernel_map(unsigned int * base, unsigned int * limit);
+//extern int 		get_kernel_map(unsigned int * base, unsigned int * limit);
 
 extern int 		phys_copy(char * dst, char * src,int size);
 extern int 		u_phys_copy(unsigned char * dst, unsigned char * src,int size);
