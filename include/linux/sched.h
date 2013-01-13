@@ -8,7 +8,8 @@
 #include "fs.h"
 #include "mm.h"
 #include "rbtree.h"
-#include "fork.h"
+#include "pid.h"
+#include "resource.h"
 #include "asm-i386/processor.h"
 #include "asm-i386/traps.h"
 
@@ -119,30 +120,37 @@ typedef struct stackframe {
 typedef struct task_struct 
 {
     struct stackframe regs;			
-    t16		ldt_sel;		
-    DESCRIPTOR	ldts[LDT_SIZE];		
-    //struct 	sigaction sig_action[NR_SIGNALS];//32个信号 
-    struct 	sigaction sig_action[NR_SIGNALS];//32个信号 
-    int 		state;
-    unsigned long signal; //信号位图
-    unsigned long blocked; //信号屏蔽字段
-    tbool		sigpending;	//是否有信号 有true 没有false
-    int 		flags;
-    int		ticks;			
-    int		priority;
-    int 		nr_tty;
-    //int 		parent;
-    pid_t pid;			
-    char		name[16];		
-    struct 	file 	*filp[NR_OPEN];
+    unsigned short ldt_sel;		
+    DESCRIPTOR ldts[LDT_SIZE];		
+
+    struct sigaction sig_action[NR_SIGNALS];
+    int state;
+    unsigned long signal; //signal bitmap
+    unsigned long blocked; //signal mask
+    tbool		sigpending;	//is signal pending?
+
+    int flags;
+    int	ticks;			
+    int	priority;
+    int nr_tty;
+    pid_t pid, pgrp;    /* pid, group pid, */
+    struct wait_queue *wait_exit;
+
+    char command[16];		
+    struct file *filp[NR_OPEN];
+
     //	struct task_struct *parent;
     struct m_inode 	*pwd;
     struct m_inode 	*root;
     struct m_inode 	*executable;
+
+    struct rlimit rlim[RLIM_NLIMITS];
+
     struct thread_struct tss;
     struct mm_struct *mm;
     int exit_code;
     struct task_struct *parent, *next, *sibling;
+
     struct sched_class *sched_class;
     struct sched_entity sched_entity;
     struct list_head list;

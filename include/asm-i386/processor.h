@@ -3,7 +3,7 @@
 
 struct thread_struct
 {
-		unsigned long cr3;
+    unsigned long cr3;
 };
 
 #endif

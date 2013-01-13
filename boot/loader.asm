@@ -142,9 +142,11 @@ LABEL_FILE_LOADED:
 	in	al, 92h
 	or	al, 00000010b
 	out	92h, al
+
 	mov	eax, cr0
 	or	eax, 1
 	mov	cr0, eax
+
 	jmp	dword SelectorFlatC:(BaseOfLoaderPhyAddr+LABEL_PM_START)
 
 wRootDirSizeForLoop	dw	RootDirSectors	
@@ -509,6 +511,10 @@ SetupPaging:
 
 	mov	eax, PageDirBase
 	mov	cr3, eax
+
+    ;open the pageing 
+    ;set the cr0 the highest bit to 1
+
 	mov	eax, cr0
 	or	eax, 80000000h
 	mov	cr0, eax

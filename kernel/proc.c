@@ -10,6 +10,7 @@
 #include "sys.h"
 #include "printf.h"
 #include "clock.h"
+#include "pid.h"
 #include "stdlib.h"
 
 t8      gdt_ptr[6]; // 0~15:Limit  16~47:Base

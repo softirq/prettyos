@@ -1,20 +1,11 @@
 #include "type.h"
 #include "const.h"
 #include "list.h"
-/*#include "traps.h"*/
-/*#include "tty.h"*/
-/*#include "console.h"*/
 #include "wait.h"
 #include "mm.h"
 #include "sched.h"
-#include "stddef.h"
-#include "bitmap.h"
-/*#include "global.h"*/
-/*#include "kernel.h"*/
 #include "string.h"
-/*#include "stdlib.h"*/
 #include "panic.h"
-/*#include "proc.h"*/
 #include "printf.h"
 #include "fork.h"
 #include "start.h"
@@ -37,22 +28,6 @@ int get_base(struct descriptor *dp)
         return ((dp->base_high << DP_BASE_HIGH_SHIFT) + (dp->base_mid << DP_BASE_MID_SHIFT) + dp->base_low);
     }
     return 0;
-}
-
-int getpid()
-{
-    return current->pid;
-}
-
-void init_pidmap()
-{
-    bzero((void *)pidmap,sizeof(pidmap)); 
-}
-
-pid_t get_pidmap()
-{
-    pid_t first = (pid_t)set_first_bit(pidmap,ARRAY_SIZE(pidmap));
-    return first;
 }
 
 static struct task_struct * get_empty_process(void)

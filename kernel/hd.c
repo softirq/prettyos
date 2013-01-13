@@ -7,12 +7,6 @@
 #include "irq.h"
 #include "fs.h"
 #include "stdlib.h"
-/*#include "tty.h"*/
-/*#include "console.h"*/
-/*#include "mm.h"*/
-/*#include "sched.h"*/
-/*#include "global.h"*/
-/*#include "kernel.h"*/
 #include "syscall.h"
 #include "hd.h"
 #include "panic.h"
