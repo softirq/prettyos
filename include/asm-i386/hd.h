@@ -112,10 +112,10 @@ struct hard_disk_info
 
 struct hard_disk_info hd_info[MAX_DRIVES];
 
-extern void 	ha_handler(int irq);
-extern void 	init_hd();
-extern void 	hd_identify(int drive);
-extern void 	hd_rw(int net_device,int start_sect,int nr_sects,int flag,struct buffer_head *bh);
-extern void 	hd_open(int net_device);
+extern void ha_handler(int irq);
+extern void init_hd();
+extern void hd_identify(int drive);
+extern int hd_rw(int net_device,int start_sect,int nr_sects,int flag,struct buffer_head *bh);
+extern void hd_open(int net_device);
 
 #endif

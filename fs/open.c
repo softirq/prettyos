@@ -25,6 +25,7 @@ struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
     {
         printk("there is no free inode 2 \n");
     }
+
     add_entry(dir,inode->i_num,basename);
     inode->i_mode = dir->i_mode;
     inode->i_dirt = 1;

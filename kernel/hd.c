@@ -290,8 +290,11 @@ void hd_close(int device)
 }
 
 /*read and write the device from start with sects number sections*/
-void hd_rw(int device,int start_sect,int nr_sects,int flag,struct buffer_head *bh)
+int hd_rw(int device,int start_sect,int nr_sects,int flag,struct buffer_head *bh)
 {
+    if(bh == NULL)
+        return -1;
+
     int drive = DRV_OF_DEV(MINOR(device));
     int part_index = -1;
     //	printk("device = %d\n",device);
@@ -320,10 +323,12 @@ void hd_rw(int device,int start_sect,int nr_sects,int flag,struct buffer_head *b
         if(read_intr(bh->b_data) == 0)
         {
             //			disp_str("read hard disk successful\n");
+            return 0;
         }
         else
         {
-            panic("read hard disk error\n");
+            /*panic("read hard disk error\n");*/
+            return -2;
         }
     }
     else if(flag == ATA_WRITE)
@@ -331,15 +336,18 @@ void hd_rw(int device,int start_sect,int nr_sects,int flag,struct buffer_head *b
         if(write_intr(bh->b_data) == 0)
         {
             //			disp_str("write hard disk successful\n");
+            return 0;
         }
         else
         {
-            panic("write hard disk error\n");
+            /*panic("write hard disk error\n");*/
+            return -3;
         }
     }
     else
     {
-        panic("no such operation !!!");
+        /*panic("no such operation !!!");*/
+        return -4;
     }
 }
 

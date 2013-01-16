@@ -200,7 +200,9 @@ repeat:
     remove_from_queues(bh);
     bh->b_dev = dev;
     bh->b_blocknr = block;
+
     insert_into_queues(bh);
+
     return bh;
 
 }

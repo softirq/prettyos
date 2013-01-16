@@ -85,17 +85,25 @@ int del_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_
 int add_entry(struct m_inode *dir,int inode_num,char *name)
 {
     int i,j;
-    struct dir_entry *de;
-    struct dir_entry *new_de;
-    struct buffer_head *bh;
+    struct dir_entry *de = NULL, *new_de = NULL;
+    struct buffer_head *bh = NULL;
+
+    if(dir == NULL || name == NULL)
+        return -1;
+
     int dir_start_sect= dir->i_start_sect;
     int nr_dir_sects = NR_DEFAULT_SECTS;
 
     for(i = 0;i < nr_dir_sects;i++)
     {
         bh = getblk(dir->i_dev,dir_start_sect + i);
-        hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_READ,bh);	
+        if((hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_READ,bh)) < 0)
+        {
+            return -2;
+        }
+            
         de = (struct dir_entry *)(bh->b_data);
+
         for(j = 0; j < SECTOR_SIZE/DIR_ENTRY_SIZE;j++,de++)
         {
             if(!de->inode_num)
@@ -110,18 +118,27 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
         }
         brelse(bh);
     }
+
     if(!new_de)
     {
         panic("no disk room\n");
-        return -1;
+        return -2;
     }
+
     new_de->inode_num = inode_num;
     dir->i_size += DIR_ENTRY_SIZE;
     dir->i_dirt = 1;
+
     strcpy(new_de->file_name,name);
-    hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_WRITE,bh);	
-    write_inode(dir);
+
+    if((hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_WRITE,bh)) < 0)
+        return -3;
+
+    if((write_inode(dir)) < 0)
+        return -4;
+
     brelse(bh);
+
     return 0;
 }
 

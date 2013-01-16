@@ -27,40 +27,71 @@ int sync_block(int dev,int nr,struct buffer_head *bh)
 void sync_dev(int dev)
 {
 }
-void write_inode(struct m_inode *inode)
+
+/*write inode to disk*/
+int write_inode(struct m_inode *inode)
 {
-    if(!inode->i_dirt || !inode->i_dev)
-        return;
+    if(inode == NULL || !inode->i_dirt || !inode->i_dev)
+        return -1;
+
     u16 dev = inode->i_dev;
     u16 num = inode->i_num;
-    struct buffer_head *bh;
+    struct buffer_head *bh = NULL;
     struct super_block *sb = get_super_block(dev);
+
     int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects + sb->s_nzmap_sects + \
                  (num -1)/(SECTOR_SIZE/INODE_SIZE);
+
     bh = getblk(dev,blk_nr);
-    hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh);
+    if(bh == NULL)
+        return -2;
+
+    if((hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh)) < 0)
+        return -3;
+
     *(struct d_inode *)(bh->b_data + ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE) = *(struct d_inode *)inode;	
-    hd_rw(ROOT_DEV,blk_nr,1,ATA_WRITE,bh);
+
+    if((hd_rw(ROOT_DEV,blk_nr,1,ATA_WRITE,bh)) > 0)
+        return -4;
+
     brelse(bh);
+
     inode->i_dirt = 0;
+
+    return 0;
 }
 
-void read_inode(struct m_inode* inode)
+static int read_inode(struct m_inode* inode)
 {
+    if(inode == NULL)
+        return -1;
+
     u16 dev = inode->i_dev;
     u16 num = inode->i_num;
+
     //	struct d_inode *tmp;
-    struct buffer_head *bh;
+    struct buffer_head *bh = NULL;
     struct super_block *sb = get_super_block(dev);
+    if(sb == NULL)
+        return -2;
+
     int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects + sb->s_nzmap_sects + \
                  (num -1)/(SECTOR_SIZE / INODE_SIZE);
     bh = getblk(dev,blk_nr);
+    if(bh == NULL)
+        return -3;
+
     //将inode信息从磁盘读入到内存中
-    hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh);
+    if((hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh)) < 0)
+        return -4;
+
     //gcc 3.4.3之后不支持左值强制类型转换
     *((struct d_inode *)inode) = *((struct d_inode *)(bh->b_data+ ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE));
     brelse(bh);
+
+    return 0;
 }
+
 struct m_inode* get_empty_inode(int dev)
 {
     struct m_inode *inode;
@@ -97,6 +128,7 @@ int create_block(struct m_inode *inode,int block)
 {
     return _bmap(inode,block,1);
 }
+
 //从设备dev上查找num号的inode
 struct m_inode* iget(int dev,int num)
 {
@@ -137,7 +169,9 @@ struct m_inode* iget(int dev,int num)
     /*inode = empty;*/
     inode->i_dev = dev;
     inode->i_num = num;
-    read_inode(inode);
+    if((read_inode(inode)) < 0)
+        return NULL;
+
     inode->i_nr_sects = NR_DEFAULT_SECTS;
     /*list_add(&(inode->list), &inode_lists);*/
 
