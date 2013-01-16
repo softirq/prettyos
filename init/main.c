@@ -18,6 +18,7 @@
 #include "printf.h"
 #include "fork.h"
 #include "clock.h"
+#include "hd.h"
 
 /*#define EXT_MEM_K 	(*(unsigned short*)0x8002)*/
 //long memory_start = 0;
@@ -51,50 +52,6 @@ static int get_kernel_map(unsigned int *base, unsigned int *limit)
     Elf32_Ehdr *elf_header = (Elf32_Ehdr *)(bp.kernel_addr);
 
     return get_elf_map(bp.kernel_addr, elf_header, base, limit);
-}
-
-static void start_kernel()
-{
-    init_clock(); //clock interrupt init
-
-    get_memsize(&main_memory_end);
-    /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
-    /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
-    main_memory_end &= 0xfffff000;
-    /*printk("main memory end = %x\n",main_memory_end);*/
-
-    if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
-    {
-        buffer_memory_start = 3 * 1024 * 1024;
-        /*buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;*/
-        buffer_memory_end = 4 * 1024 * 1024;
-    }
-    else 
-    {
-        buffer_memory_start = 3 * 1024 * 1024;
-        buffer_memory_end = 4 * 1024 * 1024;
-    }
-
-    main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
-    /*main_memory_start &= 0xfffff000;*/
-
-    buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE
-    buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
-    /*printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);*/
-    init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
-    /*printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);*/
-    paging_init();
-
-    init_mem(); //memeory management init
-    /* scheduler init */
-    init_sched(); 
-
-    /*init_hd(); //hard disk init*/
-
-    /*init_fs(); //filesystem init*/
-
-    /*init_sock();*/
-
 }
 
 /*init the first process*/
@@ -236,6 +193,50 @@ static void run_task()
     current = se_entry(se, struct task_struct, sched_entity);
 
     move_to_user_mode();
+}
+
+static void start_kernel()
+{
+    init_clock(); //clock interrupt init
+
+    get_memsize(&main_memory_end);
+    /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
+    /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
+    main_memory_end &= 0xfffff000;
+    /*printk("main memory end = %x\n",main_memory_end);*/
+
+    if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
+    {
+        buffer_memory_start = 3 * 1024 * 1024;
+        /*buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;*/
+        buffer_memory_end = 4 * 1024 * 1024;
+    }
+    else 
+    {
+        buffer_memory_start = 3 * 1024 * 1024;
+        buffer_memory_end = 4 * 1024 * 1024;
+    }
+
+    main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
+    /*main_memory_start &= 0xfffff000;*/
+
+    buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE
+    buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
+    /*printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);*/
+    init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
+    /*printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);*/
+    paging_init();
+
+    init_mem(); //memeory management init
+    /* scheduler init */
+    init_sched(); 
+
+    init_hd(); //hard disk init
+
+    /*init_fs(); //filesystem init*/
+
+    /*init_sock();*/
+
 }
 
 /* the kernel main func */

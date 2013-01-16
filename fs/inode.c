@@ -2,12 +2,16 @@
 #include "const.h"
 #include "string.h"
 #include "stdlib.h"
+#include "wait.h"
 #include "panic.h"
 #include "hd.h"
 #include "blk_drv.h"
+#include "mm.h"
 #include "printf.h"
 
-int free_inode(struct m_inode *inode);
+struct list_head inode_lists;
+unsigned short nr_inodes_count  = 0;
+/*int free_inode(struct m_inode *inode);*/
 
 int sync_block(int dev,int nr,struct buffer_head *bh)
 {
@@ -58,31 +62,27 @@ void read_inode(struct m_inode* inode)
     brelse(bh);
 
 }
-struct m_inode* get_empty_inode()
+struct m_inode* get_empty_inode(int dev)
 {
     struct m_inode *inode;
-    static struct m_inode *p = inode_table;
-    for(;p <= inode_table + NR_INODE;p++)
+    struct super_block *sb = get_super_block(dev);
+
+    if(nr_inodes_count++ >= sb->s_ninodes)
     {
-        //		printk("p->i_count = %d\tp->i_dirt = %d\t",p->i_count,p->i_dirt);
-        if(p->i_count)
-            continue;
-        else
-        {
-            if(!p->i_dirt)
-            {
-                inode = p;
-                break;
-            }
-        }
+        return NULL;
     }
-    if(inode)
+
+    inode = (struct m_inode *)kmem_get_obj(inode_cachep);
+    if(inode == NULL)
     {
-        memset((char *)inode,0,sizeof(struct m_inode));
-        inode->i_count = 1;
-    } 
+        return NULL;
+    }
+    memset((char *)inode,0,sizeof(struct m_inode));
+    inode->i_count = 1;
+    list_add(&(inode->list), &inode_lists);
     return inode;
 }
+
 static int _bmap(struct m_inode *inode,int block,int flag)
 {
     if(block < 0)
@@ -108,26 +108,33 @@ struct m_inode* iget(int dev,int num)
     }
     //	empty = get_empty_inode();
 
-    inode = inode_table;
-    //在inode_table中寻找一个可用的inode
-    while(inode < inode_table + NR_INODE)
+
+    struct list_head *head, *pos, *n;
+    head = &(inode_lists);
+    if(list_empty_careful(head))
     {
-        if(inode->i_dev != dev || inode->i_num != num)
+        return NULL;
+    }
+    else
+    {
+        list_for_each_safe(pos, n, head)
         {
-            inode++;
-            continue;
-        }
-        else
-        {
-            //			inode->i_count++;
-            return inode;
+            inode = list_entry(pos, struct m_inode, list);
+            if(inode->i_dev != dev || inode->i_num != num)
+            {
+                continue;
+            }
+            else
+                return inode;
         }
     }
-    empty = get_empty_inode();
+
+    empty = get_empty_inode(dev);
     if(empty == NULL)
     {
         return NULL;
     }
+
     inode = empty;
     inode->i_dev = dev;
     inode->i_num = num;

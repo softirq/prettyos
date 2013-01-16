@@ -74,34 +74,34 @@
 						
 struct partition_table
 {
-	u8	boot_mark; 	//引导标记
-	u8	start_head;	//起始磁头号
-	u8	start_sector;	//起始扇区号
-	u8	start_cyl;	//起始助面号的低8位
-	u8	system_id;	//分区类型 (主分区/扩展分区/逻辑分区)
-	u8	end_head;	//结束磁头号
-	u8	end_sector;	//结束扇区号
-	u8	end_cyl;	//结束柱面号
-	u32	start_sector_lba;	//起始扇区的LBA
-	u32	nr_sectors;		//扇区数目
+	unsigned char	boot_mark; 	//引导标记
+	unsigned char	start_head;	//起始磁头号
+	unsigned char	start_sector;	//起始扇区号
+	unsigned char	start_cyl;	//起始助面号的低8位
+	unsigned char	system_id;	//分区类型 (主分区/扩展分区/逻辑分区)
+	unsigned char	end_head;	//结束磁头号
+	unsigned char	end_sector;	//结束扇区号
+	unsigned char	end_cyl;	//结束柱面号
+	unsigned int	start_sector_lba;	//起始扇区的LBA
+	unsigned int	nr_sectors;		//扇区数目
 };
 
 struct hd_cmd 
 {
-	u8 	features;
-	u8	count;
-	u8	lba_low;
-	u8	lba_mid;
-	u8	lba_high;
-	u8 	device;
-	u8	command;
+	unsigned char 	features;
+	unsigned char	count;
+	unsigned char	lba_low;
+	unsigned char	lba_mid;
+	unsigned char	lba_high;
+	unsigned char 	device;
+	unsigned char	command;
 	char 	buffer[SECTOR_SIZE];
 };
 
 struct partition_info
 {
-	u32	start_sector;
-	u32	total_sectors;
+	unsigned int	start_sector;
+	unsigned int	total_sectors;
 };
 struct hard_disk_info
 {

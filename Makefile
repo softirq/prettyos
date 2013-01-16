@@ -18,7 +18,7 @@ KERNELOBJS:=kernel/core.o kernel/start.o kernel/i8259.o kernel/global.o kernel/t
 	kernel/printf.o kernel/vsprintf.o kernel/proc.o kernel/panic.o kernel/signal.o kernel/hd.o kernel/fork.o \
 	kernel/exit.o kernel/wait.o kernel/sched_fair.o kernel/pid.o
 
-FSOBJS:=fs/bitmap.o fs/super.o fs/inode.o fs/stat.o fs/fcntl.o fs/fs.o fs/namei.o fs/open.o fs/file_dev.o \
+FSOBJS:=fs/bitmap.o fs/super.o fs/inode.o fs/stat.o fs/fcntl.o fs/fs.o fs/namei.o fs/open.o fs/file.o \
 	fs/read_write.o  fs/buffer.o fs/link.o fs/binfmt_elf.o
 
 MMOBJS:=mm/memory.o mm/swap.o mm/pgtable.o mm/mmap.o mm/kmalloc.o mm/buddy.o mm/slab.o

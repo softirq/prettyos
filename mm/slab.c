@@ -10,6 +10,8 @@
 #include "list.h"
 #include "math.h"
 #include "stddef.h"
+#include "fs.h"
+#include "sched.h"
 
 struct kmem_list initkmem[NUM_INIT_LISTS];
 struct list_head cache_chain;
@@ -17,6 +19,9 @@ struct list_head cache_chain;
 struct kmem_cache *vma_cachep = NULL;
 struct kmem_cache *tsk_cachep = NULL;
 struct kmem_cache *thread_union_cachep = NULL;
+struct kmem_cache *inode_cachep = NULL;
+struct kmem_cache *file_cachep = NULL;
+struct kmem_cache *dentry_cachep = NULL;
 
 unsigned int * slab_bufctl(struct slab *slabp)
 {
@@ -187,24 +192,6 @@ struct slab * kmem_get_slab(struct kmem_cache *cachep)
     return slabp;
 }
 
-void * kmem_get_obj(struct kmem_cache *cachep)
-{
-    struct slab *slabp = kmem_get_slab(cachep);
-    return slab_get_obj(cachep, slabp);
-}
-
-int kmem_free_obj(struct kmem_cache *cachep, void *objp)
-{
-    if(cachep == NULL || objp == NULL)
-        return -1;
-
-    /*unsigned long address = ((unsigned long )objp & (~(DEFAULT_SLAB_PAGES * PAGE_SIZE) + 1));*/
-    unsigned long address = ((unsigned long )objp & VALUE_MASK(DEFAULT_SLAB_PAGES * PAGE_SIZE));
-    struct slab *slabp = (struct slab *)address;
-
-    return slab_free_obj(cachep,slabp,objp);
-}
-
 /* add a slab to kmem_cache */
 int kmem_add_slab(struct kmem_cache *cachep, struct slab *slabp)
 {
@@ -228,10 +215,11 @@ int kmem_free_slab(struct kmem_cache *cachep, struct slab *slabp)
     return 0;
 }
 
+
 /* create a slab and add to kmem_cache */
-int cache_grow(struct kmem_cache *cachep, const int obj_size)
+int cache_grow(struct kmem_cache *cachep)
 {
-    if(cachep == NULL || obj_size == 0)
+    if(cachep == NULL || cachep->obj_size == 0)
     {
         return -1;
     }
@@ -245,8 +233,9 @@ int cache_grow(struct kmem_cache *cachep, const int obj_size)
     /*slab_size = sizeof(struct slab) + obj_size * obj_num;*/
 
     slabp = (struct slab *)ptr;
-    slab_estimate(obj_size, &obj_num);
+    slab_estimate(cachep->obj_size, &obj_num);
     cachep->obj_num = obj_num;
+    cachep->nr_pages += power( DEFAULT_SLAB_PAGES);
 
     ptr += sizeof(struct slab);
     slab_init(cachep, slabp, ptr);
@@ -254,6 +243,44 @@ int cache_grow(struct kmem_cache *cachep, const int obj_size)
     kmem_add_slab(cachep, slabp);
 
     return 0;
+}
+
+
+void * kmem_get_obj(struct kmem_cache *cachep)
+{
+    struct slab *slabp = NULL;
+    void *obj = NULL;
+
+repeat:
+    slabp = kmem_get_slab(cachep);
+    obj = slab_get_obj(cachep, slabp);
+
+    if(obj == NULL)
+    {
+        if(cachep->nr_pages >= power(MAX_SLAB_PAGES))
+        {
+            return NULL;
+        }
+        else
+        {
+            cache_grow(cachep);
+            goto repeat;
+        }
+    }
+
+    return obj;
+}
+
+int kmem_free_obj(struct kmem_cache *cachep, void *objp)
+{
+    if(cachep == NULL || objp == NULL)
+        return -1;
+
+    /*unsigned long address = ((unsigned long )objp & (~(DEFAULT_SLAB_PAGES * PAGE_SIZE) + 1));*/
+    unsigned long address = ((unsigned long )objp & VALUE_MASK(DEFAULT_SLAB_PAGES * PAGE_SIZE));
+    struct slab *slabp = (struct slab *)address;
+
+    return slab_free_obj(cachep,slabp,objp);
 }
 
 int print_kmem_info(struct kmem_cache *cachep)
@@ -376,9 +403,11 @@ struct kmem_cache * kmem_cache_create(char *name, size_t obj_size, unsigned long
     cachep->nr_frees = 0;
     cachep->obj_num = 0;
     cachep->flags = flags;
+    cachep->nr_pages = 0;
 
     kmem_list_init(&(cachep->lists));
-    cache_grow(cachep, obj_size);
+    /*cache_grow(cachep, obj_size);*/
+    cache_grow(cachep);
     kmem_chain_add(cachep);
 
     return cachep;
@@ -407,4 +436,33 @@ const char * kmem_cache_name(struct kmem_cache *cachep)
 unsigned int kmem_cache_frees(struct kmem_cache *cachep)
 {
     return cachep->nr_frees;
+}
+
+int init_kmem_cache()
+{
+    tsk_cachep = kmem_cache_create("tsk",sizeof(struct task_struct),0);
+    if(tsk_cachep == NULL)
+        return -1;
+
+    thread_union_cachep =  kmem_cache_create("task_union",sizeof(union thread_union),0);
+    if(thread_union_cachep == NULL)
+        return -2;
+
+    vma_cachep = kmem_cache_create("vma", sizeof(struct vm_area_struct),0);
+    if(vma_cachep == NULL)
+        return -3;
+
+    inode_cachep = kmem_cache_create("inode", sizeof(struct m_inode), 0);
+    if(inode_cachep == NULL)
+        return -4;
+
+    file_cachep = kmem_cache_create("file", sizeof(struct file), 0);
+    if(file_cachep == NULL)
+        return -5;
+
+    dentry_cachep = kmem_cache_create("dentry", sizeof(struct dir_entry), 0);
+    if(dentry_cachep == NULL)
+        return -6;
+
+    return 0;
 }

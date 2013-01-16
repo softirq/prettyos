@@ -1,6 +1,7 @@
 #include "type.h"
 #include "const.h"
 #include "console.h"
+#include "wait.h"
 #include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
@@ -8,13 +9,16 @@
 #include "string.h"
 #include "printf.h"
 #include "panic.h"
+#include "mm.h"
 
 //一个扇区大小
 //public u8 fs_buf[SECTOR_SIZE];
+/*struct m_inode inode_table[NR_INODE];*/
+/*struct file file_table[NR_FILE];*/
 
-struct m_inode inode_table[NR_INODE];
 struct m_inode *root_inode;
 
+/* make filesystem */
 void mk_fs()
 {
     int i,j;
@@ -107,7 +111,6 @@ void mk_fs()
     brelse(bh);
     //	zone
     //初始化根目录中的数据。根目录是个目录，存放的是目录项 4个文件 .  tty0 tty1 tty2
-
     bh = getblk(ROOT_DEV,sb.s_firstzone);
     memset(bh->b_data,0,SECTOR_SIZE);
     struct dir_entry *de = (struct dir_entry*)(bh->b_data);
@@ -127,17 +130,22 @@ void mk_fs()
 int init_fs()
 {
     int i;
-    for(i = 0;i < NR_FILE;i++)
-        memset((char *)&file_table[i],0,sizeof(struct file));
-    for(i = 0;i < NR_INODE;i++)
-        memset((char *)&inode_table[i],0,sizeof(struct m_inode));
+
+    INIT_LIST_HEAD(&file_lists);
+    INIT_LIST_HEAD(&inode_lists);
+
     for(i = 0;i < NR_SUPER;i++)
+    {
         super_block[i].s_dev = NO_DEV;	
+    }
+
     mk_fs();	
+
     read_super_block(ROOT_DEV);
     struct super_block *sb = get_super_block(ROOT_DEV);
     assert(sb->s_magic == MAGIC_FS);
     root_inode = iget(ROOT_DEV,ROOT_INODE);
+
     /*
        struct buffer_head* bh = getblk(ROOT_DEV,100);
        printk("bh->b_dev = %d\n",bh->b_dev);

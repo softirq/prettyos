@@ -6,6 +6,10 @@
 #include "blk_drv.h"
 #include "fcntl.h"
 #include "errno.h"
+#include "file.h"
+
+struct list_head file_lists;
+unsigned short nr_file_count = 0;
 
 //读文件
 int file_read(struct m_inode *inode,struct file *filp,char *buf,int count)

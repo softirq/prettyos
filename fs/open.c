@@ -1,12 +1,14 @@
 #include "type.h"
 #include "const.h"
+#include "wait.h"
 #include "sched.h"
 #include "panic.h"
 #include "stdlib.h"
 #include "hd.h"
+#include "mm.h"
 #include "blk_drv.h"
+#include "file.h"
 #include "printf.h"
-
 
 //创建一个新的文件/目录
 struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
@@ -30,12 +32,24 @@ struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
     return inode;
 }
 
+static struct file * get_empty_filp()
+{
+    struct file *fp = NULL;
+
+    if(nr_file_count++ >= NR_OPEN)
+        return NULL;
+
+    fp = (struct file *)kmem_get_obj(file_cachep);
+
+    return fp;
+}
+
 int open(char* filename,int mode,int flag)
     //int sys_open(char* filename,int mode,int flag)
 {
     struct m_inode *inode;
 
-    struct file *f;
+    struct file *fp;
     int i;
     int fd = -1;                    //句柄
     //搜索没用过的句柄
@@ -52,33 +66,26 @@ int open(char* filename,int mode,int flag)
     {
         /*panic("filp is full (PID %d)\n",proc2pid(current)); */
     }
-    f = file_table;
-    for(i = 0;i < NR_FILE;i++,f++)
-    {
-        if(!f->f_count)
-        {
-            break;
-        }
-    }
-    if(i < 0 || i > NR_FILE)
-    {
-        /*panic("file_table is full (PID %d)\n",proc2pid(current));*/
-    }
-    (current->filp[fd] = f)->f_count++;
+
+    fp = get_empty_filp();
+    if(fp == NULL)
+        return -2;
+
+    (current->filp[fd] = fp)->f_count++;
     //	printk("root_inode->i_dev = %d\n",root_inode->i_dev);
     if((i = open_namei(filename,mode,flag,&inode)) != 0)
     {
         current->filp[fd] = NULL;
-        f->f_count = 0;
+        fp->f_count = 0;
         return i;
     }
     //返回文件句柄
     //	printk("open inode->i_num = %d\n",inode->i_num);
-    f->f_inode = inode;
-    f->f_count = 1;
-    f->f_flag = flag;
-    f->f_mode = mode;
-    f->f_pos = 0;
+    fp->f_inode = inode;
+    fp->f_count = 1;
+    fp->f_flag = flag;
+    fp->f_mode = mode;
+    fp->f_pos = 0;
     //	printk("open:fd =  %d\n",fd);
     return fd;
 }

@@ -289,10 +289,9 @@ void hd_close(int device)
     hd_info[drive].open_cnt--;
 }
 
-///读写device分区，从 start_sect开始的nr_sects个分区
+/*read and write the device from start with sects number sections*/
 void hd_rw(int device,int start_sect,int nr_sects,int flag,struct buffer_head *bh)
 {
-
     int drive = DRV_OF_DEV(MINOR(device));
     int part_index = -1;
     //	printk("device = %d\n",device);

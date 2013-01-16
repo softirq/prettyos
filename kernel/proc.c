@@ -11,13 +11,14 @@
 #include "printf.h"
 #include "clock.h"
 #include "pid.h"
-#include "stdlib.h"
 #include "exit.h"
+#include "fork.h"
+#include "stdlib.h"
 
-t8      gdt_ptr[6]; // 0~15:Limit  16~47:Base
+t8 gdt_ptr[6]; // 0~15:Limit  16~47:Base
 DESCRIPTOR  gdt[GDT_SIZE];
-t8      idt_ptr[6]; // 0~15:Limit  16~47:Base
-GATE        idt[IDT_SIZE];
+t8 idt_ptr[6]; // 0~15:Limit  16~47:Base
+GATE idt[IDT_SIZE];
 
 
 void init_p()
@@ -98,7 +99,7 @@ void ChildProc()
 {
     while(1)
     {
-        disp_str("Child");
+        disp_str("S");
         milli_delay(100);
     }
 }

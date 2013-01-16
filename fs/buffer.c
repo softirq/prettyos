@@ -130,6 +130,7 @@ struct buffer_head *bread(int dev,int block_nr)
 
 //buffer_head的权值(选择最佳的buffer_head)
 #define BADNESS(bh) (((bh)->b_dirt << 1) + (bh)->b_blocknr)
+/* get dev the nr_block block*/
 struct buffer_head * getblk(int dev,int block)
 {
     //	printk("getblk -------------------------------- 1\n");
