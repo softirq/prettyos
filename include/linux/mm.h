@@ -33,8 +33,8 @@ extern unsigned long memory_end;
 extern unsigned long main_memory_start;
 extern unsigned long main_memory_end;
 extern unsigned long memory_size;
-extern unsigned long buffer_memory_start;
-extern unsigned long buffer_memory_end;
+//extern unsigned long buffer_memory_start;
+//extern unsigned long buffer_memory_end;
 
 extern struct page **mem_map;
 /* number of pages */

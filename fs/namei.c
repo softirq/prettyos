@@ -144,13 +144,13 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
 {
     int namelen;
     char *basename;
-    //目录的inode
-    struct dir_entry *de;
-    struct m_inode *dir;
-    //文件的inode
-    struct m_inode *inode;
-    if(!(dir = dir_namei(pathname,&basename,&namelen)))
+    struct dir_entry *de;   /* dentry */
+    struct m_inode *dir;    /* dir dentry */
+    struct m_inode *inode;  /* file inode */
+    printk("pathname=%s.", pathname);
+    if((dir = dir_namei(pathname,&basename,&namelen)) == NULL)
     {
+        printk("dir_namei.");
         return -1;
     }
     //需要创建的是个目录
@@ -162,12 +162,12 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
             return 0;
         }
         iput(dir);
-        return -1;
+        return -2;
     }
 
     if((find_entry(dir,basename,namelen,&de)) != 0) 
     {
-        disp_str("no such file\n");
+        printk("no such file\n");
         if(flag & O_CREAT)
         {
             inode = create_file(dir,basename,namelen);
@@ -178,23 +178,23 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
                 return 0;
             }
             else
-                return -1;
+                return -3;
         }	
         else
         {
             iput(dir);
-            return -1;
+            return -4;
         }
     }
     else
     {
         if(!(inode = iget(dir->i_dev,de->inode_num)))
-            return -1;
+            return -5;
         iput(dir);
         *res_inode = inode;
         return	0; 
     }
-    return -1;
+    return -6;
 }
 
 struct m_inode * namei(char *pathname)

@@ -2,11 +2,15 @@
 #include "const.h"
 #include "irq.h"
 #include "wait.h"
+#include "mm.h"
 #include "panic.h"
 #include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
 #include "fcntl.h"
+#include "printf.h"
+#include "buffer_head.h"
+#include "math.h"
 
 /*a hash and a free list*/
 
@@ -60,10 +64,10 @@ static inline void insert_into_queues(struct buffer_head *bh)
 
 static void wait_on_buffer(struct buffer_head *bh)
 {
-    disable_int();
     while(bh->b_lock)
+    {
         sleep_on(&bh->b_wait);
-    enable_int();
+    }
 }
 
 static inline void lock_buffer(struct buffer_head *bh)
@@ -85,12 +89,12 @@ static inline void unlock_buffer(struct buffer_head *bh)
 
 static struct buffer_head * find_buffer(int dev,int block)
 {
-    struct buffer_head *tmp = NULL;
+    struct buffer_head *bh = NULL;
 
-    for(tmp = hash(dev,block);tmp != NULL;tmp=tmp->b_next)
+    for(bh = hash(dev,block);bh != NULL;bh = bh->b_next)
     {
-        if(tmp->b_dev == dev && tmp->b_blocknr == block)
-            return tmp;
+        if(bh->b_dev == dev && bh->b_blocknr == block)
+            return bh;
     }
 
     return NULL;
@@ -133,42 +137,63 @@ struct buffer_head *bread(int dev,int block_nr)
 /* get dev the nr_block block*/
 struct buffer_head * getblk(int dev,int block)
 {
-    //	printk("getblk -------------------------------- 1\n");
-    struct buffer_head *tmp,*bh;
+    /*printk("getblk -------------------------------- \n");*/
+    struct buffer_head *item,*bh;
 repeat:
     if((bh = get_hash_buffer(dev,block)))
+    {
         return bh;
-    tmp = buffer_free_list;
+    }
+    else
+    {
+        /*printk("not found.");*/
+    }
+
+    item= buffer_free_list;
     do{
-        if(tmp->b_count)
+        if(item->b_count)
             continue;
-        if(!bh || (BADNESS(bh) > BADNESS(tmp)))
+        if(!bh || (BADNESS(bh) > BADNESS(item)))
         {
-            bh = tmp;
-            if(!BADNESS(tmp))
+            bh = item;
+            if(!BADNESS(item))
+            {
                 break;
+            }
         }
-    }while((tmp = tmp->b_next_free) != buffer_free_list);
+    }while((item = item->b_next_free) != buffer_free_list);
+
     if(!bh)
     {
         sleep_on(&buffer_wait);
         goto repeat;		
     }
+
+    /*printk("b_lock = %d", bh->b_lock);*/
     wait_on_buffer(bh);
     if(bh->b_count)
+    {
         goto repeat;
+        /*return NULL;*/
+    }
 
-    /*	while(bh->b_dirt)
-        {
-        sync_dev(bh->b_dev);
-        wait_on_buffer(bh);
-        if(bh_b_count)
-        goto repeat;
-        }		
-        */
-    ///已经被其他的进程取走
+#if 0
+    /*	while(bh->b_dirt)*/
+    /*{*/
+    /*sync_dev(bh->b_dev);*/
+    /*wait_on_buffer(bh);*/
+    /*if(bh_b_count)*/
+    /*goto repeat;*/
+    /*}		*/
+    /**/
+#endif
+
+    /*///已经被其他的进程取走*/
     if(find_buffer(dev,block))
+    {
         goto repeat;	
+    }
+
     bh->b_count = 1;
     bh->b_dirt = 0;
     bh->b_uptodate = 0;
@@ -176,8 +201,8 @@ repeat:
     bh->b_dev = dev;
     bh->b_blocknr = block;
     insert_into_queues(bh);
-
     return bh;
+
 }
 #undef BADNESS
 
@@ -191,38 +216,40 @@ void brelse(struct buffer_head *bh)
     //	wake_up(&buffer_wait);
 }
 
-void init_buffer(const long buffer_start,const long buffer_end)
+void buffer_init()
 {
+    struct buffer_head *bh = NULL;
     void *b = NULL;
     int i = 0;
 
-    start_buffer = (struct buffer_head *)(buffer_start);
-    struct buffer_head *h = start_buffer;
+    unsigned long start_buffer = get_free_pages(BUFFER_HEAD_PAGE); 
+    unsigned long end_buffer = start_buffer + power(BUFFER_HEAD_PAGE) * PAGE_SIZE;
+    bh = (struct buffer_head *)start_buffer;
 
-    b = (void *)buffer_end;
+    b = (void *)end_buffer;
 
-    while((b -= SECTOR_SIZE) >= (void *)(h + 1))
+    while((b -= SECTOR_SIZE) >= (void *)(bh + 1))
     {
-        h->b_dev = 0;
-        h->b_dirt = 0;
-        h->b_count = 0;
-        h->b_lock = 0;
-        h->b_uptodate = 0;
-        h->b_wait = NULL;
-        h->b_prev = NULL;
-        h->b_next = NULL;
-        h->b_data = (char *)b;
-        h->b_prev_free = h - 1;
-        h->b_next_free = h + 1;	
-        h++;
+        bh->b_dev = 0;
+        bh->b_dirt = 0;
+        bh->b_count = 0;
+        bh->b_lock = 0;
+        bh->b_uptodate = 0;
+        bh->b_wait = NULL;
+        bh->b_prev = NULL;
+        bh->b_next = NULL;
+        bh->b_data = (char *)b;
+        bh->b_prev_free = bh - 1;
+        bh->b_next_free = bh + 1;	
+        bh++;
         NR_BUFFERS++;
     }
     //让h指向最后一个有效的缓冲头
-    h--;
+    bh--;
     //形成双向链表
-    buffer_free_list = start_buffer;
-    buffer_free_list->b_prev_free = h;
-    h->b_next_free = buffer_free_list;
+    buffer_free_list = (struct buffer_head *)start_buffer;
+    buffer_free_list->b_prev_free = bh;
+    bh->b_next_free = buffer_free_list;
 
     for(i = 0;i < NR_HASH_BUFFER;i++)
     {

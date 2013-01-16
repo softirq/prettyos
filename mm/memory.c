@@ -220,7 +220,7 @@ int init_mem()
 
     for(k = 0;p != NULL && k < page_fns; ++k)
     {
-        if(address < low_mem_end || address < buffer_memory_end)
+        if(address < low_mem_end )
         {
             p->flags |= (SYS_RESERVED | SYS_ROM);
         }

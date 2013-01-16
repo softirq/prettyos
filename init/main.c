@@ -22,8 +22,8 @@
 
 /*#define EXT_MEM_K 	(*(unsigned short*)0x8002)*/
 //long memory_start = 0;
-unsigned long buffer_memory_start = 0;
-unsigned long buffer_memory_end = 0;
+/*unsigned long buffer_memory_start = 0;*/
+/*unsigned long buffer_memory_end = 0;*/
 unsigned long main_memory_end = 0;
 unsigned long main_memory_start = 0;
 unsigned long memory_size = 0;
@@ -62,7 +62,7 @@ static void init_task()
     disp_str("\tpretty initialize begin\n\n\n\n\n\n\n");
 
     TASK* p_task;
-    PROCESS* p_proc	= proc_table;
+    struct task_struct* p_proc	= proc_table;
     /*memcpy(p,current,sizeof(struct task_struct));*/
     struct task_struct *tsk = NULL;
     union thread_union *thread_union = NULL;
@@ -131,6 +131,10 @@ static void init_task()
             tsk->sig_action[j].sa_flags = 0;
             tsk->sig_action[j].sa_handler = do_signal;
         }
+        for(j = 0;j < NR_OPEN; ++j)
+        {
+            tsk->filp[j] = NULL;
+        }
         tsk->signal = 0x0; //设置信号为空
         tsk->ldt_sel = selector_ldt;
 
@@ -192,7 +196,7 @@ static void run_task()
     struct sched_entity *se = ts_leftmost(root);
     current = se_entry(se, struct task_struct, sched_entity);
 
-    move_to_user_mode();
+    /*move_to_user_mode();*/
 }
 
 static void start_kernel()
@@ -205,36 +209,41 @@ static void start_kernel()
     main_memory_end &= 0xfffff000;
     /*printk("main memory end = %x\n",main_memory_end);*/
 
-    if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
+    /*if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
     {
         buffer_memory_start = 3 * 1024 * 1024;
-        /*buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;*/
+        [>buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;<]
         buffer_memory_end = 4 * 1024 * 1024;
     }
     else 
     {
         buffer_memory_start = 3 * 1024 * 1024;
         buffer_memory_end = 4 * 1024 * 1024;
-    }
+    }*/
 
-    main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端
+    /*main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端*/
     /*main_memory_start &= 0xfffff000;*/
 
-    buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE
-    buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE
+    /*buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE*/
+    /*buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE*/
     /*printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);*/
-    init_buffer(buffer_memory_start,buffer_memory_end); //buffer init
+    /*init_buffer(buffer_memory_start,buffer_memory_end); //buffer init*/
     /*printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);*/
     paging_init();
-
     init_mem(); //memeory management init
+    buffer_init();
     /* scheduler init */
     init_sched(); 
+    init_task();
+    run_task();
 
     init_hd(); //hard disk init
 
-    /*init_fs(); //filesystem init*/
+    init_fs(); //filesystem init
 
+    while(1)
+    {
+    }
     /*init_sock();*/
 
 }
@@ -243,8 +252,7 @@ static void start_kernel()
 int pretty_main()
 {
     start_kernel();
-    init_task();
-    run_task();
+    /*run_task();*/
 
     /* from kernel mode to user mode and scheduler process */
     return 0;

@@ -60,7 +60,6 @@ void read_inode(struct m_inode* inode)
     //gcc 3.4.3之后不支持左值强制类型转换
     *((struct d_inode *)inode) = *((struct d_inode *)(bh->b_data+ ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE));
     brelse(bh);
-
 }
 struct m_inode* get_empty_inode(int dev)
 {
@@ -101,7 +100,7 @@ int create_block(struct m_inode *inode,int block)
 //从设备dev上查找num号的inode
 struct m_inode* iget(int dev,int num)
 {
-    struct m_inode *inode,*empty;
+    struct m_inode *inode;
     if(!dev)
     {
         panic("iget with dev == 0\n");
@@ -113,33 +112,35 @@ struct m_inode* iget(int dev,int num)
     head = &(inode_lists);
     if(list_empty_careful(head))
     {
-        return NULL;
     }
     else
     {
         list_for_each_safe(pos, n, head)
         {
             inode = list_entry(pos, struct m_inode, list);
-            if(inode->i_dev != dev || inode->i_num != num)
+            if(inode->i_dev == dev && inode->i_num == num)
             {
-                continue;
+                return inode;
             }
             else
-                return inode;
+            {
+            }
         }
     }
 
-    empty = get_empty_inode(dev);
-    if(empty == NULL)
+    inode = get_empty_inode(dev);
+    if(inode == NULL)
     {
         return NULL;
     }
 
-    inode = empty;
+    /*inode = empty;*/
     inode->i_dev = dev;
     inode->i_num = num;
     read_inode(inode);
     inode->i_nr_sects = NR_DEFAULT_SECTS;
+    /*list_add(&(inode->list), &inode_lists);*/
+
     return inode;
 }
 
@@ -197,6 +198,7 @@ int free_inode(struct m_inode *inode)
         panic("trying to free inode 0 or nonexistant inode");
     if(!inode->i_dev)
     {
+        list_del(&(inode->list));
         clear_imap_bit(inode->i_dev,inode->i_num);
         memset((char *)inode,0,sizeof(struct m_inode));
         //加入释放盘块的操作 free_block(inode);

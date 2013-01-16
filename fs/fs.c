@@ -16,7 +16,7 @@
 /*struct m_inode inode_table[NR_INODE];*/
 /*struct file file_table[NR_FILE];*/
 
-struct m_inode *root_inode;
+struct m_inode *root_inode = NULL;
 
 /* make filesystem */
 void mk_fs()
@@ -145,40 +145,50 @@ int init_fs()
     struct super_block *sb = get_super_block(ROOT_DEV);
     assert(sb->s_magic == MAGIC_FS);
     root_inode = iget(ROOT_DEV,ROOT_INODE);
+    if(root_inode == NULL)
+    {
+        printk("root inode null.");
+    }
 
-    /*
-       struct buffer_head* bh = getblk(ROOT_DEV,100);
-       printk("bh->b_dev = %d\n",bh->b_dev);
-       printk("bh->b_blocknr = %d\n",bh->b_blocknr);
-       printk("bh->b_data= %s\n",bh->b_data);
+    struct buffer_head* bh = getblk(ROOT_DEV,100);
+    /*printk("bh->b_dev = %d\n",bh->b_dev);*/
+    printk("bh->b_blocknr = %d\n",bh->b_blocknr);
+    /*printk("bh->b_data= %s\n",bh->b_data);*/
 
-       int fd	= open("/",0,0);
-       printk("init_fs fd = %d\n",fd);
-    //	struct m_inode *inode = current->filp[fd]->f_inode;
-    //	printk("inode num = %d\n",inode->i_num);
-    //	char buf[100] = {0};
+    int fd	= open("/",0,0);
+    if(fd < 0)
+    {
+        printk("open error.");
+    }
+    /*printk("init_fs fd = 0x%x\n",fd);*/
+    struct m_inode *inode = current->filp[fd]->f_inode;
+    /*printk("inode num = %d\n",inode->i_num);*/
+    char buf[100] = {0};
+
     printk("-----------------------------------------\n");
     int fd2	= open("/sunkang",0,O_CREAT);
     printk("init_fs fd2 = %d\n",fd2);
-    struct inode inode = current->filp[fd2]->f_inode;
+    inode = current->filp[fd2]->f_inode;
     printk("inode num = %d\n",inode->i_num);
-    printk("-----------------------------------------\n");
 
-    int fd3 = open("/kamus",0,O_CREAT);
-    struct m_inode inode = current->filp[fd3]->f_inode;
-    printk("init fs fd3 = %d\n",fd3);
-    printk("inode num = %d\n",inode->i_num);
-    printk("-----------------------------------------\n");
+    /*int fd3 = open("/kamus",0,O_CREAT);*/
+    /*inode = current->filp[fd3]->f_inode;*/
+    /*printk("init fs fd3 = %d\n",fd3);*/
+    /*printk("inode num = %d\n",inode->i_num);*/
+    /*printk("-----------------------------------------\n");*/
 
-    //	sys_read(fd,buf,sizeof(buf));
+    sys_read(fd,buf,sizeof(buf));
     for(i = 0;i < 100;i++)
     {
-    printk("%c",buf[i]);
+        printk("%c",buf[i]);
     }
     printk("\n");
     printk("buf = %s\n",buf);
     do_unlink("/sunkang");
     fd2 = open("/sunkang",0,O_CREAT);
-    */	
+    printk("init_fs fd2 = %d\n",fd2);
+    inode = current->filp[fd2]->f_inode;
+    printk("inode num = %d\n",inode->i_num);
+
     return 0;
 }

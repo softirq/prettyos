@@ -17,18 +17,18 @@ struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
     printk("create_file:inode_nr = %d\n",inode_nr);
     if(inode_nr <= 0)
     {
-        disp_str("there is no free inode 1 \n");
+        printk("there is no free inode 1 \n");
         return NULL;
     }
     struct m_inode *inode = iget(dir->i_dev,inode_nr);
     if(!inode)
     {
-        disp_str("there is no free inode 2 \n");
+        printk("there is no free inode 2 \n");
     }
     add_entry(dir,inode->i_num,basename);
     inode->i_mode = dir->i_mode;
     inode->i_dirt = 1;
-    disp_str("create file successful \n");
+    printk("create file successful \n");
     return inode;
 }
 
@@ -53,8 +53,9 @@ int open(char* filename,int mode,int flag)
     int i;
     int fd = -1;                    //句柄
     //搜索没用过的句柄
-    for(i = 0;i < NR_OPEN;i++)
+    for(i = 1;i < NR_OPEN;i++)
     {       
+        /*printk("i=%d.",i);*/
         if(current->filp[i] == NULL)
         {
             fd = i;
@@ -86,7 +87,7 @@ int open(char* filename,int mode,int flag)
     fp->f_flag = flag;
     fp->f_mode = mode;
     fp->f_pos = 0;
-    //	printk("open:fd =  %d\n",fd);
+    printk("open:fd =  %d\n",fd);
     return fd;
 }
 

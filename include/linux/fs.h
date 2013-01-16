@@ -174,7 +174,7 @@ extern int clear_zmap_bit(int dev,int nr);
 /*      link.c  */
 extern int do_unlink(char *name);
 
-extern void init_buffer(const long buffer_start,const long buffer_end);
+extern void buffer_init();
 struct buffer_head * getblk(int dev,int block);
 extern void brelse(struct buffer_head *bh);
 

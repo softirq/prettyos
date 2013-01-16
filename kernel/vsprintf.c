@@ -49,10 +49,6 @@ int vsprintf(char *buf,const char *fmt,va_list args)
             case 'x':
 
                 value = *((int *)next_arg);
-                if(value < 0)
-                {
-                    *p++ = '-';
-                }
                 htoa(tmp,value);				
                 strcpy(p,tmp);
                 p+= strlen(tmp);
