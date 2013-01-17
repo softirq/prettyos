@@ -1,6 +1,6 @@
 #include "type.h"
 #include "const.h"
-/*#include "wait.h"*/
+#include "sched.h"
 #include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
@@ -13,7 +13,7 @@ struct list_head file_lists;
 unsigned short nr_file_count = 0;
 
 //读文件
-int file_read(struct m_inode *inode,struct file *filp,char *buf,int count)
+int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
 {
     int i,c,m = 0;
     char *p;
@@ -71,7 +71,7 @@ int file_read(struct m_inode *inode,struct file *filp,char *buf,int count)
     return 0;
 }
 
-int file_write(struct m_inode *inode,struct file *filp,char *buf,int count)
+int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
 {
     int i = 0;
     int block,c;
@@ -82,7 +82,6 @@ int file_write(struct m_inode *inode,struct file *filp,char *buf,int count)
     if(!inode || !filp || !buf || count < 0)
         return -EINVAL;
 
-    printk("***");
     int nr_start_sect = inode->i_start_sect;
     printk("write start_sect = %d.",nr_start_sect);
     if(filp->f_flag & O_APPEND)
@@ -120,3 +119,40 @@ int file_write(struct m_inode *inode,struct file *filp,char *buf,int count)
     return 0;	
 }
 
+int general_lseek(int fd, off_t offset, int origin)
+{
+    struct file *fp;
+    int tmp;
+
+    if(fd <= 0 || fd >= NR_OPEN || !(fp =  current->filp[fd]) || !(fp->f_inode))
+        return -EBADF;
+    switch(origin)
+    {
+        case 0:		//顶部
+            if(offset < 0)	
+                return -EINVAL;
+            fp->f_pos = offset;
+            break;
+        case 1:		//当前位置
+            if(fp->f_pos + offset < 0)
+                return -EINVAL;
+            fp->f_pos += offset;
+            break;
+        case 2:		//尾部
+            if((tmp = fp->f_inode->i_size + offset) < 0)
+                return -EINVAL;
+            fp->f_pos = tmp;
+            break;
+        default:
+            return -EINVAL;
+    }
+    return fp->f_pos;
+
+}
+
+struct file_operations general_fop = {
+    .lseek = general_lseek,
+    .read = general_read,
+    .write = general_write,
+    .open = open,
+};

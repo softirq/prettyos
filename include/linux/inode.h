@@ -9,6 +9,13 @@
 //extern struct m_inode inode_table[NR_INODE];
 extern struct m_inode *root_inode;
 
+struct inode_operations
+{
+    struct m_inode * (*lookup)(int dev, int num);
+    int (*write)(struct m_inode *inode);
+    void (*release)(struct m_inode *inode);
+};
+
 //memory inode接点结构
 struct m_inode
 {
@@ -25,6 +32,7 @@ struct m_inode
 	unsigned short i_dirt;			//脏标记
 	struct vm_area_struct *i_mmap;  /* for shm areas,  the list of attaches, otherwise unused. */
     struct list_head list;
+    struct inode_operations *i_ops;
 };
 
 //disk inode节点结构	
@@ -40,18 +48,14 @@ struct d_inode
 	
 };
 
-struct inode_operations
-{
-};
-
 extern unsigned short nr_inodes_count;
 extern struct list_head inode_lists;
 
+extern struct inode_operations pfs;
 
-extern int free_inode(struct m_inode *inode);
-struct m_inode* iget(int dev,int num);
-extern void     iput(struct m_inode *inode);
-extern int      write_inode(struct m_inode *inode);
-extern int      create_block(struct m_inode *inode,int block);
+extern struct m_inode * iget(int dev,int num);
+extern void iput(struct m_inode *inode);
+extern int  write_inode(struct m_inode *inode);
+extern int  create_block(struct m_inode *inode,int block);
 
 #endif

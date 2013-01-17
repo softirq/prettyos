@@ -11,7 +11,6 @@
 
 struct list_head inode_lists;
 unsigned short nr_inodes_count  = 0;
-/*int free_inode(struct m_inode *inode);*/
 
 int sync_block(int dev,int nr,struct buffer_head *bh)
 {
@@ -169,6 +168,7 @@ struct m_inode* iget(int dev,int num)
     /*inode = empty;*/
     inode->i_dev = dev;
     inode->i_num = num;
+    inode->i_ops = &pfs;
     if((read_inode(inode)) < 0)
         return NULL;
 
@@ -178,6 +178,33 @@ struct m_inode* iget(int dev,int num)
     return inode;
 }
 
+static int free_inode(struct m_inode *inode)
+{
+    struct super_block *sb;
+    if(!inode)
+        return -1;
+    if(inode->i_count > 1)
+    {
+        printk("trying to free inode with count = %d\n",inode->i_count);
+        panic("free_inode");
+    }
+    if(!(sb = get_super_block(inode->i_dev)))
+        panic("trying to free inode on nonexistent device");
+    if(inode->i_num < 1 ||  inode->i_num > sb-> s_ninodes)
+        panic("trying to free inode 0 or nonexistant inode");
+    if(!inode->i_dev)
+    {
+        list_del(&(inode->list));
+        clear_imap_bit(inode->i_dev,inode->i_num);
+        memset((char *)inode,0,sizeof(struct m_inode));
+        //加入释放盘块的操作 free_block(inode);
+        return 0;
+    }
+    return -1;
+}
+
+
+/*free the inode*/
 void iput(struct m_inode *inode)
 {
     if(!inode)
@@ -214,31 +241,6 @@ void iput(struct m_inode *inode)
         write_inode(inode);		
     }
     return;
-}
-
-int free_inode(struct m_inode *inode)
-{
-    struct super_block *sb;
-    if(!inode)
-        return -1;
-    if(inode->i_count > 1)
-    {
-        printk("trying to free inode with count = %d\n",inode->i_count);
-        panic("free_inode");
-    }
-    if(!(sb = get_super_block(inode->i_dev)))
-        panic("trying to free inode on nonexistent device");
-    if(inode->i_num < 1 ||  inode->i_num > sb-> s_ninodes)
-        panic("trying to free inode 0 or nonexistant inode");
-    if(!inode->i_dev)
-    {
-        list_del(&(inode->list));
-        clear_imap_bit(inode->i_dev,inode->i_num);
-        memset((char *)inode,0,sizeof(struct m_inode));
-        //加入释放盘块的操作 free_block(inode);
-        return 0;
-    }
-    return -1;
 }
 
 int new_block(int dev)
@@ -283,3 +285,9 @@ int free_block(int dev,int nr)
     }
     return -1;
 }
+
+struct inode_operations pfs = {
+    .lookup = iget,
+    .write = write_inode,
+    .release = iput,
+};

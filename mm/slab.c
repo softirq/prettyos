@@ -21,7 +21,7 @@ struct kmem_cache *tsk_cachep = NULL;
 struct kmem_cache *thread_union_cachep = NULL;
 struct kmem_cache *inode_cachep = NULL;
 struct kmem_cache *file_cachep = NULL;
-struct kmem_cache *dentry_cachep = NULL;
+/*struct kmem_cache *dentry_cachep = NULL;*/
 
 unsigned int * slab_bufctl(struct slab *slabp)
 {
@@ -459,10 +459,6 @@ int init_kmem_cache()
     file_cachep = kmem_cache_create("file", sizeof(struct file), 0);
     if(file_cachep == NULL)
         return -5;
-
-    dentry_cachep = kmem_cache_create("dentry", sizeof(struct dir_entry), 0);
-    if(dentry_cachep == NULL)
-        return -6;
 
     return 0;
 }

@@ -2,6 +2,7 @@
 #define     _FILE_H_
 
 #include "list.h"
+#include "inode.h"
 
 /* file type */
 #define I_ALL		0X1D00
@@ -30,16 +31,15 @@ struct file
     unsigned short f_count;		//对应的文件描述符数
     loff_t f_pos;			//对应的偏移量
     struct m_inode *f_inode;
-    //	struct 	dir_entry de;		//对应的目录项
     struct file_operations *f_op;
 };
 
 struct file_operations
 {
-    loff_t (*lseek)(struct file *,loff_t,int);
-    ssize_t (*read)(struct file *,char *,size_t,loff_t);
-    ssize_t (*write)(struct file *,char *,size_t,loff_t *);
-    int (*open)(struct m_inode *,struct file *);
+    int (*lseek)(int fd, off_t offset ,int origin);
+    int (*read)(struct m_inode *inode,struct file *filp,char *buf,int count);
+    int (*write)(struct m_inode *inode,struct file *filp,char *buf,int count);
+    int (*open)(char *filename, int mode, int flag);
     int (*release)(struct m_inode *,struct file *);
     int (*mmap)(struct m_inode *,struct file *,struct vm_area_struct *);
     int (*lock)(struct file *);
@@ -48,10 +48,13 @@ struct file_operations
 extern struct list_head file_lists;
 extern unsigned short nr_file_count;
 
-extern int file_read(struct m_inode *inode,struct file *filp,char *buf,int count);
-extern int file_write(struct m_inode *inode,struct file *filp,char *buf,int count);
-struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen);
+extern struct file_operations general_fop; 
+extern int general_read(struct m_inode *inode,struct file *filp,char *buf,int count);
+extern int general_write(struct m_inode *inode,struct file *filp,char *buf,int count);
+extern int general_lseek(int fd, off_t offset, int origin);
+extern struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen);
 extern int open(char* filename,int mode,int flag);
-extern int sys_close(unsigned int fd);
+extern int sys_close(int fd);
+extern int close(int fd);
 
 #endif

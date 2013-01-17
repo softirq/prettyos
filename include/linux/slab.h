@@ -61,7 +61,7 @@ extern struct kmem_cache *tsk_cachep;
 extern struct kmem_cache *thread_union_cachep;
 extern struct kmem_cache *inode_cachep;
 extern struct kmem_cache *file_cachep;
-extern struct kmem_cache *dentry_cachep;
+//extern struct kmem_cache *dentry_cachep;
 
 int kmem_cache_init();
 struct kmem_cache * kmem_cache_create(char *name, size_t obj_size, unsigned long flags);

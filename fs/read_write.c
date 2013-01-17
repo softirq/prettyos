@@ -5,8 +5,9 @@
 #include "hd.h"
 #include "blk_drv.h"
 #include "errno.h"
+#include "printf.h"
 
-int sys_read(unsigned int fd,char *buf,int count)
+int sys_read(int fd,char *buf,int count)
 {
     u16 mode;
     struct file *fp;
@@ -29,7 +30,7 @@ int sys_read(unsigned int fd,char *buf,int count)
     */
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
-        if((file_read(inode,fp,buf,count)) < 0)
+        if((general_read(inode,fp,buf,count)) < 0)
             return -3;
 
         return 0;
@@ -37,25 +38,22 @@ int sys_read(unsigned int fd,char *buf,int count)
     return -4;
 }
 
-int sys_write(unsigned int fd,char *buf,int count)
+int sys_write(int fd,char *buf,int count)
 {
     u16 mode;
     struct file *fp;
     struct m_inode *inode;
-    if(fd >= NR_OPEN || count < 0 || !(fp = current->filp[fd]))
+    if(fd <= 0 || fd >= NR_OPEN || count < 0 || !(fp = current->filp[fd]))
     {
-        printk("7");
         return -EINVAL;
     }
 
     inode = fp->f_inode;
     mode = inode->i_mode;
 
-    printk("++++");
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
-        printk("2");
-        if((file_write(inode,fp, buf, count)) < 0)
+        if((general_write(inode,fp, buf, count)) < 0)
             return -3;
         return 0;
     }
@@ -63,31 +61,7 @@ int sys_write(unsigned int fd,char *buf,int count)
     return -4;	
 }
 
-int sys_lseek(unsigned int fd,off_t offset,int origin)
+int sys_lseek(int fd,off_t offset,int origin)
 {
-    struct file *f;
-    int tmp;
-    if(fd >= NR_OPEN || !(f =  current->filp[fd]) || !(f->f_inode))
-        return -EBADF;
-    switch(origin)
-    {
-        case 0:		//顶部
-            if(offset < 0)	
-                return -EINVAL;
-            f->f_pos = offset;
-            break;
-        case 1:		//当前位置
-            if(f->f_pos + offset < 0)
-                return -EINVAL;
-            f->f_pos += offset;
-            break;
-        case 2:		//尾部
-            if((tmp = f->f_inode->i_size + offset) < 0)
-                return -EINVAL;
-            f->f_pos = tmp;
-            break;
-        default:
-            return -EINVAL;
-    }
-    return f->f_pos;
+    return general_lseek(fd, offset, origin);
 }

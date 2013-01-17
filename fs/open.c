@@ -27,13 +27,37 @@ struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
     }
 
     add_entry(dir,inode->i_num,basename);
+
     inode->i_mode = dir->i_mode;
     inode->i_dirt = 1;
+
     printk("create file successful \n");
     return inode;
 }
 
-static struct file * get_empty_filp()
+static inline int get_empty_fd(int *fd)
+{
+    int i;
+    /* search the unused fd */
+    for(i = 1;i < NR_OPEN;i++)
+    {       
+        if(current->filp[i] == NULL)
+        {
+            *fd = i;
+            break;
+        }
+    }
+
+    if(fd <= 0 || (unsigned int)fd > NR_OPEN)
+    {
+        /*panic("filp is full (PID %d)\n",proc2pid(current)); */
+        return -1;
+    }
+
+    return 0;
+}
+
+static inline struct file * get_empty_filp()
 {
     struct file *fp = NULL;
 
@@ -48,38 +72,27 @@ static struct file * get_empty_filp()
 int open(char* filename,int mode,int flag)
     //int sys_open(char* filename,int mode,int flag)
 {
+    int ret,fd;
+    struct file *fp;
     struct m_inode *inode;
 
-    struct file *fp;
-    int i;
-    int fd = -1;                    //句柄
-    //搜索没用过的句柄
-    for(i = 1;i < NR_OPEN;i++)
-    {       
-        /*printk("i=%d.",i);*/
-        if(current->filp[i] == NULL)
-        {
-            fd = i;
-            break;
-        }
+    if(filename == NULL)
+        return -1;
 
-    }
-    if(fd < 0 || fd > NR_OPEN)
-    {
-        /*panic("filp is full (PID %d)\n",proc2pid(current)); */
-    }
+    if(get_empty_fd(&fd) < 0)
+        return -2;
 
     fp = get_empty_filp();
     if(fp == NULL)
-        return -2;
+        return -3;
 
     (current->filp[fd] = fp)->f_count++;
     //	printk("root_inode->i_dev = %d\n",root_inode->i_dev);
-    if((i = open_namei(filename,mode,flag,&inode)) != 0)
+    if((ret = open_namei(filename,mode,flag,&inode)) < 0)
     {
         current->filp[fd] = NULL;
         fp->f_count = 0;
-        return i;
+        return ret;
     }
     //返回文件句柄
     //	printk("open inode->i_num = %d\n",inode->i_num);
@@ -88,22 +101,70 @@ int open(char* filename,int mode,int flag)
     fp->f_flag = flag;
     fp->f_mode = mode;
     fp->f_pos = 0;
+    fp->f_op = &general_fop;
+
     printk("open:fd =  %d\n",fd);
     return fd;
 }
 
-int sys_close(unsigned int fd)
+/* make directory */
+int mkdir(char* filename,int mode,int flag)
+{
+    int ret,fd;
+    struct file *fp;
+    struct m_inode *inode;
+
+    if(filename == NULL)
+        return -1;
+
+    if(get_empty_fd(&fd) < 0)
+        return -2;
+
+    fp = get_empty_filp();
+    if(fp == NULL)
+        return -3;
+
+    (current->filp[fd] = fp)->f_count++;
+    //	printk("root_inode->i_dev = %d\n",root_inode->i_dev);
+    if((ret = open_namei(filename,mode,flag,&inode)) < 0)
+    {
+        current->filp[fd] = NULL;
+        fp->f_count = 0;
+        return ret;
+    }
+    //返回文件句柄
+    //	printk("open inode->i_num = %d\n",inode->i_num);
+    fp->f_inode = inode;
+    fp->f_count = 1;
+    fp->f_flag = flag;
+    fp->f_mode = mode;
+    fp->f_pos = 0;
+    fp->f_op = &general_fop;
+
+    printk("open:fd =  %d\n",fd);
+    return fd;
+    return 0;
+}
+
+int close(int fd)
 {
     struct file *filp;
-    if(fd >= NR_OPEN)
+    if(fd <= 0 || fd >= NR_OPEN)
         return -1;
     if(!(filp = current->filp[fd]))
-        return -1;
+        return -2;
     if(filp->f_count == 0)
         panic("Close:file count is 0");
     if(--filp->f_count)
         return 0;
     iput(filp->f_inode);
+
+    current->filp[fd] = NULL;
+
     return 0;
 }
 
+int sys_close(int fd)
+{
+    return close(fd);
+}

@@ -13,8 +13,8 @@ int do_unlink(char *name)
     int namelen;
     struct m_inode *dir,*inode;
     //	struct buffer_head *bh;
-    struct dir_entry *de;
-    if(!(dir = dir_namei(name,&basename,&namelen)))
+    struct dentry *de;
+    if(dir_namei(name,&basename,&namelen, &dir) < 0)
     {	//no such file or direntry
         return -ENOENT;
     }

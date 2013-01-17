@@ -96,7 +96,7 @@ void mk_fs()
     memset(bh->b_data,0,SECTOR_SIZE);
     struct	d_inode  *dinode = (struct d_inode *)(bh->b_data);
     dinode->i_mode = I_DIRECTORY;
-    dinode->i_size = DIR_ENTRY_SIZE * (1 + NR_CONSOLES);
+    dinode->i_size = DENTRY_SIZE * (1 + NR_CONSOLES);
     dinode->i_start_sect = sb.s_firstzone;
     dinode->i_nr_sects = NR_DEFAULT_SECTS;
     //	dinode->i_nlinks = 1;
@@ -113,7 +113,7 @@ void mk_fs()
     //初始化根目录中的数据。根目录是个目录，存放的是目录项 4个文件 .  tty0 tty1 tty2
     bh = getblk(ROOT_DEV,sb.s_firstzone);
     memset(bh->b_data,0,SECTOR_SIZE);
-    struct dir_entry *de = (struct dir_entry*)(bh->b_data);
+    struct dentry *de = (struct dentry*)(bh->b_data);
     de->inode_num = 1;
     strcpy(de->file_name,".");
 
@@ -155,20 +155,22 @@ int init_fs()
     printk("bh->b_blocknr = %d\n",bh->b_blocknr);
     /*printk("bh->b_data= %s\n",bh->b_data);*/
 
-    int fd	= open("/",0,0);
+    int fd = open("/",0,0);
     if(fd < 0)
     {
         printk("open error.");
     }
+    /*close(fd);*/
     /*printk("init_fs fd = 0x%x\n",fd);*/
-    struct m_inode *inode = current->filp[fd]->f_inode;
+    /*struct m_inode *inode = current->filp[fd]->f_inode;*/
     /*printk("inode num = %d\n",inode->i_num);*/
 
-    printk("-----------------------------------------\n");
-    int fd2	= open("/sunkang",0,O_CREAT);
-    printk("init_fs fd2 = %d\n",fd2);
-    inode = current->filp[fd2]->f_inode;
-    printk("inode num = %d\n",inode->i_num);
+    /*printk("-----------------------------------------\n");*/
+    /*int fd2	= open("/sunkang",0,O_CREAT);*/
+    /*printk("init_fs fd2 = %d\n",fd2);*/
+    /*struct m_inode *inode = current->filp[fd2]->f_inode;*/
+    /*printk("inode num = %d\n",inode->i_num);*/
+    /*close(fd2);*/
 
     /*int fd3 = open("/kamus",0,O_CREAT);*/
     /*inode = current->filp[fd3]->f_inode;*/
@@ -176,17 +178,20 @@ int init_fs()
     /*printk("inode num = %d\n",inode->i_num);*/
     /*printk("-----------------------------------------\n");*/
 
-    char buf[] = "wo shi sunkang";
+    /*char buf[] = "wo shi sunkang";*/
     /*sys_read(fd,buf,sizeof(buf));*/
-    sys_write(fd,buf, sizeof(buf));
+    /*sys_write(fd2,buf, sizeof(buf));*/
     /*for(i = 0;i < 100;i++)*/
     /*{*/
         /*printk("%c",buf[i]);*/
     /*}*/
-    char abc[15] = {0};
-    sys_read(fd,abc,sizeof(abc));
+    /*char abc[15] = {0};*/
+    /*printk("fd = %d.",fd2);*/
+    /*sys_read(fd2,abc,sizeof(abc));*/
     /*printk("\n");*/
-    printk("abc = %s\n",abc);
+    /*printk("abc = %s\n",abc);*/
+
+    /*fd2	= mkdir("/test",0,O_CREAT);*/
     /*do_unlink("/sunkang");*/
     /*fd2 = open("/sunkang",0,O_CREAT);*/
     /*printk("init_fs fd2 = %d\n",fd2);*/

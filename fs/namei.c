@@ -9,7 +9,7 @@
 #include "string.h"
 #include "printf.h"
 
-int match(struct dir_entry *de,char *name,int namelen)
+static int compare(struct dentry *de,char *name,int namelen)
 {
     if(!de || !de->inode_num || namelen > NAME_LEN)
         return -1; 
@@ -18,32 +18,33 @@ int match(struct dir_entry *de,char *name,int namelen)
     return strncmp(de->file_name,name,namelen);
 }
 
-int do_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_de,int flag)
+/* find the name entry */
+int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,int flag)
 {
     int i,j,m = 0;
     int ret = -1;
-    struct dir_entry *de;
+    struct dentry *de;
     struct buffer_head *bh;
 
     int dir_start_sect = dir->i_start_sect;
     int nr_dir_sects = (dir->i_size + SECTOR_SIZE -1) / SECTOR_SIZE;			
-    int nr_dir_entry = dir->i_size / DIR_ENTRY_SIZE;	
+    int nr_dentry = dir->i_size / DENTRY_SIZE;	
 
     for(i = 0;i < nr_dir_sects;i++)
     {
         //		printk("%d\n",dir_start_sect + i);
         bh = getblk(dir->i_dev,dir_start_sect + i);
         hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_READ,bh);	
-        de = (struct dir_entry *)(bh->b_data);
-        for(j = 0; j < SECTOR_SIZE / DIR_ENTRY_SIZE;j++,de++)
+        de = (struct dentry *)(bh->b_data);
+        for(j = 0; j < SECTOR_SIZE / DENTRY_SIZE;++j,++de)
         {
-            if(++m > nr_dir_entry)
+            if(++m > nr_dentry)
                 return -1;
             if(de->inode_num == 0)
                 continue;	
             else
             {
-                ret = match(de,name,namelen);
+                ret = compare(de,name,namelen);
                 if(ret != 0)
                     continue;
                 else 
@@ -51,16 +52,16 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_d
                     switch(flag)
                     {	
                         case DE_MATCH:
-                            printk("match successful\n");
+                            printk("compare successful\n");
                             *res_de = de;
                             brelse(bh);
-                            return 0;
+                            break;
                         case DE_DEL:
                             *res_de = de;
-                            memset((char *)de,0,DIR_ENTRY_SIZE);
+                            memset((char *)de,0,DENTRY_SIZE);
                             hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_WRITE,bh);	
                             brelse(bh);
-                            return 0;
+                            break;
                         default:
                             break;
                     }
@@ -68,16 +69,18 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_d
             }
         }
         brelse(bh);
+        return 0;
     }	
+
     return -1;
 }
 
-int find_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_de)
+int find_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de)
 {
     return do_entry(dir,name,namelen,res_de,DE_MATCH);
 }
 
-int del_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_de)
+int del_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de)
 {
     return do_entry(dir,name,namelen,res_de,DE_DEL);
 }
@@ -85,7 +88,7 @@ int del_entry(struct m_inode *dir,char *name,int namelen,struct dir_entry **res_
 int add_entry(struct m_inode *dir,int inode_num,char *name)
 {
     int i,j;
-    struct dir_entry *de = NULL, *new_de = NULL;
+    struct dentry *de = NULL, *new_de = NULL;
     struct buffer_head *bh = NULL;
 
     if(dir == NULL || name == NULL)
@@ -101,10 +104,10 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
         {
             return -2;
         }
-            
-        de = (struct dir_entry *)(bh->b_data);
 
-        for(j = 0; j < SECTOR_SIZE/DIR_ENTRY_SIZE;j++,de++)
+        de = (struct dentry *)(bh->b_data);
+
+        for(j = 0; j < SECTOR_SIZE/DENTRY_SIZE;j++,de++)
         {
             if(!de->inode_num)
             {
@@ -126,7 +129,7 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
     }
 
     new_de->inode_num = inode_num;
-    dir->i_size += DIR_ENTRY_SIZE;
+    dir->i_size += DENTRY_SIZE;
     dir->i_dirt = 1;
 
     strcpy(new_de->file_name,name);
@@ -142,36 +145,86 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
     return 0;
 }
 
-struct m_inode * dir_namei(char *pathname,char ** name,int *namelen)
+/* from the dentry find the filename*/
+int lookup(struct m_inode *base, char *name, int namelen, struct m_inode **res_inode)
 {
-    char ch;
-    char *basename;
-    while((ch = *pathname++))
+    struct dentry *de;
+    struct m_inode *inode;
+
+    if(base == NULL || name == NULL || namelen <= 0 || res_inode == NULL)
+        return -1;
+
+    if(do_entry(base ,name,namelen,&de,DE_MATCH) < 0)
     {
-        if(ch == '/')
-            basename = pathname;
+        return -2;
     }
-    *namelen = pathname - basename - 1;
-    *name = basename;
-    //Version 1.0版本简化流程 直接在/目录下
-    return root_inode;
+    else
+    {
+        if(!(inode = iget(base->i_dev,de->inode_num)))
+            return -3;
+    }
+
+    *res_inode = inode;
+
+    return 0;
 }
 
+/* find the direntry of the pathname */
+int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_inode)
+{
+    char ch;
+    int len;
+    char *thisname;
+    struct m_inode *baseinode = NULL;
+    struct m_inode *inode = NULL;
+
+    if((ch = *pathname) == '/')
+    {
+        baseinode = root_inode;
+        ++pathname;
+    }
+
+    while(1)
+    {
+        thisname = pathname;
+        for(len = 0;(ch = *(pathname++)) && (ch != '/'); ++len)
+            ;
+        if(!ch)
+            break;
+
+        if(lookup(baseinode, thisname, len,&inode) < 0)
+            return -2;
+        baseinode = inode;
+    }
+
+    *namelen = pathname - thisname - 1;
+    *name = thisname;
+
+    //Version 1.0版本简化流程 直接在/目录下
+    /**res_inode = root_inode;*/
+    *res_inode = inode;
+
+    return 0;
+}
+
+/*find the pathname inode for open function*/
 int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
 {
     int namelen;
-    char *basename;
-    struct dir_entry *de;   /* dentry */
+    char *name;
+    struct dentry *de;   /* dentry */
     struct m_inode *dir;    /* dir dentry */
     struct m_inode *inode;  /* file inode */
 
     printk("pathname=%s.", pathname);
-    if((dir = dir_namei(pathname,&basename,&namelen)) == NULL)
+    /* get direntry inode */
+    if(dir_namei(pathname,&name,&namelen, &dir) < 0)
     {
         printk("dir_namei.");
         return -1;
     }
-    //需要创建的是个目录
+
+    /* is a directory */
     if(!namelen)
     {
         if(dir)
@@ -183,12 +236,13 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
         return -2;
     }
 
-    if((find_entry(dir,basename,namelen,&de)) != 0) 
+    /* find the file from the directory */
+    if(find_entry(dir,name,namelen,&de) != 0) 
     {
         printk("no such file\n");
         if(flag & O_CREAT)
         {
-            inode = create_file(dir,basename,namelen);
+            inode = create_file(dir,name,namelen);
             if(inode)
             {
                 *res_inode = inode;
@@ -212,25 +266,28 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
         *res_inode = inode;
         return	0; 
     }
+
     return -6;
 }
 
+/* only get pathname inode */
 struct m_inode * namei(char *pathname)
 {
     struct m_inode *dir,*inode;
     char *basename;
     int namelen;
     u16 inode_nr,dev;
-    struct dir_entry *de;
-    //找到目录的inode
-    if(!(dir = dir_namei(pathname,&basename,&namelen)))
+    struct dentry *de;
+
+    //fine the dentry inode
+    if(dir_namei(pathname,&basename,&namelen, &dir) < 0)
     {
         return NULL;
     }
     if(!namelen)
         return dir;
 
-    //从目录项中找到该文件
+    //from the dentry find the file
     find_entry(dir,basename,namelen,&de);
     if(!de)
     {
@@ -239,11 +296,12 @@ struct m_inode * namei(char *pathname)
 
     inode_nr = de->inode_num;
     dev = dir->i_dev;
-    //获取该文件的inode
+    //get the file inode
     inode = iget(dev,inode_nr);
     if(inode)
     {
         //		inode->i_dirt = 1;
     }
+
     return inode;
 }
