@@ -164,6 +164,7 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
     struct dir_entry *de;   /* dentry */
     struct m_inode *dir;    /* dir dentry */
     struct m_inode *inode;  /* file inode */
+
     printk("pathname=%s.", pathname);
     if((dir = dir_namei(pathname,&basename,&namelen)) == NULL)
     {

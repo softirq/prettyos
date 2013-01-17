@@ -163,7 +163,6 @@ int init_fs()
     /*printk("init_fs fd = 0x%x\n",fd);*/
     struct m_inode *inode = current->filp[fd]->f_inode;
     /*printk("inode num = %d\n",inode->i_num);*/
-    char buf[100] = {0};
 
     printk("-----------------------------------------\n");
     int fd2	= open("/sunkang",0,O_CREAT);
@@ -177,18 +176,22 @@ int init_fs()
     /*printk("inode num = %d\n",inode->i_num);*/
     /*printk("-----------------------------------------\n");*/
 
-    sys_read(fd,buf,sizeof(buf));
-    for(i = 0;i < 100;i++)
-    {
-        printk("%c",buf[i]);
-    }
-    printk("\n");
-    printk("buf = %s\n",buf);
-    do_unlink("/sunkang");
-    fd2 = open("/sunkang",0,O_CREAT);
-    printk("init_fs fd2 = %d\n",fd2);
-    inode = current->filp[fd2]->f_inode;
-    printk("inode num = %d\n",inode->i_num);
+    char buf[] = "wo shi sunkang";
+    /*sys_read(fd,buf,sizeof(buf));*/
+    sys_write(fd,buf, sizeof(buf));
+    /*for(i = 0;i < 100;i++)*/
+    /*{*/
+        /*printk("%c",buf[i]);*/
+    /*}*/
+    char abc[15] = {0};
+    sys_read(fd,abc,sizeof(abc));
+    /*printk("\n");*/
+    printk("abc = %s\n",abc);
+    /*do_unlink("/sunkang");*/
+    /*fd2 = open("/sunkang",0,O_CREAT);*/
+    /*printk("init_fs fd2 = %d\n",fd2);*/
+    /*inode = current->filp[fd2]->f_inode;*/
+    /*printk("inode num = %d\n",inode->i_num);*/
 
     return 0;
 }

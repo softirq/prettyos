@@ -47,7 +47,6 @@ struct file_system_type {
     struct file_system_type * next;
 };
 
-
 #define NR_SUPER	2
 
 extern struct super_block super_block[];

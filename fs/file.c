@@ -7,6 +7,7 @@
 #include "fcntl.h"
 #include "errno.h"
 #include "file.h"
+#include "printf.h"
 
 struct list_head file_lists;
 unsigned short nr_file_count = 0;
@@ -24,6 +25,7 @@ int file_read(struct m_inode *inode,struct file *filp,char *buf,int count)
     if(!buf || count <= 0)
         return 0;
     int nr_start_sect = inode->i_start_sect;
+    printk("read start_sect = %d.",nr_start_sect);
     //	printk("inode->i_dev = %d inode->i_num = %d inode->i_start_sect = %d\n",inode->i_dev,inode->i_num,inode->i_start_sect);
     //文件所占的磁盘块总数
     off_t pos = filp->f_pos;			
@@ -73,36 +75,48 @@ int file_write(struct m_inode *inode,struct file *filp,char *buf,int count)
 {
     int i = 0;
     int block,c;
-    off_t pos;
-    unsigned char *p;
-    if(!inode || !filp)
+    off_t pos = 0;
+    char *p = NULL;
+    struct buffer_head *bh = NULL;
+
+    if(!inode || !filp || !buf || count < 0)
         return -EINVAL;
-    if(!buf || count <= 0)
-        return 0;
-    //	p = buf;
+
+    printk("***");
+    int nr_start_sect = inode->i_start_sect;
+    printk("write start_sect = %d.",nr_start_sect);
     if(filp->f_flag & O_APPEND)
         pos = inode->i_size;
     else 
         pos = filp->f_pos;
+
     while(i < count)
     {
-        if(!(block = create_block(inode,pos/SECTOR_SIZE)))
-            break;
+        block = nr_start_sect + pos/SECTOR_SIZE;
+        bh = getblk(inode->i_dev,block);
+
         c = pos % SECTOR_SIZE;	
+        p = bh->b_data + c;			
+
         c = SECTOR_SIZE -c;
         if(c > count) 
             c = count - i;	
-        p = hd_buf + pos;			
+
         pos += c;
+        i += c;
+
         if(pos > inode->i_size)
         {
             inode->i_size = pos;
             inode->i_dirt = 1;
         }
-        i += c;
         while(c-- > 0)
             *(p++) = *(buf++);
+
+        hd_rw(inode->i_dev,block,1,ATA_WRITE,bh);		
+        brelse(bh);
     }
+
     return 0;	
 }
 

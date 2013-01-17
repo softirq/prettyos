@@ -48,9 +48,10 @@ struct file_operations
 extern struct list_head file_lists;
 extern unsigned short nr_file_count;
 
-extern int      file_read(struct m_inode *inode,struct file *filp,char *buf,int count);
+extern int file_read(struct m_inode *inode,struct file *filp,char *buf,int count);
+extern int file_write(struct m_inode *inode,struct file *filp,char *buf,int count);
 struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen);
-extern int      open(char* filename,int mode,int flag);
-extern int      sys_close(unsigned int fd);
+extern int open(char* filename,int mode,int flag);
+extern int sys_close(unsigned int fd);
 
 #endif

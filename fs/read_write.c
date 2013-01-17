@@ -9,13 +9,11 @@
 int sys_read(unsigned int fd,char *buf,int count)
 {
     u16 mode;
-    struct file *f;
+    struct file *fp;
     struct m_inode *inode;
-    if(fd >= NR_OPEN || count < 0 || !(f=current->filp[fd]))
+    if(fd >= NR_OPEN || count < 0 || !(fp = current->filp[fd]))
         return -EINVAL;
-    if(!count)
-        return 0;
-    inode = f->f_inode;	
+    inode = fp->f_inode;	
     mode = inode->i_mode;
     /*
        if(S_ISCHR(mode))
@@ -31,39 +29,38 @@ int sys_read(unsigned int fd,char *buf,int count)
     */
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
-        file_read(inode,f,buf,count);
+        if((file_read(inode,fp,buf,count)) < 0)
+            return -3;
+
         return 0;
     }
-    return -EINVAL;
+    return -4;
 }
 
 int sys_write(unsigned int fd,char *buf,int count)
 {
     u16 mode;
-    struct file *f;
+    struct file *fp;
     struct m_inode *inode;
-    if(fd >= NR_OPEN || count < 0 || (f=current->filp[fd]))
+    if(fd >= NR_OPEN || count < 0 || !(fp = current->filp[fd]))
+    {
+        printk("7");
         return -EINVAL;
-    if(!count)
-        return 0;		
-    inode = f->f_inode;
+    }
+
+    inode = fp->f_inode;
     mode = inode->i_mode;
-    if(S_ISCHR(mode))
-    {
-        //		rw_char();
-        return 0;
-    }
-    if(S_ISBLK(mode))
-    {
-        //		block_write();
-        return 0;
-    }
+
+    printk("++++");
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
-        //		file_write();
+        printk("2");
+        if((file_write(inode,fp, buf, count)) < 0)
+            return -3;
         return 0;
     }
-    return -EINVAL;	
+
+    return -4;	
 }
 
 int sys_lseek(unsigned int fd,off_t offset,int origin)
