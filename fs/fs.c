@@ -11,11 +11,6 @@
 #include "panic.h"
 #include "mm.h"
 
-//一个扇区大小
-//public u8 fs_buf[SECTOR_SIZE];
-/*struct m_inode inode_table[NR_INODE];*/
-/*struct file file_table[NR_FILE];*/
-
 struct m_inode *root_inode = NULL;
 
 /* make filesystem */
@@ -90,8 +85,8 @@ void mk_fs()
         hd_rw(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + NR_INODE_MAP_SECTS + i,1,ATA_WRITE,bh);
     }
     brelse(bh);
-    //	inode
 
+    //	inode
     bh = getblk(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + NR_INODE_MAP_SECTS + NR_ZONE_MAP_SECTS);	
     memset(bh->b_data,0,SECTOR_SIZE);
     struct	d_inode  *dinode = (struct d_inode *)(bh->b_data);
@@ -99,6 +94,8 @@ void mk_fs()
     dinode->i_size = DENTRY_SIZE * (1 + NR_CONSOLES);
     dinode->i_start_sect = sb.s_firstzone;
     dinode->i_nr_sects = NR_DEFAULT_SECTS;
+
+    nr_sectors = sb.s_firstzone + NR_DEFAULT_SECTS + 1;
     //	dinode->i_nlinks = 1;
     for(i = 0;i < NR_CONSOLES;i++)
     {
@@ -107,10 +104,12 @@ void mk_fs()
         dinode->i_size = dinode->i_nr_sects = 0;
         dinode->i_start_sect = MAKE_DEV(DEV_TTY,i);
     }
+
     hd_rw(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + NR_INODE_MAP_SECTS + NR_ZONE_MAP_SECTS,1,ATA_WRITE,bh);
     brelse(bh);
     //	zone
     //初始化根目录中的数据。根目录是个目录，存放的是目录项 4个文件 .  tty0 tty1 tty2
+    printk("s_firstzone=%d.",sb.s_firstzone);
     bh = getblk(ROOT_DEV,sb.s_firstzone);
     memset(bh->b_data,0,SECTOR_SIZE);
     struct dentry *de = (struct dentry*)(bh->b_data);
@@ -140,10 +139,12 @@ int init_fs()
     }
 
     mk_fs();	
-
     read_super_block(ROOT_DEV);
     struct super_block *sb = get_super_block(ROOT_DEV);
-    assert(sb->s_magic == MAGIC_FS);
+
+    /*if(sb->s_magic != MAGIC_FS)*/
+
+    /*assert(sb->s_magic == MAGIC_FS);*/
     root_inode = iget(ROOT_DEV,ROOT_INODE);
     if(root_inode == NULL)
     {
@@ -165,28 +166,41 @@ int init_fs()
     /*struct m_inode *inode = current->filp[fd]->f_inode;*/
     /*printk("inode num = %d\n",inode->i_num);*/
 
-    /*printk("-----------------------------------------\n");*/
-    int fd2	= open("/sunkang",0,O_CREAT);
-    /*printk("init_fs fd2 = %d\n",fd2);*/
-    struct m_inode *inode = current->filp[fd2]->f_inode;
-    printk("sunkang inode num = %d\n",inode->i_num);
-    close(fd2);
+    struct m_inode *inode;
+    printk("-----------------------------------------\n");
+    fd = open("/sunkang",0,O_CREAT);
+    if(fd < 0)
+    {
+        printk("open error. fd = %x.", fd);
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("sunkang inode num = %d\n",inode->i_num);
+        close(fd);
+    }
+
 
     printk("-----------------------------------------\n");
-    int fd3 = open("/sunkang/kamus",0,O_CREAT);
-    inode = current->filp[fd3]->f_inode;
-    /*printk("init fs fd3 = %d\n",fd3);*/
-    printk("kamus inode num = %d\n",inode->i_num);
-
-    printk("-----------------------------------------\n");
-    if((fd3 = open("/sunkang/kamus/hahaha",0,O_CREAT)) < 0)
+    if((fd = open("/sunkang/kamus",0,O_CREAT)) < 0)
     {
     }
     else
     {
-        inode = current->filp[fd3]->f_inode;
-        /*printk("init fs fd3 = %d\n",fd3);*/
+        inode = current->filp[fd]->f_inode;
+        printk("kamus inode num = %d\n",inode->i_num);
+        close(fd);
+    }
+
+    printk("-----------------------------------------\n");
+    if((fd = open("/sunkang/kamus/hahaha",0,O_CREAT)) < 0)
+    {
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
         printk("haha inode num = %d\n",inode->i_num);
+        close(fd);
     }
 
     /*char buf[] = "wo shi sunkang";*/

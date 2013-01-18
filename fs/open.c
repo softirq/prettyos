@@ -15,7 +15,7 @@ struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
 {
     int ret;
     int inode_nr = get_imap_bit(dir->i_dev);
-    printk("create_file:inode_nr = %d\n",inode_nr);
+    /*printk("create_file:inode_nr = %d\n",inode_nr);*/
     if(inode_nr <= 0)
     {
         printk("there is no free inode 1 \n");

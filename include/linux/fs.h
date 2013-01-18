@@ -8,6 +8,7 @@
 #include "read_write.h"
 #include "link.h"
 #include "bitmap.h"
+#include "block.h"
 
 // filesystem magic
 #define MAGIC_FS	0x0001

@@ -12,17 +12,6 @@
 struct list_head inode_lists;
 unsigned short nr_inodes_count  = 0;
 
-int sync_block(int dev,int nr,struct buffer_head *bh)
-{
-    if(bh)
-    {
-        bh->b_dirt = 0;
-        hd_rw(dev,nr,1,ATA_WRITE,bh);
-        return 0; 
-    }
-    return -1;
-}
-
 void sync_dev(int dev)
 {
 }
@@ -45,12 +34,12 @@ int write_inode(struct m_inode *inode)
     if(bh == NULL)
         return -2;
 
-    if((hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh)) < 0)
+    if((hd_rw(dev,blk_nr,1,ATA_READ,bh)) < 0)
         return -3;
 
     *(struct d_inode *)(bh->b_data + ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE) = *(struct d_inode *)inode;	
 
-    if((hd_rw(ROOT_DEV,blk_nr,1,ATA_WRITE,bh)) > 0)
+    if((hd_rw(dev,blk_nr,1,ATA_WRITE,bh)) > 0)
         return -4;
 
     brelse(bh);
@@ -136,8 +125,6 @@ struct m_inode* iget(int dev,int num)
     {
         panic("iget with dev == 0\n");
     }
-    //	empty = get_empty_inode();
-
 
     struct list_head *head, *pos, *n;
     head = &(inode_lists);
@@ -169,10 +156,13 @@ struct m_inode* iget(int dev,int num)
     inode->i_dev = dev;
     inode->i_num = num;
     inode->i_ops = &pfs;
+
     if((read_inode(inode)) < 0)
         return NULL;
 
+    inode->i_start_sect = nr_sectors;
     inode->i_nr_sects = NR_DEFAULT_SECTS;
+    nr_sectors = NR_DEFAULT_SECTS + 1;
     /*list_add(&(inode->list), &inode_lists);*/
 
     return inode;
@@ -202,7 +192,6 @@ static int free_inode(struct m_inode *inode)
     }
     return -1;
 }
-
 
 /*free the inode*/
 void iput(struct m_inode *inode)
@@ -241,49 +230,6 @@ void iput(struct m_inode *inode)
         write_inode(inode);		
     }
     return;
-}
-
-int new_block(int dev)
-{
-    struct super_block *sb;
-    int block_nr;
-    if(!(sb = get_super_block(dev)))
-        panic("triny to get new block from nonexistant device");
-    block_nr = get_zmap_bit(dev);
-    if(block_nr <= 0)
-    {
-        printk("there is no free block");
-        return 0;
-    }	
-    else
-        return block_nr;
-
-}
-int free_block(int dev,int nr)
-{
-    if(nr <= 0)
-        return -1;
-    struct super_block *sb;
-    struct buffer_head *bh;
-    if(!(sb = get_super_block(dev)))
-    {
-        panic("trying to free inode on nonexistent device");
-        panic("free_block");
-    }
-    if(nr < 1 || nr > sb->s_nzones)
-        panic("trying to free inode 0 or nonexistant inode");
-    bh = getblk(dev,nr);
-    if(!dev)
-    {
-        clear_zmap_bit(dev,nr);
-        if(!bh)
-        {
-            if(bh->b_dirt)	
-                sync_block(dev,nr,bh);
-        }
-        return 0;
-    }
-    return -1;
 }
 
 struct inode_operations pfs = {
