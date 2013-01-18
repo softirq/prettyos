@@ -11,8 +11,9 @@
 #include "printf.h"
 
 //创建一个新的文件/目录
-struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
+struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
 {
+    int ret;
     int inode_nr = get_imap_bit(dir->i_dev);
     printk("create_file:inode_nr = %d\n",inode_nr);
     if(inode_nr <= 0)
@@ -24,9 +25,14 @@ struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
     if(!inode)
     {
         printk("there is no free inode 2 \n");
+        return NULL;
     }
 
-    add_entry(dir,inode->i_num,basename);
+    if((ret = add_entry(dir,inode->i_num,basename)) < 0)
+    {
+        printk("add_entry error.ret = %d.",ret);
+        return NULL;
+    }
 
     inode->i_mode = dir->i_mode;
     inode->i_dirt = 1;
@@ -37,7 +43,7 @@ struct m_inode * create_file(struct m_inode *dir,char *basename,int namelen)
 
 static inline int get_empty_fd(int *fd)
 {
-    int i;
+    unsigned int i;
     /* search the unused fd */
     for(i = 1;i < NR_OPEN;i++)
     {       
@@ -48,7 +54,7 @@ static inline int get_empty_fd(int *fd)
         }
     }
 
-    if(fd <= 0 || (unsigned int)fd > NR_OPEN)
+    if(i <= 0 || (unsigned int)i > NR_OPEN)
     {
         /*panic("filp is full (PID %d)\n",proc2pid(current)); */
         return -1;
@@ -94,6 +100,7 @@ int open(char* filename,int mode,int flag)
         fp->f_count = 0;
         return ret;
     }
+    printk("inode->num = %d.",inode->i_num);
     //返回文件句柄
     //	printk("open inode->i_num = %d\n",inode->i_num);
     fp->f_inode = inode;

@@ -55,13 +55,13 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,i
                             printk("compare successful\n");
                             *res_de = de;
                             brelse(bh);
-                            break;
+                            return 0;
                         case DE_DEL:
                             *res_de = de;
                             memset((char *)de,0,DENTRY_SIZE);
                             hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_WRITE,bh);	
                             brelse(bh);
-                            break;
+                            return 0;
                         default:
                             break;
                     }
@@ -148,14 +148,17 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
 /* from the dentry find the filename*/
 int lookup(struct m_inode *base, char *name, int namelen, struct m_inode **res_inode)
 {
+    int ret;
     struct dentry *de;
     struct m_inode *inode;
 
     if(base == NULL || name == NULL || namelen <= 0 || res_inode == NULL)
         return -1;
 
-    if(do_entry(base ,name,namelen,&de,DE_MATCH) < 0)
+    printk("lookup name = %s.len = %d.",name, namelen );
+    if((ret = do_entry(base ,name,namelen,&de,DE_MATCH)) < 0)
     {
+        printk("do entry error.ret = %x.",ret);
         return -2;
     }
     else
@@ -173,7 +176,7 @@ int lookup(struct m_inode *base, char *name, int namelen, struct m_inode **res_i
 int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_inode)
 {
     char ch;
-    int len;
+    int ret,len;
     char *thisname;
     struct m_inode *baseinode = NULL;
     struct m_inode *inode = NULL;
@@ -192,8 +195,14 @@ int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_ino
         if(!ch)
             break;
 
-        if(lookup(baseinode, thisname, len,&inode) < 0)
-            return -2;
+        printk("thisname = %s.",thisname);
+        if((ret = lookup(baseinode, thisname, len,&inode)) < 0)
+        {
+            printk("lookup ret = %x.",ret);
+            return -3;
+            /*break;*/
+        }
+
         baseinode = inode;
     }
 
@@ -202,7 +211,7 @@ int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_ino
 
     //Version 1.0版本简化流程 直接在/目录下
     /**res_inode = root_inode;*/
-    *res_inode = inode;
+    *res_inode = baseinode;
 
     return 0;
 }
@@ -210,22 +219,23 @@ int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_ino
 /*find the pathname inode for open function*/
 int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
 {
+    int ret;
     int namelen;
     char *name;
     struct dentry *de;   /* dentry */
     struct m_inode *dir;    /* dir dentry */
     struct m_inode *inode;  /* file inode */
 
-    printk("pathname=%s.", pathname);
     /* get direntry inode */
-    if(dir_namei(pathname,&name,&namelen, &dir) < 0)
+    if((ret = dir_namei(pathname,&name,&namelen, &dir)) < 0)
     {
-        printk("dir_namei.");
+        printk("dir_namei.ret = %x.",ret);
         return -1;
     }
 
+    printk("name=%s.namelen=%d.",name,namelen);
     /* is a directory */
-    if(!namelen)
+    if(!namelen || !dir)
     {
         if(dir)
         {
@@ -237,12 +247,13 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
     }
 
     /* find the file from the directory */
+    /*printk("name = %s.len = %d.", name, namelen);*/
     if(find_entry(dir,name,namelen,&de) != 0) 
     {
         printk("no such file\n");
         if(flag & O_CREAT)
         {
-            inode = create_file(dir,name,namelen);
+            inode = new_file(dir,name,namelen);
             if(inode)
             {
                 *res_inode = inode;

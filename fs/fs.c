@@ -158,32 +158,43 @@ int init_fs()
     int fd = open("/",0,0);
     if(fd < 0)
     {
-        printk("open error.");
+        printk("open error. fd = %x.", fd);
     }
-    /*close(fd);*/
+    close(fd);
     /*printk("init_fs fd = 0x%x\n",fd);*/
     /*struct m_inode *inode = current->filp[fd]->f_inode;*/
     /*printk("inode num = %d\n",inode->i_num);*/
 
     /*printk("-----------------------------------------\n");*/
-    /*int fd2	= open("/sunkang",0,O_CREAT);*/
+    int fd2	= open("/sunkang",0,O_CREAT);
     /*printk("init_fs fd2 = %d\n",fd2);*/
-    /*struct m_inode *inode = current->filp[fd2]->f_inode;*/
-    /*printk("inode num = %d\n",inode->i_num);*/
-    /*close(fd2);*/
+    struct m_inode *inode = current->filp[fd2]->f_inode;
+    printk("sunkang inode num = %d\n",inode->i_num);
+    close(fd2);
 
-    /*int fd3 = open("/kamus",0,O_CREAT);*/
-    /*inode = current->filp[fd3]->f_inode;*/
+    printk("-----------------------------------------\n");
+    int fd3 = open("/sunkang/kamus",0,O_CREAT);
+    inode = current->filp[fd3]->f_inode;
     /*printk("init fs fd3 = %d\n",fd3);*/
-    /*printk("inode num = %d\n",inode->i_num);*/
-    /*printk("-----------------------------------------\n");*/
+    printk("kamus inode num = %d\n",inode->i_num);
+
+    printk("-----------------------------------------\n");
+    if((fd3 = open("/sunkang/kamus/hahaha",0,O_CREAT)) < 0)
+    {
+    }
+    else
+    {
+        inode = current->filp[fd3]->f_inode;
+        /*printk("init fs fd3 = %d\n",fd3);*/
+        printk("haha inode num = %d\n",inode->i_num);
+    }
 
     /*char buf[] = "wo shi sunkang";*/
     /*sys_read(fd,buf,sizeof(buf));*/
     /*sys_write(fd2,buf, sizeof(buf));*/
     /*for(i = 0;i < 100;i++)*/
     /*{*/
-        /*printk("%c",buf[i]);*/
+    /*printk("%c",buf[i]);*/
     /*}*/
     /*char abc[15] = {0};*/
     /*printk("fd = %d.",fd2);*/

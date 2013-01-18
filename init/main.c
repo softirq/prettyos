@@ -59,7 +59,7 @@ static void init_task()
 {
     int ret;
 
-    disp_str("\tpretty initialize begin\n\n\n\n\n\n\n");
+    disp_str("\tpretty initialize begin\n");
 
     TASK* p_task;
     struct task_struct* p_proc	= proc_table;
