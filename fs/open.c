@@ -14,11 +14,12 @@
 struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
 {
     int ret;
+    printk("dev = %d.",dir->i_dev);
     int inode_nr = get_imap_bit(dir->i_dev);
     /*printk("create_file:inode_nr = %d\n",inode_nr);*/
     if(inode_nr <= 0)
     {
-        printk("there is no free inode 1 \n");
+        printk("there is no free inode \n");
         return NULL;
     }
     struct m_inode *inode = iget(dir->i_dev,inode_nr);
@@ -98,7 +99,7 @@ int open(char* filename,int mode,int flag)
     {
         current->filp[fd] = NULL;
         fp->f_count = 0;
-        return ret;
+        return -4;
     }
     printk("inode->num = %d.",inode->i_num);
     //返回文件句柄

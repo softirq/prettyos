@@ -29,6 +29,7 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,i
     int dir_start_sect = dir->i_start_sect;
     int nr_dir_sects = (dir->i_size + SECTOR_SIZE -1) / SECTOR_SIZE;			
     int nr_dentry = dir->i_size / DENTRY_SIZE;	
+    printk("dir->i_size = %d i_num = %d.",dir->i_size, dir->i_num);
     printk("nr_dentry = %d.",nr_dentry);
 
     for(i = 0;i < nr_dir_sects;i++)
@@ -252,7 +253,7 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
     }
 
     /* find the file from the directory */
-    /*printk("name = %s.len = %d.", name, namelen);*/
+    printk("name = %s.len = %d.", name, namelen);
     if(find_entry(dir,name,namelen,&de) != 0) 
     {
         printk("no such file\n");

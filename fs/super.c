@@ -30,12 +30,16 @@ void read_super_block(int dev)
 
 struct super_block * get_super_block(int dev)
 {
-    struct super_block *sb = super_block;
+    struct super_block *sb = NULL;
+repeat:
+    sb = super_block;
     for(;sb < super_block + NR_SUPER;sb++)
     {
         if(sb->s_dev == dev)
             return sb;
     }
-    panic("super block of device %d not found\n",dev);
+    read_super_block(ROOT_DEV);
+
+    /*panic("super block of device %d not found\n",dev);*/
     return 0;
 }

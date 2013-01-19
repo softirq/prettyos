@@ -4,6 +4,7 @@
 #include "stdlib.h"
 #include "hd.h"
 #include "blk_drv.h"
+#include "printf.h"
 
 /* bit scan forward 
  * find the first 1 */
@@ -67,6 +68,35 @@ int clear_zmap_bit(int dev,int nr)
     return 0;	
 }
 
+unsigned short set_imap_bit(int dev, int nr)
+{
+    unsigned char ch;
+    struct buffer_head *bh = NULL;
+
+    int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + 1 + nr/(SECTOR_SIZE * 8);
+    printk("blk_nr = %d.",blk_nr);
+    bh = getblk(dev,blk_nr);
+    hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh);
+
+    int bit = (nr/8);
+    ch = (bh->b_data)[bit];
+
+    if(ch == 0xff)
+    {
+        brelse(bh);
+        return 0;
+    }
+    else
+    {
+        bh->b_data[bit] |= (1<<(nr%8));
+
+        hd_rw(ROOT_DEV,blk_nr,1,ATA_WRITE,bh);
+        brelse(bh);
+    }
+
+    return 0;
+}
+
 unsigned short get_imap_bit(int dev)
 {
     int i,j;
@@ -94,7 +124,8 @@ unsigned short get_imap_bit(int dev)
                 //没有找到或者为第一个inode节点
                 if(ret < 0 || ret > 7 || (i == 0 && ret == 0))
                 {
-                    disp_str("no inode is free\n");
+                    printk("ret = %d.i = %d", ret, i);
+                    /*disp_str("no inode is free\n");*/
                 }
                 else
                 {

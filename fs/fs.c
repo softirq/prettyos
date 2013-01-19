@@ -62,6 +62,7 @@ void mk_fs()
         hd_rw(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + i,1,ATA_WRITE,bh);
     }
     brelse(bh);
+    /*set_imap_bit(ROOT_DEV, 0);*/
 
     //	zone map
     //	memset(hd_buf,0,SECTOR_SIZE);
@@ -138,14 +139,17 @@ int init_fs()
         super_block[i].s_dev = NO_DEV;	
     }
 
-    mk_fs();	
+        mk_fs();	
     read_super_block(ROOT_DEV);
     struct super_block *sb = get_super_block(ROOT_DEV);
 
     /*if(sb->s_magic != MAGIC_FS)*/
 
     /*assert(sb->s_magic == MAGIC_FS);*/
-    root_inode = iget(ROOT_DEV,ROOT_INODE);
+    int inode_nr = get_imap_bit(ROOT_DEV);
+    printk("root inode_nr = %d.",inode_nr);
+    /*assert(inode_nr != ROOT_INODE)*/
+    root_inode = iget(ROOT_DEV,sb->s_firstzone);
     if(root_inode == NULL)
     {
         printk("root inode null.");
@@ -156,6 +160,7 @@ int init_fs()
     printk("bh->b_blocknr = %d\n",bh->b_blocknr);
     /*printk("bh->b_data= %s\n",bh->b_data);*/
 
+    printk("-----------------------------------------\n");
     int fd = open("/",0,0);
     if(fd < 0)
     {
@@ -167,7 +172,7 @@ int init_fs()
     /*printk("inode num = %d\n",inode->i_num);*/
 
     struct m_inode *inode;
-    printk("-----------------------------------------\n");
+    printk("\n-----------------------------------------\n");
     fd = open("/sunkang",0,O_CREAT);
     if(fd < 0)
     {
@@ -181,7 +186,7 @@ int init_fs()
     }
 
 
-    printk("-----------------------------------------\n");
+    printk("\n-----------------------------------------\n");
     if((fd = open("/sunkang/kamus",0,O_CREAT)) < 0)
     {
     }
@@ -192,7 +197,7 @@ int init_fs()
         close(fd);
     }
 
-    printk("-----------------------------------------\n");
+    printk("\n-----------------------------------------\n");
     if((fd = open("/sunkang/kamus/hahaha",0,O_CREAT)) < 0)
     {
     }
