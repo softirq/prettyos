@@ -32,7 +32,7 @@ extern void select_console(int nr_console);
 #define SCREEN_SIZE		(SCREEN_WIDTH * SCREEN_HIGH)
 
 #define DEFAULT_CHAR_COLOR	0x07	
-#define	NR_CONSOLES	3	/* consoles */
+#define	NR_CONSOLES	    3	/* consoles */
 
 /* VGA */
 #define CRTC_ADDR_REG			0x3D4	/* CRT Controller Registers - Address Register */

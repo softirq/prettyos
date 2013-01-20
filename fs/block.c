@@ -25,13 +25,14 @@ static int sync_block(int dev,int nr,struct buffer_head *bh)
 
 static int new_block(int dev)
 {
-    struct super_block *sb;
+    struct super_block *sb = NULL;
     int block_nr;
 
-    if(!(sb = get_super_block(dev)))
+    if((sb = get_super_block(dev)) == NULL)
         panic("triny to get new block from nonexistant device");
 
     block_nr = sb->s_firstzone + get_zmap_bit(dev);
+    printk(".%d.",block_nr);
     if(block_nr <= 0)
     {
         printk("there is no free block");
@@ -69,11 +70,11 @@ static int free_block(int dev,int nr)
 }
 
 /* get direct block nr mmap */
-static int get_frist_block_nr(int dev, struct m_inode *inode)
+static int get_frist_block_nr(int dev, struct d_inode *inode)
 {
     int i,nr;
 
-    for(i = 0;i < 11;++i)
+    for(i = 0;i < NR_DEFAULT_SECTS;++i)
     {
         if(inode->i_data[i] == 0)
         {
@@ -88,7 +89,7 @@ static int get_frist_block_nr(int dev, struct m_inode *inode)
 }
 
 /* get second block nr map */
-static int get_second_block_nr(int dev, struct m_inode *inode)
+static int get_second_block_nr(int dev, struct d_inode *inode)
 {
     int i,nr, blk_nr;
     int *i_array;
@@ -123,7 +124,7 @@ static int get_second_block_nr(int dev, struct m_inode *inode)
 }
 
 /* get third block nr map */
-static int get_third_block_nr(int dev, struct m_inode *inode)
+static int get_third_block_nr(int dev, struct d_inode *inode)
 {
     int i,k,nr, blk_nr;
     struct buffer_head *bh, *sbh;
@@ -176,7 +177,7 @@ static int get_third_block_nr(int dev, struct m_inode *inode)
 }
 
 /* get one block from system*/
-int get_block_nr(int dev, struct m_inode *inode)
+int get_block_nr(int dev, struct d_inode *inode)
 {
     if(get_frist_block_nr(dev, inode) == 0)
     {
@@ -198,7 +199,7 @@ int get_block_nr(int dev, struct m_inode *inode)
 
 /* get num block the first stored in block_nr
  * and linked to a list*/
-int get_block_nums(int dev, struct m_inode *inode, int num)
+int get_block_nums(int dev, struct d_inode *inode, int num)
 {
     int i = 0;
     for(;i < num; ++i)
@@ -211,16 +212,7 @@ int get_block_nums(int dev, struct m_inode *inode, int num)
 }
 
 /* return the first block number */
-int get_first_block_nr(struct m_inode *inode)
+inline int get_first_block(struct d_inode *inode)
 {
-    int i;
-    for(i = 0;i < 11;++i)
-    {
-        if(inode->i_data[i] != 0)
-        {
-            return inode->i_data[i];
-        }
-    }
-
-    return -1;
+    return inode->i_data[0];
 }

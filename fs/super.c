@@ -2,6 +2,7 @@
 #include "const.h"
 #include "wait.h"
 #include "panic.h"
+#include "string.h"
 #include "hd.h"
 #include "blk_drv.h"
 
@@ -22,23 +23,24 @@ void read_super_block(int dev)
     hd_rw(ROOT_DEV,1,1,ATA_READ,bh);
     sb = (struct super_block *)(bh->b_data);
     //	printk("========================%d\n",sb->s_nimap_sects);
-    super_block[i] = *sb;
-    super_block[i].s_dev = dev;
-    super_block[i].s_magic = MAGIC_FS;	
+    memcpy((void *)&super_block[i],(void *)sb,sizeof(struct super_block));
+    /*super_block[i] = *sb;*/
+    /*super_block[i].s_dev = dev;*/
+    /*super_block[i].s_magic = MAGIC_FS;	*/
     brelse(bh);
 }
 
 struct super_block * get_super_block(int dev)
 {
     struct super_block *sb = NULL;
+
     sb = super_block;
     for(;sb < super_block + NR_SUPER;sb++)
     {
         if(sb->s_dev == dev)
             return sb;
     }
-    read_super_block(ROOT_DEV);
+    /*read_super_block(ROOT_DEV);*/
 
-    /*panic("super block of device %d not found\n",dev);*/
-    return 0;
+    return NULL;
 }

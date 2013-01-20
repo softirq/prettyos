@@ -14,8 +14,8 @@
 struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
 {
     int ret;
-    printk("dev = %d.",dir->i_dev);
     int inode_nr = get_imap_bit(dir->i_dev);
+    printk("new inode_nr = %d.",inode_nr);
     /*printk("create_file:inode_nr = %d\n",inode_nr);*/
     if(inode_nr <= 0)
     {
@@ -104,7 +104,7 @@ int open(char* filename,int mode,int flag)
         fp->f_count = 0;
         return -4;
     }
-    printk("inode->num = %d.",inode->i_num);
+    printk("inode->num = %d.inode->i_size = %d.",inode->i_num, inode->i_size);
     //返回文件句柄
     //	printk("open inode->i_num = %d\n",inode->i_num);
     fp->f_inode = inode;

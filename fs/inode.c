@@ -130,11 +130,10 @@ struct m_inode* iget(int dev,int num)
     head = &(inode_lists);
     if(list_empty_careful(head))
     {
-        printk("1");
+        /*printk("1");*/
     }
     else
     {
-        printk("2");
         list_for_each_safe(pos, n, head)
         {
             inode = list_entry(pos, struct m_inode, list);
@@ -148,7 +147,6 @@ struct m_inode* iget(int dev,int num)
         }
     }
 
-    printk("3");
     inode = get_empty_inode(dev);
     if(inode == NULL)
     {
@@ -159,12 +157,11 @@ struct m_inode* iget(int dev,int num)
     inode->i_dev = dev;
     inode->i_num = num;
     inode->i_ops = &pfs;
+    /*get_block_nums(dev, (struct d_inode *)inode, NR_DEFAULT_SECTS);*/
 
-    printk("4");
     if((read_inode(inode)) < 0)
         return NULL;
 
-    printk("5");
     /*inode->i_start_sect = nr_sectors;*/
     /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
     /*nr_sectors = NR_DEFAULT_SECTS + 1;*/

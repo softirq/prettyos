@@ -38,8 +38,12 @@ int vsprintf(char *buf,const char *fmt,va_list args)
                 if(value < 0)
                 {
                     *p++ = '-';
+                    itoa(tmp,-value);				
                 }
-                itoa(tmp,value);				
+                else
+                {
+                    itoa(tmp,value);				
+                }
                 strcpy(p,tmp);
                 p+= strlen(tmp);
                 next_arg += 4;
@@ -47,7 +51,6 @@ int vsprintf(char *buf,const char *fmt,va_list args)
 
             case 'p':
             case 'x':
-
                 value = *((int *)next_arg);
                 htoa(tmp,value);				
                 strcpy(p,tmp);

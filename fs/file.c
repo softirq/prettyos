@@ -24,7 +24,7 @@ int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
         return -EINVAL;
     if(!buf || count <= 0)
         return 0;
-    int nr_start_sect = inode->i_start_sect;
+    int nr_start_sect = get_first_block(inode); 
     printk("read start_sect = %d.",nr_start_sect);
     //	printk("inode->i_dev = %d inode->i_num = %d inode->i_start_sect = %d\n",inode->i_dev,inode->i_num,inode->i_start_sect);
     //文件所占的磁盘块总数
@@ -82,7 +82,8 @@ int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
     if(!inode || !filp || !buf || count < 0)
         return -EINVAL;
 
-    int nr_start_sect = inode->i_start_sect;
+    /*int nr_start_sect = inode->i_start_sect;*/
+    int nr_start_sect = get_first_block(inode); 
     printk("write start_sect = %d.",nr_start_sect);
     if(filp->f_flag & O_APPEND)
         pos = inode->i_size;

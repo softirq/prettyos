@@ -9,7 +9,7 @@
 //一个目录最多可以拥有的文件或者目录个数
 #define MAX_NUM_FILES	1024
 //分配给文件默认的扇区数
-#define NR_DEFAULT_SECTS	11	//默认分配20个扇区
+#define NR_DEFAULT_SECTS	11	//默认分配11个扇区
 
 #define DENTRY_SIZE  	16
 

@@ -99,13 +99,13 @@ unsigned short set_imap_bit(int dev, int nr)
 
 unsigned short get_imap_bit(int dev)
 {
-    int i,j;
-    int ret = -1;
+    int i,j,ret = -1;
     int inode_nr = -1;
     unsigned char ch;
     //	printk("%d\n",dev);
     struct buffer_head *bh;
     struct super_block *sb = get_super_block(dev);
+
     int blk_nr = 1 + NR_SUPER_BLOCK_SECTS;
     for(i = 0;i < sb->s_nimap_sects;i++)
     {		
@@ -119,43 +119,47 @@ unsigned short get_imap_bit(int dev)
             else
             {
                 ch = ~ch;
-                //		ch =~((bh->b_data)[j]) & 0xff;			
+                //		ch =~((bh->b_data)[j]) & 0xff;
                 ret = find_first_bit(ch);
                 //没有找到或者为第一个inode节点
-                if(ret < 0 || ret > 7 || (i == 0 && ret == 0))
+                if(ret < 0 || ret > 7 || (i == 0 && j == 0 && ret == 0))
                 {
-                    printk("ret = %d.i = %d", ret, i);
+                    printk("ret = %d.j = %d", ret, j);
                     /*disp_str("no inode is free\n");*/
                 }
                 else
                 {
                     inode_nr = (i * SECTOR_SIZE + j) * 8 + ret;
-                    if(inode_nr >= BITS_INODE)
-                        return 0;
+                    /*if(inode_nr >= BITS_INODE)*/
+                        /*return 0;*/
                     (bh->b_data)[j] |= (1 << ret); 
                     hd_rw(ROOT_DEV,blk_nr + i,1,ATA_WRITE,bh);
                     brelse(bh);
                     break;
                 }
             }	
+
             if(inode_nr < 1)
                 return 0;
             else
                 return inode_nr;
         }	
     }
+
     return inode_nr;
 }
 
 unsigned short get_zmap_bit(int dev)
 {
-    int i,j;
-    int ret = -1;
+    int i,j,ret = -1;
     int block_nr = 0;
     unsigned char ch;
-    struct super_block *sb = get_super_block(dev);
     struct buffer_head *bh;
+    struct super_block *sb = get_super_block(dev);
+
     int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects;
+    /*printk("zmap blk_nr =%d.",sb->s_nzmap_sects);*/
+    /*printk("zmap blk_nr =%d.",blk_nr);*/
     for(i = 0;i < sb->s_nzmap_sects;i++)
     {
         bh = getblk(dev,blk_nr + i);
@@ -168,30 +172,25 @@ unsigned short get_zmap_bit(int dev)
             else
             {
                 ch = ~ch;
-                //	ch =~(bh->b_data)[j] & 0xff;			
+
                 ret = find_first_bit(ch);
-                if(ret < 0 || ret > 7|| (i == 0 && ret == 0))	
-                {
-                    disp_str("no block is free\n");
-                }
-                else
-                {
-                    block_nr = (SECTOR_SIZE * i + j) * 8 + ret;
-                    if(block_nr >= BITS_ZONE)
-                    {
-                        return 0;
-                    }
-                    (bh->b_data)[j] |= (1 << ret);
-                    hd_rw(ROOT_DEV,blk_nr + i,1,ATA_WRITE,bh);
-                    brelse(bh);
-                    break;
-                }
+                block_nr = (SECTOR_SIZE * i + j) * 8 + ret;
+                if(block_nr >= BITS_ZONE)
+                    return 0;
+
+                (bh->b_data)[j] |= (1 << ret);
+                hd_rw(ROOT_DEV,blk_nr + i,1,ATA_WRITE,bh);
+                brelse(bh);
+                break;
             }
             if(block_nr < 1)
                 return 0;
             else
+            {
                 return block_nr;
+            }
         }
     }
-    return 0;
+
+    return block_nr;
 }

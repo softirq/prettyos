@@ -26,10 +26,10 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,i
     struct dentry *de;
     struct buffer_head *bh;
 
-    int dir_start_sect = dir->i_start_sect;
+    int dir_start_sect = get_first_block((struct d_inode *)dir);
+    /*int dir_start_sect = dir->i_data[0];*/
     int nr_dir_sects = (dir->i_size + SECTOR_SIZE -1) / SECTOR_SIZE;			
     int nr_dentry = dir->i_size / DENTRY_SIZE;	
-    printk("dir->i_size = %d i_num = %d.",dir->i_size, dir->i_num);
     printk("nr_dentry = %d.",nr_dentry);
 
     for(i = 0;i < nr_dir_sects;i++)
@@ -47,7 +47,7 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,i
                 continue;	
             else
             {
-                /*printk("de name = %s.",de->file_name);*/
+                printk("de name = %s.",de->file_name);
                 ret = compare(de,name,namelen);
                 if(ret != 0)
                     continue;
@@ -94,12 +94,20 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
     int i,j;
     struct dentry *de = NULL, *new_de = NULL;
     struct buffer_head *bh = NULL;
+    int dir_start_sect, nr_dir_sects;
 
     if(dir == NULL || name == NULL)
         return -1;
 
-    int dir_start_sect= dir->i_start_sect;
-    int nr_dir_sects = NR_DEFAULT_SECTS;
+    if((dir_start_sect = get_first_block((struct d_inode *)dir)) == 0)
+    {
+        get_block_nums(dir->i_dev ,(struct d_inode *)dir, NR_DEFAULT_SECTS);
+        if((dir_start_sect = get_first_block((struct d_inode *)dir)) == 0)
+            return -3;
+    }
+
+    printk("dir_i_num = %d dir_start_sect=%d.",dir->i_num, dir_start_sect);
+    nr_dir_sects = NR_DEFAULT_SECTS;
 
     for(i = 0;i < nr_dir_sects;i++)
     {
@@ -144,7 +152,7 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
         return -3;
 
     /*if((write_inode(dir)) < 0)*/
-        /*return -4;*/
+    /*return -4;*/
 
     brelse(bh);
 
@@ -165,7 +173,7 @@ int lookup(struct m_inode *base, char *name, int namelen, struct m_inode **res_i
     printk("base inode num=%d.",base->i_num);
     if((ret = do_entry(base ,name,namelen,&de,DE_MATCH)) < 0)
     {
-        printk("do entry error.ret = %x.",ret);
+        printk("do entry error.ret = %d.",ret);
         return -2;
     }
     else
@@ -205,7 +213,7 @@ int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_ino
         printk("thisname = %s len = %d.",thisname,len);
         if((ret = lookup(baseinode, thisname, len,&inode)) < 0)
         {
-            printk("lookup ret = %x.",ret);
+            printk("lookup ret = %d.",ret);
             return -3;
             /*break;*/
         }
@@ -239,7 +247,6 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
         /*printk("dir_namei.ret = %x.",ret);*/
         return -1;
     }
-
     /*printk("name=%s.namelen=%d.",name,namelen);*/
     /* is a directory */
     if(!namelen || !dir)

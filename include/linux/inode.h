@@ -24,6 +24,7 @@ struct m_inode
 //	unsigned short	i_nlinks;		//连接数(有多少个文件目录项指向该i节点)
 	unsigned short	i_start_sect;		//文件起始块
 	unsigned short	i_nr_sects;		//文件数据块数
+    unsigned int    i_data[13];
 
 	unsigned short	i_dev;
 	unsigned short	i_count;		//当前被使用的次数
@@ -33,7 +34,6 @@ struct m_inode
 	struct vm_area_struct *i_mmap;  /* for shm areas,  the list of attaches, otherwise unused. */
     struct list_head list;
     struct inode_operations *i_ops;
-    unsigned int    i_data[13];
 };
 
 //disk inode节点结构	
@@ -46,6 +46,7 @@ struct d_inode
 //	unsigned short	i_zone[9];		//直接块 间接块 二次间接块
 	unsigned short	i_start_sect;		//文件起始块
 	unsigned short	i_nr_sects;		//文件数据块数
+    unsigned int    i_data[13];
 	
 };
 

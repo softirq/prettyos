@@ -20,6 +20,7 @@ void mk_fs()
     struct super_block sb;
     struct buffer_head *bh;
 
+    sb.s_dev = ROOT_DEV;
     sb.s_magic = MAGIC_FS;
     sb.s_ninodes = NR_INODES;
     sb.s_nzones = NR_ZONES;
@@ -39,6 +40,7 @@ void mk_fs()
     //将超级块写入到ROOT_DEV分区(在此为第一个逻辑分区)中
     hd_rw(ROOT_DEV,1,1,ATA_WRITE,bh);
     brelse(bh);
+    read_super_block(ROOT_DEV);
     //	inode map
 
     //初始化inode_map 占NR_INODE_MAP_SECTS个扇区
@@ -49,12 +51,13 @@ void mk_fs()
     {
         (bh->b_data)[0] |= (1 << i);
     }
-    //	printf("%d\n",hd_buf[0]);
+
     if((bh->b_data)[0] != 0x1f)
     {
         panic("fs inode_map initialize error\n");
     }
     hd_rw(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS,1,ATA_WRITE,bh);
+
     //	memset(hd_buf,0x0,SECTOR_SIZE * NR_INODE_MAP_SECTS);	
     memset(bh->b_data,0x0,SECTOR_SIZE);	
     for(i = 1;i < sb.s_nimap_sects;i++)
@@ -68,16 +71,9 @@ void mk_fs()
     //	memset(hd_buf,0,SECTOR_SIZE);
     //第0号盘块被保留 从第1号盘块号开始
     bh = getblk(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + NR_INODE_MAP_SECTS);	
-    int nr_sects = NR_DEFAULT_SECTS + 1;
-
-    for(i = 0;i < nr_sects / 8;i++)
-    {
-        (bh->b_data)[i] =0xff;
-    }				
-    for(j = 0; j < nr_sects % 8;j++)
-    {
-        (bh->b_data)[i] |= 1 << j;
-    }	
+    /*memset(bh->b_data, 0xff, SECTOR_SIZE);*/
+    /*int nr_sects = NR_DEFAULT_SECTS + 1;*/
+    bh->b_data[0] = 0x01;
     hd_rw(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + NR_INODE_MAP_SECTS,1,ATA_WRITE,bh);
 
     memset(bh->b_data,0x0,SECTOR_SIZE);
@@ -91,13 +87,13 @@ void mk_fs()
     bh = getblk(ROOT_DEV,1 + NR_SUPER_BLOCK_SECTS + NR_INODE_MAP_SECTS + NR_ZONE_MAP_SECTS);	
     memset(bh->b_data,0,SECTOR_SIZE);
     /* root inode */
-    struct	m_inode  *inode = (struct m_inode *)(bh->b_data);
-    inode->i_mode = I_DIRECTORY;
-    inode->i_size = DENTRY_SIZE;
-    inode->i_start_sect = sb.s_firstzone;
-    inode->i_nr_sects = NR_DEFAULT_SECTS;
-    /*get_block_nums(ROOT_DEV,inode, NR_DEFAULT_SECTS);*/
-    nr_sectors = sb.s_firstzone;
+    struct	d_inode  *dinode = (struct d_inode *)(bh->b_data);
+    dinode->i_mode = I_DIRECTORY;
+    dinode->i_size = DENTRY_SIZE;
+    /*inode->i_start_sect = sb.s_firstzone;*/
+    /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
+    get_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);
+    /*nr_sectors = sb.s_firstzone;*/
     //	dinode->i_nlinks = 1;
     /*for(i = 0;i < NR_CONSOLES;i++)*/
     /*{*/
@@ -139,29 +135,27 @@ int init_fs()
         super_block[i].s_dev = NO_DEV;	
     }
 
-    mk_fs();	
     read_super_block(ROOT_DEV);
     struct super_block *sb = get_super_block(ROOT_DEV);
-
-    /*if(sb->s_magic != MAGIC_FS)*/
+    /*printk("magic=%x.",sb->s_magic);*/
+    if(sb->s_magic != MAGIC_FS)
+    {
+        mk_fs();	
+    }
 
     /*assert(sb->s_magic == MAGIC_FS);*/
     root_inode = iget(ROOT_DEV,ROOT_INODE);
-    if(root_inode == NULL)
-    {
-        printk("root inode null.");
-    }
 
-    struct buffer_head* bh = getblk(ROOT_DEV,100);
+    /*struct buffer_head* bh = getblk(ROOT_DEV,100);*/
     /*printk("bh->b_dev = %d\n",bh->b_dev);*/
-    printk("bh->b_blocknr = %d\n",bh->b_blocknr);
+    /*printk("bh->b_blocknr = %d\n",bh->b_blocknr);*/
     /*printk("bh->b_data= %s\n",bh->b_data);*/
 
     printk("-----------------------------------------\n");
     int fd = open("/",0,0);
     if(fd < 0)
     {
-        printk("open error. fd = %x.", fd);
+        printk("open error. fd = %d.", fd);
     }
     close(fd);
     /*printk("init_fs fd = 0x%x\n",fd);*/
@@ -169,41 +163,37 @@ int init_fs()
     /*printk("inode num = %d\n",inode->i_num);*/
 
     struct m_inode *inode;
-    printk("\n-----------------------------------------\n");
     fd = open("/sunkang",0,O_CREAT);
     if(fd < 0)
     {
-        printk("open error. fd = %x.", fd);
+        printk("open error. fd = %d.", fd);
     }
     else
     {
         inode = current->filp[fd]->f_inode;
-        printk("sunkang inode num = %d\n",inode->i_num);
+        printk("sunkang inode num = %d",inode->i_num);
         close(fd);
     }
 
+    if((fd = open("/sunkang/kamus",0,O_CREAT)) < 0)
+    {
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("kamus inode num = %d",inode->i_num);
+        close(fd);
+    }
 
-    /*[>printk("\n-----------------------------------------\n");<]*/
-    /*if((fd = open("/sunkang/kamus",0,O_CREAT)) < 0)*/
-    /*{*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("kamus inode num = %d\n",inode->i_num);*/
-        /*close(fd);*/
-    /*}*/
-
-    /*[>printk("\n-----------------------------------------\n");<]*/
-    /*if((fd = open("/sunkang/kamus/hahaha",0,O_CREAT)) < 0)*/
-    /*{*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("haha inode num = %d\n",inode->i_num);*/
-        /*close(fd);*/
-    /*}*/
+    if((fd = open("/sunkang/hahaha",0,O_CREAT)) < 0)
+    {
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("haha inode num = %d",inode->i_num);
+        close(fd);
+    }
 
     /*char buf[] = "wo shi sunkang";*/
     /*sys_read(fd,buf,sizeof(buf));*/
