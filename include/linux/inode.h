@@ -19,7 +19,6 @@ struct inode_operations
 //memory inode接点结构
 struct m_inode
 {
-    unsigned int    i_data[13];
 	unsigned short	i_mode;			//文件类型和属性
 	unsigned short 	i_size;			//文件的大小
 //	unsigned short	i_nlinks;		//连接数(有多少个文件目录项指向该i节点)
@@ -34,6 +33,7 @@ struct m_inode
 	struct vm_area_struct *i_mmap;  /* for shm areas,  the list of attaches, otherwise unused. */
     struct list_head list;
     struct inode_operations *i_ops;
+    unsigned int    i_data[13];
 };
 
 //disk inode节点结构	

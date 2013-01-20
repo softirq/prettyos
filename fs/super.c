@@ -31,7 +31,6 @@ void read_super_block(int dev)
 struct super_block * get_super_block(int dev)
 {
     struct super_block *sb = NULL;
-repeat:
     sb = super_block;
     for(;sb < super_block + NR_SUPER;sb++)
     {

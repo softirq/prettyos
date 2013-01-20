@@ -38,6 +38,9 @@ struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
     inode->i_mode = dir->i_mode;
     inode->i_dirt = 1;
 
+    if((write_inode(dir)) < 0)
+        return NULL;
+
     printk("create file successful \n");
     return inode;
 }

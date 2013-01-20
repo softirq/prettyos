@@ -139,11 +139,12 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
     strncpy(new_de->file_name,name, strlen(name));
 
     printk("sector = %d.",dir_start_sect + i);
+    printk("size = %d.",dir->i_size);
     if((hd_rw(dir->i_dev,dir_start_sect + i ,1,ATA_WRITE,bh)) < 0)
         return -3;
 
-    if((write_inode(dir)) < 0)
-        return -4;
+    /*if((write_inode(dir)) < 0)*/
+        /*return -4;*/
 
     brelse(bh);
 

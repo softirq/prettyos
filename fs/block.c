@@ -31,7 +31,7 @@ static int new_block(int dev)
     if(!(sb = get_super_block(dev)))
         panic("triny to get new block from nonexistant device");
 
-    block_nr = get_zmap_bit(dev);
+    block_nr = sb->s_firstzone + get_zmap_bit(dev);
     if(block_nr <= 0)
     {
         printk("there is no free block");
@@ -69,7 +69,7 @@ static int free_block(int dev,int nr)
 }
 
 /* get direct block nr mmap */
-int get_frist_block_nr(int dev, struct m_inode *inode)
+static int get_frist_block_nr(int dev, struct m_inode *inode)
 {
     int i,nr;
 
@@ -88,7 +88,7 @@ int get_frist_block_nr(int dev, struct m_inode *inode)
 }
 
 /* get second block nr map */
-int get_second_block_nr(int dev, struct m_inode *inode)
+static int get_second_block_nr(int dev, struct m_inode *inode)
 {
     int i,nr, blk_nr;
     int *i_array;
@@ -123,7 +123,7 @@ int get_second_block_nr(int dev, struct m_inode *inode)
 }
 
 /* get third block nr map */
-int get_third_block_nr(int dev, struct m_inode *inode)
+static int get_third_block_nr(int dev, struct m_inode *inode)
 {
     int i,k,nr, blk_nr;
     struct buffer_head *bh, *sbh;
@@ -175,7 +175,7 @@ int get_third_block_nr(int dev, struct m_inode *inode)
     return -1;
 }
 
-/* get one block */
+/* get one block from system*/
 int get_block_nr(int dev, struct m_inode *inode)
 {
     if(get_frist_block_nr(dev, inode) == 0)
@@ -200,5 +200,27 @@ int get_block_nr(int dev, struct m_inode *inode)
  * and linked to a list*/
 int get_block_nums(int dev, struct m_inode *inode, int num)
 {
+    int i = 0;
+    for(;i < num; ++i)
+    {
+        if(get_block_nr(dev, inode) < 0)
+            return -2;
+    }
+
     return 0;
+}
+
+/* return the first block number */
+int get_first_block_nr(struct m_inode *inode)
+{
+    int i;
+    for(i = 0;i < 11;++i)
+    {
+        if(inode->i_data[i] != 0)
+        {
+            return inode->i_data[i];
+        }
+    }
+
+    return -1;
 }
