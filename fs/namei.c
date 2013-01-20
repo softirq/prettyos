@@ -26,7 +26,7 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,i
     struct dentry *de;
     struct buffer_head *bh;
 
-    int dir_start_sect = get_first_block((struct d_inode *)dir);
+    int dir_start_sect = get_first_block(dir);
     /*int dir_start_sect = dir->i_data[0];*/
     int nr_dir_sects = (dir->i_size + SECTOR_SIZE -1) / SECTOR_SIZE;			
     int nr_dentry = dir->i_size / DENTRY_SIZE;	
@@ -99,10 +99,10 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
     if(dir == NULL || name == NULL)
         return -1;
 
-    if((dir_start_sect = get_first_block((struct d_inode *)dir)) == 0)
+    if((dir_start_sect = get_first_block(dir)) == 0)
     {
-        get_block_nums(dir->i_dev ,(struct d_inode *)dir, NR_DEFAULT_SECTS);
-        if((dir_start_sect = get_first_block((struct d_inode *)dir)) == 0)
+        set_block_nums(dir->i_dev ,(struct d_inode *)dir, NR_DEFAULT_SECTS);
+        if((dir_start_sect = get_first_block(dir)) == 0)
             return -3;
     }
 
@@ -232,7 +232,7 @@ int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_ino
 }
 
 /*find the pathname inode for open function*/
-int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
+int open_namei(char *pathname,int mode,int flags,struct m_inode **res_inode)
 {
     int ret;
     int namelen;
@@ -265,9 +265,10 @@ int open_namei(char *pathname,int mode,int flag,struct m_inode **res_inode)
     if(find_entry(dir,name,namelen,&de) != 0) 
     {
         printk("no such file\n");
-        if(flag & O_CREAT)
+        if(flags & O_CREAT)
         {
-            inode = new_file(dir,name,namelen);
+            printk("create mode=%d.", mode);
+            inode = new_file(dir,name,namelen,mode,flags);
             if(inode)
             {
                 *res_inode = inode;

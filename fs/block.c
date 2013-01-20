@@ -70,7 +70,7 @@ static int free_block(int dev,int nr)
 }
 
 /* get direct block nr mmap */
-static int get_frist_block_nr(int dev, struct d_inode *inode)
+static int set_frist_block_nr(int dev, struct d_inode *inode)
 {
     int i,nr;
 
@@ -89,7 +89,7 @@ static int get_frist_block_nr(int dev, struct d_inode *inode)
 }
 
 /* get second block nr map */
-static int get_second_block_nr(int dev, struct d_inode *inode)
+static int set_second_block_nr(int dev, struct d_inode *inode)
 {
     int i,nr, blk_nr;
     int *i_array;
@@ -124,7 +124,7 @@ static int get_second_block_nr(int dev, struct d_inode *inode)
 }
 
 /* get third block nr map */
-static int get_third_block_nr(int dev, struct d_inode *inode)
+static int set_third_block_nr(int dev, struct d_inode *inode)
 {
     int i,k,nr, blk_nr;
     struct buffer_head *bh, *sbh;
@@ -177,19 +177,19 @@ static int get_third_block_nr(int dev, struct d_inode *inode)
 }
 
 /* get one block from system*/
-int get_block_nr(int dev, struct d_inode *inode)
+int set_block_nr(int dev, struct d_inode *inode)
 {
-    if(get_frist_block_nr(dev, inode) == 0)
+    if(set_frist_block_nr(dev, inode) == 0)
     {
         return 0;
     }
 
-    if(get_second_block_nr(dev, inode) == 0)
+    if(set_second_block_nr(dev, inode) == 0)
     {
         return 0;
     }
 
-    if(get_third_block_nr(dev, inode) == 0)
+    if(set_third_block_nr(dev, inode) == 0)
     {
         return 0;
     }
@@ -199,12 +199,12 @@ int get_block_nr(int dev, struct d_inode *inode)
 
 /* get num block the first stored in block_nr
  * and linked to a list*/
-int get_block_nums(int dev, struct d_inode *inode, int num)
+int set_block_nums(int dev, struct d_inode *inode, int num)
 {
     int i = 0;
     for(;i < num; ++i)
     {
-        if(get_block_nr(dev, inode) < 0)
+        if(set_block_nr(dev, inode) < 0)
             return -2;
     }
 
@@ -212,7 +212,27 @@ int get_block_nums(int dev, struct d_inode *inode, int num)
 }
 
 /* return the first block number */
-inline int get_first_block(struct d_inode *inode)
+inline int get_first_block(struct m_inode *inode)
 {
     return inode->i_data[0];
+}
+
+/* return the position block number */
+inline int get_pos_block(struct m_inode *inode, int pos)
+{
+    int index = pos/SECTOR_SIZE;
+
+    if(index >= 0 || index < NR_DEFAULT_SECTS)
+        return inode->i_data[index]; 
+    else if(index == (NR_DEFAULT_SECTS + 1))
+    {
+    }
+    else if(index == (NR_DEFAULT_SECTS + 2))
+    {
+    }
+    else
+    {
+    }
+
+    return -1;
 }

@@ -24,6 +24,7 @@ struct m_inode
 //	unsigned short	i_nlinks;		//连接数(有多少个文件目录项指向该i节点)
 	unsigned short	i_start_sect;		//文件起始块
 	unsigned short	i_nr_sects;		//文件数据块数
+    unsigned int    i_flags;
     unsigned int    i_data[13];
 
 	unsigned short	i_dev;
@@ -46,6 +47,7 @@ struct d_inode
 //	unsigned short	i_zone[9];		//直接块 间接块 二次间接块
 	unsigned short	i_start_sect;		//文件起始块
 	unsigned short	i_nr_sects;		//文件数据块数
+    unsigned int    i_flags;
     unsigned int    i_data[13];
 	
 };

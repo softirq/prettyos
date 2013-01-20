@@ -52,7 +52,7 @@ extern struct file_operations general_fop;
 extern int general_read(struct m_inode *inode,struct file *filp,char *buf,int count);
 extern int general_write(struct m_inode *inode,struct file *filp,char *buf,int count);
 extern int general_lseek(int fd, off_t offset, int origin);
-extern struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen);
+extern struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen, int mode, int flags);
 extern int open(char* filename,int mode,int flag);
 extern int sys_close(int fd);
 extern int close(int fd);

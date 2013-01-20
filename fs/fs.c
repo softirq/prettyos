@@ -16,7 +16,7 @@ struct m_inode *root_inode = NULL;
 /* make filesystem */
 void mk_fs()
 {
-    int i,j;
+    int i;
     struct super_block sb;
     struct buffer_head *bh;
 
@@ -92,7 +92,7 @@ void mk_fs()
     dinode->i_size = DENTRY_SIZE;
     /*inode->i_start_sect = sb.s_firstzone;*/
     /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
-    get_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);
+    set_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);
     /*nr_sectors = sb.s_firstzone;*/
     //	dinode->i_nlinks = 1;
     /*for(i = 0;i < NR_CONSOLES;i++)*/
@@ -175,38 +175,40 @@ int init_fs()
         close(fd);
     }
 
-    if((fd = open("/sunkang/kamus",0,O_CREAT)) < 0)
+    if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)
     {
     }
     else
     {
         inode = current->filp[fd]->f_inode;
-        printk("kamus inode num = %d",inode->i_num);
-        close(fd);
+        printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);
+        /*close(fd);*/
     }
 
-    if((fd = open("/sunkang/hahaha",0,O_CREAT)) < 0)
-    {
-    }
-    else
-    {
-        inode = current->filp[fd]->f_inode;
-        printk("haha inode num = %d",inode->i_num);
-        close(fd);
-    }
+    /*if((fd = open("/sunkang/hahaha",0,O_CREAT)) < 0)*/
+    /*{*/
+    /*}*/
+    /*else*/
+    /*{*/
+        /*inode = current->filp[fd]->f_inode;*/
+        /*printk("haha inode num = %d",inode->i_num);*/
+        /*close(fd);*/
+    /*}*/
 
-    /*char buf[] = "wo shi sunkang";*/
-    /*sys_read(fd,buf,sizeof(buf));*/
-    /*sys_write(fd2,buf, sizeof(buf));*/
+    printk("---------------------------------------\n");
+    char buf[] = "wo shi sunkang";
+    sys_write(fd,buf, sizeof(buf));
+    /*close(fd);*/
     /*for(i = 0;i < 100;i++)*/
     /*{*/
     /*printk("%c",buf[i]);*/
     /*}*/
-    /*char abc[15] = {0};*/
+    char abc[15] = {0};
     /*printk("fd = %d.",fd2);*/
-    /*sys_read(fd2,abc,sizeof(abc));*/
+    sys_read(fd,abc,sizeof(abc));
     /*printk("\n");*/
-    /*printk("abc = %s\n",abc);*/
+    printk("abc = %s\n",abc);
+    close(fd);
 
     /*fd2	= mkdir("/test",0,O_CREAT);*/
     /*do_unlink("/sunkang");*/

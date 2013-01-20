@@ -11,7 +11,7 @@
 #include "printf.h"
 
 //创建一个新的文件/目录
-struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
+struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen, int mode, int flags)
 {
     int ret;
     int inode_nr = get_imap_bit(dir->i_dev);
@@ -35,7 +35,8 @@ struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen)
         return NULL;
     }
 
-    inode->i_mode = dir->i_mode;
+    inode->i_mode = mode;
+    inode->i_flags = flags;
     inode->i_dirt = 1;
 
     if((write_inode(dir)) < 0)
@@ -80,7 +81,6 @@ static inline struct file * get_empty_filp()
 }
 
 int open(char* filename,int mode,int flag)
-    //int sys_open(char* filename,int mode,int flag)
 {
     int ret,fd;
     struct file *fp;
@@ -166,6 +166,7 @@ int close(int fd)
         return -2;
     if(filp->f_count == 0)
         panic("Close:file count is 0");
+
     if(--filp->f_count)
         return 0;
     iput(filp->f_inode);

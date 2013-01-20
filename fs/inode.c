@@ -22,8 +22,8 @@ int write_inode(struct m_inode *inode)
     if(inode == NULL || !inode->i_dirt || !inode->i_dev)
         return -1;
 
-    u16 dev = inode->i_dev;
-    u16 num = inode->i_num;
+    unsigned short dev = inode->i_dev;
+    unsigned short num = inode->i_num;
     struct buffer_head *bh = NULL;
     struct super_block *sb = get_super_block(dev);
 
@@ -229,6 +229,7 @@ void iput(struct m_inode *inode)
     }
     if(inode->i_dirt)
     {
+        printk("----");
         write_inode(inode);		
     }
     return;

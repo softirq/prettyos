@@ -20,6 +20,8 @@ int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
     //	char *ptr = buf;
     struct buffer_head *bh;
     struct dir_entry *de;
+    int block_nr = 0;
+
     if(!inode || !filp)
         return -EINVAL;
     if(!buf || count <= 0)
@@ -34,6 +36,7 @@ int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
     //	nr_sects = (inode->i_size + SECTOR_SIZE -1)/SECTOR_SIZE;
     while(i < count)
     {
+        block_nr = get_pos_block(inode, pos);
         c = pos % SECTOR_SIZE;
         c = SECTOR_SIZE -c ;
         if(c > count)
@@ -41,8 +44,8 @@ int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
             c = count - i;
         }
         //		printk("file_read : inode->i_dev = %d nr_start_sect = %d count = %d\n",inode->i_dev,nr_start_sect + pos/SECTOR_SIZE,count);
-        bh = getblk(inode->i_dev,nr_start_sect + pos/SECTOR_SIZE);
-        hd_rw(inode->i_dev,nr_start_sect + pos/SECTOR_SIZE,1,ATA_READ,bh);		
+        bh = getblk(inode->i_dev,block_nr);
+        hd_rw(inode->i_dev,block_nr,1,ATA_READ,bh);		
         p = bh->b_data + pos;
         de = (struct dir_entry*)bh->b_data;
         //	printk("de->file_name = %s\n",(++de)->file_name);
@@ -73,17 +76,23 @@ int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
 
 int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
 {
-    int i = 0;
-    int block,c;
+    int i = 0,block_nr,c;
     off_t pos = 0;
     char *p = NULL;
     struct buffer_head *bh = NULL;
+    int nr_start_sect = 0; 
 
+        printk("5");
     if(!inode || !filp || !buf || count < 0)
         return -EINVAL;
 
     /*int nr_start_sect = inode->i_start_sect;*/
-    int nr_start_sect = get_first_block(inode); 
+    if((nr_start_sect = get_first_block(inode)) == 0)
+    {
+        set_block_nums(inode->i_dev ,(struct d_inode *)inode, NR_DEFAULT_SECTS);
+        if((nr_start_sect = get_first_block(inode)) == 0)
+            return -3;
+    }
     printk("write start_sect = %d.",nr_start_sect);
     if(filp->f_flag & O_APPEND)
         pos = inode->i_size;
@@ -92,8 +101,9 @@ int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
 
     while(i < count)
     {
-        block = nr_start_sect + pos/SECTOR_SIZE;
-        bh = getblk(inode->i_dev,block);
+        /*block = nr_start_sect + pos/SECTOR_SIZE;*/
+        block_nr = get_pos_block(inode, pos);
+        bh = getblk(inode->i_dev,block_nr);
 
         c = pos % SECTOR_SIZE;	
         p = bh->b_data + c;			
@@ -113,7 +123,7 @@ int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
         while(c-- > 0)
             *(p++) = *(buf++);
 
-        hd_rw(inode->i_dev,block,1,ATA_WRITE,bh);		
+        hd_rw(inode->i_dev,block_nr,1,ATA_WRITE,bh);		
         brelse(bh);
     }
 

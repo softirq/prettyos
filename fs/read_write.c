@@ -51,6 +51,7 @@ int sys_write(int fd,char *buf,int count)
     inode = fp->f_inode;
     mode = inode->i_mode;
 
+    printk("mode=%x.",mode);
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
         if((general_write(inode,fp, buf, count)) < 0)
