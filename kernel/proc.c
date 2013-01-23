@@ -86,14 +86,14 @@ int ldt_seg_linear(struct task_struct *p,int idx)
 }
 
 //virtual address to liner address
-void* va2la(int pid,void *va)
+/*void* va2la(int pid,void *va)
 {
     struct task_struct *p = &proc_table[pid];
     u32 seg_base = ldt_seg_linear(p,INDEX_LDT_D);	
     u32 la = seg_base + (u32)va;
     return (void *)la;
 }
-
+*/
 //public	PROCESS	proc_table[NR_TASKS + NR_NATIVE_PROCS];
 struct task_struct proc_table[NR_PROCS];
 

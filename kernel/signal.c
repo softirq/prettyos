@@ -30,8 +30,8 @@ int send_signal(int signr,int pid)
         return -1;
     if(pid < 0 || pid > NR_PROCESS)
         return -1;
-    struct task_struct *t = pid2proc(pid);
-    t->signal |= 1 << ((signr -1));
-    t->sigpending = TRUE;
+    /*struct task_struct *t = pid2proc(pid);*/
+    /*t->signal |= 1 << ((signr -1));*/
+    /*t->sigpending = TRUE;*/
     return 0;
 }

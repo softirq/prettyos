@@ -7,7 +7,7 @@
 #define PROC_IMAGE_SIZE_DEFAULT 0x80000
 #define PROC_ORIGIN_STACK 	0x400
 
-extern struct task_struct proc_table[];
+//extern struct task_struct proc_table[];
 extern char		    task_stack[];
 extern	TASK		task_table[];
 extern	TASK		user_proc_table[];

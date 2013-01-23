@@ -210,8 +210,8 @@ extern struct sched_class rr_sched;
 #define STACK_SIZE_TTY		STACK_SIZE_DEFAULT
 #define STACK_SIZE_TOTAL	(STACK_SIZE_INIT + STACK_SIZE_TTY)
 
-#define proc2pid(p) (p - proc_table)
-#define pid2proc(pid) (proc_table + pid)
+//#define proc2pid(p) (p - proc_table)
+//#define pid2proc(pid) (proc_table + pid)
 
 /* 	null		0 */
 #define FREE_SLOT	0

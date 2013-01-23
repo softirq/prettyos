@@ -58,7 +58,7 @@ static int get_kernel_map(unsigned int *base, unsigned int *limit)
 static void init_kernel_thread()
 {
     TASK* p_task = NULL;
-    struct task_struct* p_proc	= proc_table;
+    /*struct task_struct* p_proc	= proc_table;*/
     struct task_struct *tsk = NULL;
     union thread_union *thread_union = NULL;
     char* p_task_stack = task_stack + STACK_SIZE_TOTAL;
@@ -76,7 +76,8 @@ static void init_kernel_thread()
     printk("init process.\n");
 
     /*disp_str("\t\tprocess init begins\n");*/
-    for(i = 0;i < NR_SYSTEM_PROCS ;++i, ++p_proc)
+    /*for(i = 0;i < NR_SYSTEM_PROCS ;++i, ++p_proc)*/
+    for(i = 0;i < NR_SYSTEM_PROCS ;++i)
     {
         p_task = task_table + i;
 
@@ -146,7 +147,7 @@ static void init_kernel_thread()
 static void init_user_process()
 {
     TASK* p_task = NULL;
-    struct task_struct* p_proc	= proc_table + NR_SYSTEM_PROCS;
+    /*struct task_struct* p_proc	= proc_table + NR_SYSTEM_PROCS;*/
     struct task_struct *tsk = NULL;
     union thread_union *thread_union = NULL;
 
@@ -161,7 +162,8 @@ static void init_user_process()
     eflags = 0x1202;
     prio = USER_PRIO;
 
-    for(i = 0;i < NR_USER_PROCS; ++i,++p_proc)
+    /*for(i = 0;i < NR_USER_PROCS; ++i,++p_proc)*/
+    for(i = 0;i < NR_USER_PROCS; ++i)
     {
         p_task = user_proc_table + i ;
 

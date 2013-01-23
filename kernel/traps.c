@@ -109,7 +109,7 @@ void init_trap()
             DA_386TSS);
     tss.iobase	= sizeof(tss);	
 
-    PROCESS* p_proc= proc_table;
+    /*PROCESS* p_proc= proc_table;
     t16 selector_ldt = INDEX_LDT_FIRST << 3;
 
     for(i=0;i<NR_SYSTEM_PROCS + NR_USER_PROCS;i++)
@@ -120,7 +120,7 @@ void init_trap()
                 DA_LDT);
         p_proc++;
         selector_ldt += 1 << 3;
-    }
+    }*/
 }
 
 
