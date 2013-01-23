@@ -14,6 +14,7 @@ int getpid()
 void init_pidmap()
 {
     bzero((void *)pidmap,sizeof(pidmap)); 
+    pidmap[0] |= 0x01;
 }
 
 pid_t get_pidmap()

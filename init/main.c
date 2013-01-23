@@ -209,12 +209,13 @@ static void start_kernel()
     init_mem(); //memeory management init
     buffer_init();
     /* scheduler init */
-    init_sched(); 
-    init_task();
 
     init_hd(); //hard disk init
 
     init_fs(); //filesystem init
+
+    init_sched(); 
+    init_task();
 
     /*init_sock();*/
 
