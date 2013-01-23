@@ -142,5 +142,6 @@ typedef struct s_tss {
 
 extern void	init_trap();
 extern void init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t16 attribute);
+extern int seg2phys(short seg);
 
 #endif 

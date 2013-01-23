@@ -28,5 +28,6 @@ extern	TTY		tty_table[];
 extern void	task_tty();
 extern void	in_process(TTY* p_tty, t32 key);
 extern int 	sys_printx(char *buf,int len);
+extern int init_tty();
 
 #endif 

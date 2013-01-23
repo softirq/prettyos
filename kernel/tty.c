@@ -14,39 +14,72 @@
 
 TTY			tty_table[NR_CONSOLES];
 
-static void	init_tty(TTY* p_tty);
-static void	tty_do_read(TTY* p_tty);
-static void	tty_do_write(TTY* p_tty);
-static void	put_key(TTY* p_tty, t32 key);
+static void put_key(TTY* p_tty, t32 key)
+{
+    if (p_tty->inbuf_count < TTY_IN_BYTES) 
+    {
+        *(p_tty->p_inbuf_head) = key;
+        p_tty->p_inbuf_head++;
+        if (p_tty->p_inbuf_head == p_tty->in_buf + TTY_IN_BYTES) 
+        {
+            p_tty->p_inbuf_head = p_tty->in_buf;
+        }
+        p_tty->inbuf_count++;
+    }
+}
+
+static void tty_do_read(TTY* p_tty)
+{
+    if (is_current_console(p_tty->p_console)) 
+    {
+        keyboard_read(p_tty);
+    }
+}
+
+static void tty_do_write(TTY* p_tty)
+{
+    if (p_tty->inbuf_count) 
+    {
+        char ch = *(p_tty->p_inbuf_tail);
+        p_tty->p_inbuf_tail++;
+        if (p_tty->p_inbuf_tail == p_tty->in_buf + TTY_IN_BYTES) 
+        {
+            p_tty->p_inbuf_tail = p_tty->in_buf;
+        }
+        p_tty->inbuf_count--;
+        out_char(p_tty->p_console, ch);
+    }
+}
 
 void task_tty()
 {
-    TTY*	p_tty;
+    TTY *ptty = NULL;
+    select_console(0);
+
+    while (1) 
+    {
+        for (ptty = TTY_FIRST; ptty < TTY_END; ++ptty) 
+        {
+            tty_do_read(ptty);
+            tty_do_write(ptty);
+        }
+    }
+}
+
+int init_tty()
+{
+    TTY* p_tty = NULL;
 
     init_keyboard();
 
     for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) 
     {
-        init_tty(p_tty);
+        p_tty->inbuf_count = 0;
+        p_tty->p_inbuf_head = p_tty->p_inbuf_tail = p_tty->in_buf;
+        init_screen(p_tty);
     }
 
-    select_console(0);
-
-    while (1) 
-    {
-        for (p_tty = TTY_FIRST;p_tty < TTY_END;++p_tty) 
-        {
-            tty_do_read(p_tty);
-            tty_do_write(p_tty);
-        }
-    }
-}
-
-static void init_tty(TTY* p_tty)
-{
-    p_tty->inbuf_count = 0;
-    p_tty->p_inbuf_head = p_tty->p_inbuf_tail = p_tty->in_buf;
-    init_screen(p_tty);
+    return 0;
 }
 
 void in_process(TTY* p_tty, t32 key)
@@ -104,43 +137,6 @@ void in_process(TTY* p_tty, t32 key)
     }
 }
 
-static void put_key(TTY* p_tty, t32 key)
-{
-    if (p_tty->inbuf_count < TTY_IN_BYTES) 
-    {
-        *(p_tty->p_inbuf_head) = key;
-        p_tty->p_inbuf_head++;
-        if (p_tty->p_inbuf_head == p_tty->in_buf + TTY_IN_BYTES) 
-        {
-            p_tty->p_inbuf_head = p_tty->in_buf;
-        }
-        p_tty->inbuf_count++;
-    }
-}
-
-static void tty_do_read(TTY* p_tty)
-{
-    if (is_current_console(p_tty->p_console)) 
-    {
-        keyboard_read(p_tty);
-    }
-}
-
-static void tty_do_write(TTY* p_tty)
-{
-    if (p_tty->inbuf_count) 
-    {
-        char ch = *(p_tty->p_inbuf_tail);
-        p_tty->p_inbuf_tail++;
-        if (p_tty->p_inbuf_tail == p_tty->in_buf + TTY_IN_BYTES) 
-        {
-            p_tty->p_inbuf_tail = p_tty->in_buf;
-        }
-        p_tty->inbuf_count--;
-        out_char(p_tty->p_console, ch);
-    }
-}
-
 void tty_write(TTY *p_tty,char *buf,int len)
 {
     char *p = buf;
@@ -151,7 +147,7 @@ void tty_write(TTY *p_tty,char *buf,int len)
         i--;
     }
 }
- 
+
 /*int sys_printx(char *s,int len,struct task_struct *p_proc)*/
 int sys_printx(char *s,int len)
 {

@@ -12,7 +12,7 @@
 #include "printf.h"
 
 struct task_struct *current = NULL;
-struct task_struct *init = &proc_table[1];
+/*struct task_struct *init = &proc_table[1];*/
 /*struct kernel_stat kstat = { 0 };*/
 
 struct rq sched_rq;

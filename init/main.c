@@ -122,7 +122,7 @@ static void init_task()
         ret = strcpy(tsk->command, p_task->command);	// name of the process
         if((tsk->pid = get_pidmap()) < 0)
             return;
-        tsk->parent = init;
+        tsk->parent = NULL;
         tsk->next = tsk->sibling = NULL;
 
         proc_table[0].nr_tty = 0;		// tty 

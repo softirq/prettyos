@@ -20,24 +20,12 @@ DESCRIPTOR  gdt[GDT_SIZE];
 t8 idt_ptr[6]; // 0~15:Limit  16~47:Base
 GATE idt[IDT_SIZE];
 
-
 void init_p()
 {
-    //	disp_str("init() is running ...\n");
-    pid_t pid = 0;
-
-    /*pid = fork();*/
-    if(pid != 0)
-    {
-        printk("parnet is running,parent pid = %d \n",getpid());
-    }
-    else
-    {
-        printk("child is running,child pid  = %d\n",getpid());
-    }
-    //	current->state = TASK_WAITING;
     while(1)
     {
+        printk("init=%d.",getpid());
+        milli_delay(100);
     }
 }
 
@@ -46,9 +34,7 @@ void TestA()
 {
     while(1)
     {
-        //syscall sys_get_ticks
-        //		disp_int(get_ticks());
-        disp_str("A");
+        printk("A:%d",getpid() );
         milli_delay(100);
         /*exit();*/
     }
@@ -57,16 +43,9 @@ void TestA()
 
 void TestB()
 {
-    //	int i = 0;
     while(1)
     {
-        disp_str("B");
-        /*printk("%x.",current->regs.esp);*/
-        //	printf("%d %s %c\t",i,"sunkang",'k');
-        //		i++;
-        //		assert(i ==1);
-        //		panic("no error\n");
-        //		TestA();
+        printk("B:%d",getpid() );
         milli_delay(100);
         /*exit();*/
     }
@@ -74,11 +53,8 @@ void TestB()
 
 void TestC()
 {
-    //	int i = 0;
     while(1){
-        disp_str("C");
-        /*printk("%x.",current->regs.esp);*/
-        //		waitpid(current->pid);
+        printk("C:%d",getpid() );
         milli_delay(100);
         fork();
         /*exit();*/
@@ -89,8 +65,7 @@ void TestD()
 {
     while(1)
     {
-        disp_str("D");
-        /*printk("%x.",current->regs.esp);*/
+        printk("D:%d",getpid() );
         milli_delay(100);
     }
 }
@@ -99,7 +74,7 @@ void ChildProc()
 {
     while(1)
     {
-        disp_str("S");
+        printk("S:%d",getpid() );
         milli_delay(100);
     }
 }
@@ -127,13 +102,13 @@ char	task_stack[STACK_SIZE_TOTAL];
 //system process tables
 TASK	\
             task_table[NR_SYSTEM_PROCS] = { 
+                {init_p,   "init"},
                 {task_tty, "tty"}
             };
 
 //user process tables;only for test now
 TASK 	\
             user_proc_table[NR_USER_PROCS] = { 
-                {init_p,   "init"},
                 {TestA, "TestA"},
                 {TestB, "TestB"},
                 {TestC, "TestC"},

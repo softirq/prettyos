@@ -18,9 +18,7 @@
 #include "i8259.h"
 
 static void init_idt_desc(unsigned int n, t8 desc_type, t_pf_int_handler handler, unsigned char privilege);
-static t32 seg2phys(t16 seg);
-
-//static void init_descriptor(DESCRIPTOR * p_desc, t32 base, t32 limit, t_16 attribute);
+/*static t32 seg2phys(t16 seg);*/
 
 //  this is the exception handler
 extern void	divide_error();
@@ -59,7 +57,7 @@ extern void	hwint13();
 extern void	hd_intr();   //irq 14: hard disk interrupt
 extern void	hwint15();
 
-t32     k_reenter;
+t32 k_reenter;
 TSS tss;
 
 void init_trap()
@@ -112,12 +110,12 @@ void init_trap()
             sizeof(tss) - 1,
             DA_386TSS);
     tss.iobase	= sizeof(tss);	
-    PROCESS* p_proc	= proc_table;
+
+    PROCESS* p_proc= proc_table;
     t16 selector_ldt = INDEX_LDT_FIRST << 3;
 
-    //¿¿GDT¿¿¿¿¿¿¿LDT 
     for(i=0;i<NR_SYSTEM_PROCS + NR_USER_PROCS;i++)
-    {	
+    {
         init_descriptor(&gdt[selector_ldt>>3],
                 vir2phys(seg2phys(SELECTOR_KERNEL_DS), proc_table[i].ldts),
                 LDT_SIZE * sizeof(DESCRIPTOR) - 1,
@@ -140,7 +138,7 @@ void init_idt_desc(unsigned int n, t8 desc_type, t_pf_int_handler handler, unsig
 }
 
 
-static t32 seg2phys(t16 seg)
+int seg2phys(short seg)
 {
     DESCRIPTOR* p_dest = &gdt[seg >> 3];
     return (p_dest->base_high << 24) | (p_dest->base_mid << 16) | (p_dest->base_low);
