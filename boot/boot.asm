@@ -1,4 +1,4 @@
-;%define	_BOOT_DEBUG_	;调试模式下
+%define	_BOOT_DEBUG_	;调试模式下
 
 %ifdef	_BOOT_DEBUG_
 	org  0100h			

@@ -185,7 +185,6 @@ static void init_task()
 
     k_reenter	= 0;
     ticks		= 0;
-
     /*current 	= proc_table;*/
 }
 
@@ -196,7 +195,7 @@ static void run_task()
     struct sched_entity *se = ts_leftmost(root);
     current = se_entry(se, struct task_struct, sched_entity);
 
-    /*move_to_user_mode();*/
+    move_to_user_mode();
 }
 
 static void start_kernel()
@@ -204,46 +203,19 @@ static void start_kernel()
     init_clock(); //clock interrupt init
 
     get_memsize(&main_memory_end);
-    /*printk("EXT_MEM_K  = %x\n",EXT_MEM_K);*/
-    /*main_memory_end = (1<<20) + (EXT_MEM_K << 10);*/
     main_memory_end &= 0xfffff000;
-    /*printk("main memory end = %x\n",main_memory_end);*/
 
-    /*if(main_memory_end > 32 * 1024 * 1024)	//内存大于32M时
-    {
-        buffer_memory_start = 3 * 1024 * 1024;
-        [>buffer_memory_start = 3 * 1024 * 1024 - 512 * 1024;<]
-        buffer_memory_end = 4 * 1024 * 1024;
-    }
-    else 
-    {
-        buffer_memory_start = 3 * 1024 * 1024;
-        buffer_memory_end = 4 * 1024 * 1024;
-    }*/
-
-    /*main_memory_start = buffer_memory_end;		//主内存的起始地址 = 缓冲区末端*/
-    /*main_memory_start &= 0xfffff000;*/
-
-    /*buffer_memory_start = ALIGN(buffer_memory_start + BUFFER_SIZE , BUFFER_ALIGN);  //align BUFFER_SIZE*/
-    /*buffer_memory_end = ALIGN(buffer_memory_end, BUFFER_ALIGN);  //align BUFFER_SIZE*/
-    /*printk("start memroy = %x\t end memory = %x\n",buffer_memory_start,buffer_memory_end);*/
-    /*init_buffer(buffer_memory_start,buffer_memory_end); //buffer init*/
-    /*printk("main memroy start = %x\t main memory end = %x\n",main_memory_start ,main_memory_end);*/
     paging_init();
     init_mem(); //memeory management init
     buffer_init();
     /* scheduler init */
     init_sched(); 
     init_task();
-    run_task();
 
     init_hd(); //hard disk init
 
     init_fs(); //filesystem init
 
-    while(1)
-    {
-    }
     /*init_sock();*/
 
 }
@@ -252,7 +224,7 @@ static void start_kernel()
 int pretty_main()
 {
     start_kernel();
-    /*run_task();*/
+    run_task();
 
     /* from kernel mode to user mode and scheduler process */
     return 0;
