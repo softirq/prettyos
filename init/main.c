@@ -76,7 +76,7 @@ static void init_kernel_thread()
     printk("init process.\n");
 
     /*disp_str("\t\tprocess init begins\n");*/
-    for(i = 0;i < NR_SYSTEM_PROCS ;++i,++p_proc)
+    for(i = 0;i < NR_SYSTEM_PROCS ;++i, ++p_proc)
     {
         p_task = task_table + i;
 
@@ -110,10 +110,10 @@ static void init_kernel_thread()
         tsk->signal = 0x0; //设置信号为空
         tsk->ldt_sel = selector_ldt;
 
-        init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), p_proc->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
+        init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), tsk->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
 
-        init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
-        init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+        /*init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);*/
+        /*init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);*/
 
         init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
         init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
@@ -194,15 +194,16 @@ static void init_user_process()
         tsk->signal = 0x0; //设置信号为空
         tsk->ldt_sel = selector_ldt;
 
-        init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), p_proc->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
+        init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), tsk->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
+        /*init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), p_proc->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);*/
 
-        p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
+        /*p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];*/
         tsk->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
-        p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
+        /*p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL*/
         tsk->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
-        p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
+        /*p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];*/
         tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
-        p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
+        /*p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL*/
         tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
 
         char *stack = (char *)thread_union->stack;
@@ -259,7 +260,7 @@ static void start_kernel()
 
     init_sched(); 
     init_kernel_thread();
-    /*init_user_process();*/
+    init_user_process();
 
     /*init_sock();*/
 
