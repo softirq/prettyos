@@ -31,7 +31,7 @@ LABEL_START:
 	int	10h			
 	mov	dh, 0			
 
-	call	DispStr			
+	;call	DispStr			
 	
 	xor	ah, ah	
 	xor	dl, dl	
@@ -78,7 +78,7 @@ LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
 	jmp	LABEL_SEARCH_IN_ROOT_DIR_BEGIN
 LABEL_NO_LOADERBIN:
 	mov	dh, 2			
-	call	DispStr			
+	;call	DispStr			
 %ifdef	_BOOT_DEBUG_
 	mov	ax, 4c00h		
 	int	21h			
@@ -98,14 +98,16 @@ LABEL_FILENAME_FOUND:
 	mov	bx, OffsetOfLoader	
 	mov	ax, cx			
 LABEL_GOON_LOADING_FILE:
-	push	ax			
-	push	bx			
-	mov	ah, 0Eh			
-	mov	al, '.'			
-	mov	bl, 0Fh			
-	int	10h			
-	pop	bx			
-	pop	ax			
+
+	;push	ax			
+	;push	bx			
+	;mov	ah, 0Eh			
+	;mov	al, '.'			
+	;mov	bl, 0Fh			
+	;int	10h			
+	;pop	bx			
+	;pop	ax			
+
 	mov	cl, 1
 	call	ReadSector
 	pop	ax			
@@ -120,7 +122,7 @@ LABEL_GOON_LOADING_FILE:
 	jmp	LABEL_GOON_LOADING_FILE
 LABEL_FILE_LOADED:
 	mov	dh, 1			
-	call	DispStr			
+	;call	DispStr			
 	jmp	BaseOfLoader:OffsetOfLoader	
 						
 						
@@ -129,7 +131,6 @@ wSectorNo		dw	0
 bOdd			db	0		
 LoaderFileName		db	"LOADER  BIN", 0	
 MessageLength		equ	9
-
 BootMessage:		db	"Booting  "
 Message1		db	"Ready.   "
 Message2		db	"No LOADER"

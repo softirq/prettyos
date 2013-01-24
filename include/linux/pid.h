@@ -1,8 +1,10 @@
 #ifndef     _PID_H_
 #define     _PID_H_
 
-typedef     unsigned int    pid_t;
+#define     INIT_PID        1
 #define     MAX_PIDNUM      1024
+
+typedef     unsigned int    pid_t;
 extern unsigned char pidmap[MAX_PIDNUM/8];
 
 extern int getpid();

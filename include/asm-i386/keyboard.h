@@ -141,6 +141,7 @@ typedef struct s_kb {
 
 extern void	keyboard_handler(int irq);
 extern void	keyboard_read(TTY* p_tty);
-extern void 	init_keyboard();
+extern void init_keyboard();
+extern void keyboard_simple(TTY *p_tty);
 
 #endif 

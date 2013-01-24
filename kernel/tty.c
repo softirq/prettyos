@@ -9,10 +9,13 @@
 #include "irq.h"
 /*#include "stdlib.h"*/
 
-#define TTY_FIRST	(tty_table)
-#define TTY_END		(tty_table + NR_CONSOLES)
+/*#define TTY_FIRST	(tty_table)*/
+/*#define TTY_END		(tty_table + NR_CONSOLES)*/
 
-TTY			tty_table[NR_CONSOLES];
+TTY *TTY_FIRST = tty_table;
+TTY *TTY_END = tty_table + NR_CONSOLES;
+
+TTY	tty_table[NR_CONSOLES];
 
 static void put_key(TTY* p_tty, t32 key)
 {
@@ -28,7 +31,7 @@ static void put_key(TTY* p_tty, t32 key)
     }
 }
 
-static void tty_do_read(TTY* p_tty)
+void tty_do_read(TTY* p_tty)
 {
     if (is_current_console(p_tty->p_console)) 
     {
@@ -53,17 +56,17 @@ static void tty_do_write(TTY* p_tty)
 
 void task_tty()
 {
-    TTY *ptty = NULL;
+    TTY *p_tty = NULL;
 
     init_tty();
     select_console(0);
 
-    while (1) 
+    while (1)
     {
-        for (ptty = TTY_FIRST; ptty < TTY_END; ++ptty) 
+        for (p_tty = TTY_FIRST; p_tty < TTY_END; ++p_tty)
         {
-            tty_do_read(ptty);
-            tty_do_write(ptty);
+            tty_do_read(p_tty);
+            tty_do_write(p_tty);
         }
     }
 }

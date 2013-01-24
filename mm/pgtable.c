@@ -413,7 +413,7 @@ unsigned long paging_init()
     int memory_size = bp.mem_size;
     memory_size  &= 0xfffff000;
 
-    printk("end_mem = %x\n", memory_size);
+    /*printk("end_mem = %x\n", memory_size);*/
 
     pgd_t *pg_dir = NULL;
     pte_t *pg_table = NULL;

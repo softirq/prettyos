@@ -73,7 +73,9 @@ static void init_kernel_thread()
     eflags = 0x1202;
     prio = KERNEL_PRIOR;
 
-    printk("init process.\n");
+    printk("  PrettyOS SoftIRQ.\n");
+    printk("  kangs.uestc@gmail.com .\n");
+    printk("  UESTC.\n\n\n\n");
 
     /*disp_str("\t\tprocess init begins\n");*/
     /*for(i = 0;i < NR_SYSTEM_PROCS ;++i, ++p_proc)*/
@@ -133,7 +135,8 @@ static void init_kernel_thread()
         tsk->ticks = tsk->priority = prio;
         tsk->sched_entity.vruntime = i;
         tsk->sched_class = &rr_sched;
-        tsk->sched_class->enqueue_task(&(sched_rq),tsk,0,0);
+        if(tsk->pid != INIT_PID)
+            tsk->sched_class->enqueue_task(&(sched_rq),tsk,0,0);
 
         p_task++;
         selector_ldt += 1 << 3;

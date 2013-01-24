@@ -27,7 +27,7 @@ LABEL_START:
 	mov	ss, ax
 	mov	sp, BaseOfStack
 	mov	dh, 0			
-	call	DispStrRealMode		
+	;call	DispStrRealMode		
 	
 ;获取内存信息
 	mov	ebx, 0			
@@ -93,7 +93,7 @@ LABEL_GOTO_NEXT_SECTOR_IN_ROOT_DIR:
 	jmp	LABEL_SEARCH_IN_ROOT_DIR_BEGIN
 LABEL_NO_KERNELBIN:
 	mov	dh, 2			
-	call	DispStrRealMode		
+	;call	DispStrRealMode		
 	jmp	$			
 LABEL_FILENAME_FOUND:			
 	mov	ax, RootDirSectors
@@ -112,14 +112,16 @@ LABEL_FILENAME_FOUND:
 	mov	bx, OffsetOfKernelFile	
 	mov	ax, cx			
 LABEL_GOON_LOADING_FILE:
-	push	ax			
-	push	bx			
-	mov	ah, 0Eh			
-	mov	al, '.'			
-	mov	bl, 0Fh			
-	int	10h			
-	pop	bx			
-	pop	ax			
+
+	;push	ax			
+	;push	bx			
+	;mov	ah, 0Eh			
+	;mov	al, '.'			
+	;mov	bl, 0Fh			
+	;int	10h			
+	;pop	bx			
+	;pop	ax			
+
 	mov	cl, 1
 	call	ReadSector
 	pop	ax			
@@ -135,7 +137,7 @@ LABEL_GOON_LOADING_FILE:
 LABEL_FILE_LOADED:
 	call	KillMotor		
 	mov	dh, 1			
-	call	DispStrRealMode		
+	;call	DispStrRealMode		
 	
 	lgdt	[GdtPtr]
 	cli

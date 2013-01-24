@@ -211,7 +211,7 @@ int init_mem()
     memory_size  &= 0xfffff000;
 
     page_fns = MAP_NR(memory_size);
-    printk("page_fns = %d\n", page_fns);
+    /*printk("page_fns = %d\n", page_fns);*/
 
     mem_map = (struct page **)alloc_low_mem(page_fns * sizeof(struct page *));
     page_ptr_mem = alloc_low_mem(page_fns * sizeof(struct page));

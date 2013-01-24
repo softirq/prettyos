@@ -4,6 +4,8 @@
 #include "wait.h"
 #include "traps.h"
 #include "tty.h"
+#include "console.h"
+#include "keyboard.h"
 #include "sched.h"
 #include "proc.h"
 #include "kernel.h"
@@ -25,18 +27,18 @@ void init_p()
     while(1)
     {
         printk("init=%d.",getpid());
-        milli_delay(1000);
+        milli_delay(100);
     }
 }
 
 
 void TestA()
 {
+    printk("[kangsun@sunkang-develop prettyos]$ ");
     while(1)
     {
-        printk("A:%d",getpid() );
-        milli_delay(1000);
-        /*exit();*/
+        printk("A");
+        milli_delay(100);
     }
 }
 
@@ -46,7 +48,7 @@ void TestB()
     while(1)
     {
         printk("B:%d",getpid() );
-        milli_delay(1000);
+        milli_delay(100);
         /*exit();*/
     }
 }
@@ -55,8 +57,8 @@ void TestC()
 {
     while(1){
         printk("C:%d",getpid() );
-        milli_delay(1000);
-        fork();
+        milli_delay(100);
+        /*fork();*/
         /*exit();*/
     }
 }
@@ -66,7 +68,7 @@ void TestD()
     while(1)
     {
         printk("D:%d",getpid() );
-        milli_delay(1000);
+        milli_delay(100);
     }
 }
 
@@ -87,13 +89,13 @@ int ldt_seg_linear(struct task_struct *p,int idx)
 
 //virtual address to liner address
 /*void* va2la(int pid,void *va)
-{
-    struct task_struct *p = &proc_table[pid];
-    u32 seg_base = ldt_seg_linear(p,INDEX_LDT_D);	
-    u32 la = seg_base + (u32)va;
-    return (void *)la;
-}
-*/
+  {
+  struct task_struct *p = &proc_table[pid];
+  u32 seg_base = ldt_seg_linear(p,INDEX_LDT_D);	
+  u32 la = seg_base + (u32)va;
+  return (void *)la;
+  }
+  */
 //public	PROCESS	proc_table[NR_TASKS + NR_NATIVE_PROCS];
 struct task_struct proc_table[NR_PROCS];
 
@@ -110,8 +112,8 @@ TASK	\
 TASK 	\
             user_proc_table[NR_USER_PROCS] = { 
                 {TestA, "TestA"},
-                {TestB, "TestB"},
-                {TestC, "TestC"},
+                /*{TestB, "TestB"},*/
+                /*{TestC, "TestC"},*/
                 {TestD, "TestD"}
             };
 

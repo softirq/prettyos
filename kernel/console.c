@@ -141,12 +141,13 @@ void select_console(int nr_console)
 {
     if ((nr_console < 0) || (nr_console >= NR_CONSOLES)) 
     {
+        printk("1");
         return;
     }
 
     nr_current_console = nr_console;
-
-    flush(&console_table[nr_console]);
+    printk("2");
+    /*flush(&console_table[nr_console]);*/
 }
 
 
@@ -194,8 +195,11 @@ void scroll_screen(CONSOLE* p_con, int direction)
 
 static void flush(CONSOLE* p_con)
 {
+    printk("3");
     set_cursor(p_con->cursor);
+    printk("4");
     set_video_start_addr(p_con->current_start_addr);
+    printk("5");
 }
 
 void init_screen(TTY* p_tty)

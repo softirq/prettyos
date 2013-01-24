@@ -192,7 +192,7 @@ extern struct rq sched_rq;
 extern struct sched_class rr_sched;
 
 #define NR_SYSTEM_PROCS 	2 //system process : init tty  
-#define NR_USER_PROCS 		4 //user process : testA testB testC testD init
+#define NR_USER_PROCS 		2 //user process : testA testB testC testD init
 //total procs in this system
 #define NR_PROCS		32 // 
 
@@ -208,7 +208,7 @@ extern struct sched_class rr_sched;
 //
 #define STACK_SIZE_INIT		STACK_SIZE_DEFAULT
 #define STACK_SIZE_TTY		STACK_SIZE_DEFAULT
-#define STACK_SIZE_TOTAL	(STACK_SIZE_INIT + STACK_SIZE_TTY)
+#define STACK_SIZE_TOTAL	(STACK_SIZE_INIT + STACK_SIZE_TTY + STACK_SIZE_TTY)
 
 //#define proc2pid(p) (p - proc_table)
 //#define pid2proc(pid) (proc_table + pid)
