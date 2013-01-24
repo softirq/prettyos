@@ -2,16 +2,6 @@
 #include "const.h"
 #include "traps.h"
 #include "kernel.h"
-//#include "string.h"
-/*#include "tty.h"*/
-/*#include "console.h"*/
-/*#include "wait.h"*/
-/*#include "mm.h"*/
-/*#include "sched.h"*/
-/*#include "global.h"*/
-/*#include "proc.h"*/
-/*#include "kernel.h"*/
-/*#include "stdlib.h"*/
 #include "string.h"
 
 void cstart()

@@ -1,4 +1,3 @@
-
 #include "type.h"
 #include "const.h"
 #include "list.h"
@@ -11,7 +10,6 @@
 #include "proc.h"
 #include "global.h"
 #include "kernel.h"
-//#include "string.h"
 #include "syscall.h"
 #include "stdlib.h"
 #include "system.h"

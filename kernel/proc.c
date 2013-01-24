@@ -25,7 +25,7 @@ void init_p()
     while(1)
     {
         printk("init=%d.",getpid());
-        milli_delay(100);
+        milli_delay(1000);
     }
 }
 
@@ -35,7 +35,7 @@ void TestA()
     while(1)
     {
         printk("A:%d",getpid() );
-        milli_delay(100);
+        milli_delay(1000);
         /*exit();*/
     }
 }
@@ -46,7 +46,7 @@ void TestB()
     while(1)
     {
         printk("B:%d",getpid() );
-        milli_delay(100);
+        milli_delay(1000);
         /*exit();*/
     }
 }
@@ -55,7 +55,7 @@ void TestC()
 {
     while(1){
         printk("C:%d",getpid() );
-        milli_delay(100);
+        milli_delay(1000);
         fork();
         /*exit();*/
     }
@@ -66,7 +66,7 @@ void TestD()
     while(1)
     {
         printk("D:%d",getpid() );
-        milli_delay(100);
+        milli_delay(1000);
     }
 }
 
@@ -75,7 +75,7 @@ void ChildProc()
     while(1)
     {
         printk("S:%d",getpid() );
-        milli_delay(100);
+        milli_delay(10);
     }
 }
 //get ldt segment address
@@ -95,7 +95,7 @@ void* va2la(int pid,void *va)
 }
 
 //public	PROCESS	proc_table[NR_TASKS + NR_NATIVE_PROCS];
-struct task_struct proc_table[NR_PROCESS + NR_PROCS];
+struct task_struct proc_table[NR_PROCS];
 
 char	task_stack[STACK_SIZE_TOTAL];
 

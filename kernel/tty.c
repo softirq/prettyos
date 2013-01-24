@@ -54,6 +54,8 @@ static void tty_do_write(TTY* p_tty)
 void task_tty()
 {
     TTY *ptty = NULL;
+
+    init_tty();
     select_console(0);
 
     while (1) 
@@ -72,7 +74,7 @@ int init_tty()
 
     init_keyboard();
 
-    for (p_tty=TTY_FIRST;p_tty<TTY_END;p_tty++) 
+    for (p_tty = TTY_FIRST;p_tty < TTY_END;++p_tty) 
     {
         p_tty->inbuf_count = 0;
         p_tty->p_inbuf_head = p_tty->p_inbuf_tail = p_tty->in_buf;

@@ -55,58 +55,30 @@ static int get_kernel_map(unsigned int *base, unsigned int *limit)
 }
 
 /*init the first process*/
-static void init_task()
+static void init_kernel_thread()
 {
-    int ret;
-
-    disp_str("\tpretty initialize begin\n");
-
-    TASK* p_task;
+    TASK* p_task = NULL;
     struct task_struct* p_proc	= proc_table;
-    /*memcpy(p,current,sizeof(struct task_struct));*/
     struct task_struct *tsk = NULL;
     union thread_union *thread_union = NULL;
+    char* p_task_stack = task_stack + STACK_SIZE_TOTAL;
+    int i,j,prio,eflags;
+    char privilege,rpl;
 
-    char*	p_task_stack = task_stack + STACK_SIZE_TOTAL;
-    int i,j;
+    unsigned int k_base,k_limit;
+    get_kernel_map(&k_base,&k_limit);
 
-    int prio;
-    t8 	privilege;
-    t8 	rpl;
-    int eflags;
+    privilege = PRIVILEGE_TASK;
+    rpl = RPL_TASK;
+    eflags = 0x1202;
+    prio = KERNEL_PRIOR;
 
-    unsigned int k_base;
-    unsigned int k_limit;
-    ret = get_kernel_map(&k_base,&k_limit);
+    printk("init process.\n");
 
     /*disp_str("\t\tprocess init begins\n");*/
-    for(i=0;i<NR_PROCESS + NR_PROCS;++i,++p_proc)
+    for(i = 0;i < NR_SYSTEM_PROCS ;++i,++p_proc)
     {
-        if(i >= NR_SYSTEM_PROCS + NR_USER_PROCS)
-        {
-            p_proc->flags = FREE_SLOT;
-            continue;
-        }
-
-        if(i < NR_SYSTEM_PROCS)
-        {
-            p_task = task_table + i;
-            privilege = PRIVILEGE_TASK;
-            rpl = RPL_TASK;
-            // IF=1, IOPL=1, bit 2 is always 1.
-            eflags = 0x1202;
-            prio = KERNEL_PRIOR;
-        }
-        else if(i < NR_SYSTEM_PROCS + NR_USER_PROCS)
-        {
-            p_task = user_proc_table + i - NR_SYSTEM_PROCS;
-            //	privilege = PRIVILEGE_TASK;
-            privilege = PRIVILEGE_USER;
-            rpl = RPL_USER;
-            // IF=1, IOPL=0, bit 2 is always 1. IO is blocked
-            eflags = 0x1202;
-            prio = USER_PRIO;
-        }
+        p_task = task_table + i;
 
         tsk = (struct task_struct *)kmem_get_obj(tsk_cachep);
         if(tsk == NULL)
@@ -119,13 +91,13 @@ static void init_task()
         thread_union->thread_info.task = tsk;
 
         tsk->state = TASK_RUNNING;
-        ret = strcpy(tsk->command, p_task->command);	// name of the process
+        strcpy(tsk->command, p_task->command);	// name of the process
         if((tsk->pid = get_pidmap()) < 0)
             return;
         tsk->parent = NULL;
         tsk->next = tsk->sibling = NULL;
 
-        proc_table[0].nr_tty = 0;		// tty 
+        /*proc_table[0].nr_tty = 0;		// tty */
         for(j = 0; j < NR_SIGNALS;++j)
         {
             tsk->sig_action[j].sa_flags = 0;
@@ -138,32 +110,103 @@ static void init_task()
         tsk->signal = 0x0; //设置信号为空
         tsk->ldt_sel = selector_ldt;
 
-        if(strncmp(tsk->command,"init",strlen("init")) != 0)
+        init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), p_proc->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
+
+        init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
+        init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+
+        init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
+        init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
+        tsk->regs.esp	= (unsigned int)p_task_stack;
+        p_task_stack -= STACK_SIZE_DEFAULT;
+
+        tsk->regs.cs = (unsigned int)(((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.ds = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.es = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.fs = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.ss = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
+        tsk->regs.gs = (unsigned int)((SELECTOR_KERNEL_GS & SA_RPL_MASK) | rpl);
+        tsk->regs.eip = (unsigned int)p_task->initial_eip;
+
+        tsk->regs.eflags = eflags;	
+        tsk->ticks = tsk->priority = prio;
+        tsk->sched_entity.vruntime = i;
+        tsk->sched_class = &rr_sched;
+        tsk->sched_class->enqueue_task(&(sched_rq),tsk,0,0);
+
+        p_task++;
+        selector_ldt += 1 << 3;
+    }
+
+    k_reenter	= 0;
+    ticks		= 0;
+}
+
+/*init the first process*/
+static void init_user_process()
+{
+    TASK* p_task = NULL;
+    struct task_struct* p_proc	= proc_table + NR_SYSTEM_PROCS;
+    struct task_struct *tsk = NULL;
+    union thread_union *thread_union = NULL;
+
+    int i,j,prio, eflags;
+    char privilege,rpl;
+
+    unsigned int k_base,k_limit;
+    get_kernel_map(&k_base,&k_limit);
+
+    privilege = PRIVILEGE_USER;
+    rpl = RPL_USER;
+    eflags = 0x1202;
+    prio = USER_PRIO;
+
+    for(i = 0;i < NR_USER_PROCS; ++i,++p_proc)
+    {
+        p_task = user_proc_table + i ;
+
+        tsk = (struct task_struct *)kmem_get_obj(tsk_cachep);
+        if(tsk == NULL)
+            return;
+
+        thread_union = (union thread_union*)kmem_get_obj(thread_union_cachep);
+        if(thread_union == NULL)
+            return;
+
+        thread_union->thread_info.task = tsk;
+
+        tsk->state = TASK_RUNNING;
+        strcpy(tsk->command, p_task->command);	// name of the process
+        if((tsk->pid = get_pidmap()) < 0)
+            return;
+        tsk->parent = NULL;
+        tsk->next = tsk->sibling = NULL;
+
+        for(j = 0; j < NR_SIGNALS;++j)
         {
-            p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
-            tsk->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
-            p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
-            tsk->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
-            p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
-            tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
-            p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
-            tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
-
-            char *stack = (char *)thread_union->stack;
-            tsk->regs.esp = (unsigned int)(stack + sizeof(union thread_union));
+            tsk->sig_action[j].sa_flags = 0;
+            tsk->sig_action[j].sa_handler = do_signal;
         }
-        else
+        for(j = 0;j < NR_OPEN; ++j)
         {
-            assert(ret == 0);
-
-            init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
-            init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
-
-            init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
-            init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
-            tsk->regs.esp	= (unsigned int)p_task_stack;
-            p_task_stack -= STACK_SIZE_INIT;
+            tsk->filp[j] = NULL;
         }
+        tsk->signal = 0x0; //设置信号为空
+        tsk->ldt_sel = selector_ldt;
+
+        init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), p_proc->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
+
+        p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
+        tsk->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
+        p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
+        tsk->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
+        p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
+        tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
+        p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
+        tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
+
+        char *stack = (char *)thread_union->stack;
+        tsk->regs.esp = (unsigned int)(stack + sizeof(union thread_union));
 
         tsk->regs.cs = (unsigned int)(((8 * 0) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
         tsk->regs.ds = (unsigned int)(((8 * 1) & SA_RPL_MASK & SA_TI_MASK) | SA_TIL | rpl);
@@ -176,16 +219,16 @@ static void init_task()
         tsk->regs.eflags = eflags;	
         tsk->ticks = tsk->priority = prio;
 
-        p_task++;
-        selector_ldt += 1 << 3;
         tsk->sched_entity.vruntime = i;
         tsk->sched_class = &rr_sched;
         tsk->sched_class->enqueue_task(&(sched_rq),tsk,0,0);
+
+        p_task++;
+        selector_ldt += 1 << 3;
     }
 
     k_reenter	= 0;
     ticks		= 0;
-    /*current 	= proc_table;*/
 }
 
 /* choose a task and begin to run */
@@ -215,7 +258,8 @@ static void start_kernel()
     init_fs(); //filesystem init
 
     init_sched(); 
-    init_task();
+    init_kernel_thread();
+    /*init_user_process();*/
 
     /*init_sock();*/
 
