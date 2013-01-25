@@ -246,11 +246,6 @@ static void init_task()
     current = se_entry(se, struct task_struct, sched_entity);
 }
 
-/* choose a task and begin to run */
-static void run_task()
-{
-
-}
 
 static void start_kernel()
 {

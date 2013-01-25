@@ -35,6 +35,7 @@ void init_p()
 
 void TestA()
 {
+    int ret;
     /*printk("-----------------------------------------\n");*/
     int fd = open("/",0,0);
     if(fd < 0)
@@ -62,12 +63,19 @@ void TestA()
     {
         inode = current->filp[fd]->f_inode;
         printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);
-        /*close(fd);*/
+        close(fd);
     }
 
     printk("---------------------------------------\n");
     char buf[] = "wo shi sunkang";
     sys_write(fd,buf, sizeof(buf));
+    ret = close(fd);
+    printk("close ret = %d.",ret);
+
+    if((fd = open("/sunkang/kamus",I_REGULAR,0)) < 0)
+    {
+        printk("opern error.");
+    }
     char abc[15] = {0};
     sys_read(fd,abc,sizeof(abc));
     printk("abc = %s\n",abc);

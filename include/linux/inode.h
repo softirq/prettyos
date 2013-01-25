@@ -33,7 +33,7 @@ struct m_inode
 	unsigned short	i_lock;			//文件的琐标记
 	unsigned short i_dirt;			//脏标记
 	struct vm_area_struct *i_mmap;  /* for shm areas,  the list of attaches, otherwise unused. */
-    struct list_head list;
+    struct list_head i_list;
     struct inode_operations *i_ops;
 };
 
@@ -53,7 +53,7 @@ struct d_inode
 };
 
 extern unsigned short nr_inodes_count;
-extern struct list_head inode_lists;
+//extern struct list_head inode_lists;
 
 extern struct inode_operations pfs;
 

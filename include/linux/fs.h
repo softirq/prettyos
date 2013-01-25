@@ -39,6 +39,10 @@ struct super_block
     unsigned short s_dev;			//所代表的分区
     unsigned int file_max_size;		//文件的最大长度
     struct m_inode root_inode;		//根inode
+    struct list_head    s_inodes;   //all inode
+    struct list_head    s_dirty;    //dirty inode
+    struct list_head    s_io;       //ready write to disk
+    struct list_head    s_files;    //all files;
 };
 
 struct file_system_type {

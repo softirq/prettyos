@@ -97,11 +97,9 @@ int open(char* filename,int mode,int flag)
     if(get_empty_fd(&fd) < 0)
         return -2;
 
-    fp = get_empty_filp();
-    if(fp == NULL)
+    if((fp = get_empty_filp()) == NULL)
         return -3;
 
-    (current->filp[fd] = fp)->f_count++;
     //	printk("root_inode->i_dev = %d\n",root_inode->i_dev);
     if((ret = open_namei(filename,mode,flag,&inode)) < 0)
     {
@@ -112,12 +110,17 @@ int open(char* filename,int mode,int flag)
     printk("inode->num = %d.inode->i_size = %d.",inode->i_num, inode->i_size);
     //返回文件句柄
     //	printk("open inode->i_num = %d\n",inode->i_num);
+    struct super_block *sb = get_super_block(inode->i_dev);
     fp->f_inode = inode;
     fp->f_count = 1;
     fp->f_flag = flag;
     fp->f_mode = mode;
     fp->f_pos = 0;
     fp->f_op = &general_fop;
+    fp->f_count++;
+
+    current->filp[fd] = fp;
+    list_add(&fp->f_list, &sb->s_files);
 
     printk("open:fd =  %d\n",fd);
     return fd;
@@ -164,18 +167,19 @@ int mkdir(char* filename,int mode,int flag)
 
 int close(int fd)
 {
-    struct file *filp;
+    struct file *fp = NULL;
     if(fd <= 0 || fd >= NR_OPEN)
         return -1;
-    if(!(filp = current->filp[fd]))
+    if(!(fp = current->filp[fd]))
         return -2;
-    if(filp->f_count == 0)
+
+    if(fp->f_count == 0)
         panic("Close:file count is 0");
 
-    if(--filp->f_count)
+    /*printk("4 count=%d", filp->f_count);*/
+    iput(fp->f_inode);
+    if(--fp->f_count)
         return 0;
-    iput(filp->f_inode);
-
     current->filp[fd] = NULL;
 
     return 0;

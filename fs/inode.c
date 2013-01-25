@@ -9,7 +9,7 @@
 #include "mm.h"
 #include "printf.h"
 
-struct list_head inode_lists;
+/*struct list_head inode_lists;*/
 unsigned short nr_inodes_count  = 0;
 
 void sync_dev(int dev)
@@ -74,7 +74,7 @@ static int read_inode(struct m_inode* inode)
     if(bh == NULL)
         return -3;
 
-    //将inode信息从磁盘读入到内存中
+    //read inode from disk to memory
     if((hd_rw(ROOT_DEV,blk_nr,1,ATA_READ,bh)) < 0)
         return -4;
 
@@ -104,7 +104,7 @@ struct m_inode* get_empty_inode(int dev)
     memset((char *)inode,0,sizeof(struct m_inode));
     inode->i_count = 1;
     inode->i_dev = dev;
-    list_add(&(inode->list), &inode_lists);
+    list_add(&(inode->i_list), &sb->s_inodes);
     return inode;
 }
 
@@ -134,7 +134,8 @@ struct m_inode* iget(int dev,int num)
     }
 
     struct list_head *head, *pos, *n;
-    head = &(inode_lists);
+    struct super_block *sb = get_super_block(dev);
+    head = &(sb->s_inodes);
     if(list_empty_careful(head))
     {
         /*printk("1");*/
@@ -143,7 +144,7 @@ struct m_inode* iget(int dev,int num)
     {
         list_for_each_safe(pos, n, head)
         {
-            inode = list_entry(pos, struct m_inode, list);
+            inode = list_entry(pos, struct m_inode, i_list);
             if(inode->i_dev == dev && inode->i_num == num)
             {
                 return inode;
@@ -154,25 +155,18 @@ struct m_inode* iget(int dev,int num)
         }
     }
 
-    inode = get_empty_inode(dev);
-    if(inode == NULL)
+    if((inode = get_empty_inode(dev)) == NULL)
     {
         return NULL;
     }
 
-    /*inode = empty;*/
     inode->i_ops = &pfs;
     inode->i_num = num;
-    /*get_block_nums(dev, (struct d_inode *)inode, NR_DEFAULT_SECTS);*/
 
     if((read_inode(inode)) < 0)
         return NULL;
 
-    /*inode->i_num = num;*/
-    /*inode->i_start_sect = nr_sectors;*/
-    /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
-    /*nr_sectors = NR_DEFAULT_SECTS + 1;*/
-    /*list_add(&(inode->list), &inode_lists);*/
+    printk("iget mode=%x",inode->i_mode);
 
     return inode;
 }
@@ -193,7 +187,7 @@ static int free_inode(struct m_inode *inode)
         panic("trying to free inode 0 or nonexistant inode");
     if(!inode->i_dev)
     {
-        list_del(&(inode->list));
+        list_del(&(inode->i_list));
         clear_imap_bit(inode->i_dev,inode->i_num);
         memset((char *)inode,0,sizeof(struct m_inode));
         //加入释放盘块的操作 free_block(inode);
@@ -221,24 +215,26 @@ void iput(struct m_inode *inode)
         inode->i_count--;
         return;
     }
+    printk("iput num = %d.mode = %x.", inode->i_num, inode->i_mode);
     if(S_ISBLK(inode->i_mode) || S_ISCHR(inode->i_mode))
     {
         //		sync_dev(inode->i_start_sect);
     }
+
     if((--inode->i_count) > 0)
     {
-        //		inode->i_count--;
         return;
     }
     else
     {
+        if(inode->i_dirt)
+        {
+            write_inode(inode);		
+        }
+        list_del(&inode->i_list);
         free_inode(inode);	
     }
-    if(inode->i_dirt)
-    {
-        /*printk("----");*/
-        write_inode(inode);		
-    }
+
     return;
 }
 

@@ -32,7 +32,7 @@ static int new_block(int dev)
         panic("triny to get new block from nonexistant device");
 
     block_nr = sb->s_firstzone + get_zmap_bit(dev);
-    printk(".%d.",block_nr);
+    /*printk(".%d.",block_nr);*/
     if(block_nr <= 0)
     {
         printk("there is no free block");

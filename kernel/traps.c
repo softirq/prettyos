@@ -60,7 +60,6 @@ TSS tss;
 
 void init_trap()
 {
-    int i;
     init_8259A();
 
     //soft interrupt

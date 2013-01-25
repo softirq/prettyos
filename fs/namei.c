@@ -47,7 +47,7 @@ int do_entry(struct m_inode *dir,char *name,int namelen,struct dentry **res_de,i
                 continue;	
             else
             {
-                printk("de name = %s.",de->file_name);
+                /*printk("de name = %s.",de->file_name);*/
                 ret = compare(de,name,namelen);
                 if(ret != 0)
                     continue;
@@ -143,7 +143,7 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
     dir->i_size += DENTRY_SIZE;
     dir->i_dirt = 1;
 
-    printk("add entry name=%s.",name);
+    /*printk("add entry name=%s.",name);*/
     strncpy(new_de->file_name,name, strlen(name));
 
     printk("sector = %d.",dir_start_sect + i);
@@ -169,7 +169,7 @@ int lookup(struct m_inode *base, char *name, int namelen, struct m_inode **res_i
     if(base == NULL || name == NULL || namelen <= 0 || res_inode == NULL)
         return -1;
 
-    printk("lookup name = %s.len = %d.",name, namelen );
+    /*printk("lookup name = %s.len = %d.",name, namelen );*/
     printk("base inode num=%d.",base->i_num);
     if((ret = do_entry(base ,name,namelen,&de,DE_MATCH)) < 0)
     {
@@ -210,7 +210,7 @@ int dir_namei(char *pathname,char ** name,int *namelen, struct m_inode **res_ino
         if(!ch)
             break;
 
-        printk("thisname = %s len = %d.",thisname,len);
+        /*printk("thisname = %s len = %d.",thisname,len);*/
         if((ret = lookup(baseinode, thisname, len,&inode)) < 0)
         {
             printk("lookup ret = %d.",ret);
@@ -247,7 +247,7 @@ int open_namei(char *pathname,int mode,int flags,struct m_inode **res_inode)
         /*printk("dir_namei.ret = %x.",ret);*/
         return -1;
     }
-    printk("name=%s.namelen=%d.",name,namelen);
+    /*printk("name=%s.namelen=%d.",name,namelen);*/
     /* is a directory */
     if(!namelen || !dir)
     {
@@ -261,7 +261,7 @@ int open_namei(char *pathname,int mode,int flags,struct m_inode **res_inode)
     }
 
     /* find the file from the directory */
-    printk("name = %s.len = %d.", name, namelen);
+    /*printk("name = %s.len = %d.", name, namelen);*/
     if(find_entry(dir,name,namelen,&de) != 0) 
     {
         printk("no such file\n");
@@ -288,6 +288,7 @@ int open_namei(char *pathname,int mode,int flags,struct m_inode **res_inode)
     {
         if(!(inode = iget(dir->i_dev,de->inode_num)))
             return -5;
+        printk("inode->mode=%x.",inode->i_mode);
         iput(dir);
         *res_inode = inode;
         return	0; 

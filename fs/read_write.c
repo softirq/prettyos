@@ -28,9 +28,10 @@ int sys_read(int fd,char *buf,int count)
     return 0;
     }
     */
+    printk("read mode = %x",mode);
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
-        if((general_read(inode,fp,buf,count)) < 0)
+        if((general_file_read(inode,fp,buf,count)) < 0)
             return -3;
 
         return 0;
@@ -45,6 +46,7 @@ int sys_write(int fd,char *buf,int count)
     struct m_inode *inode;
     if(fd <= 0 || fd >= NR_OPEN || count < 0 || !(fp = current->filp[fd]))
     {
+        printk("sys_write error.");
         return -EINVAL;
     }
 
@@ -54,9 +56,13 @@ int sys_write(int fd,char *buf,int count)
     printk("mode=%x.",mode);
     if(S_ISDIR(mode) || S_ISREG(mode))
     {
-        if((general_write(inode,fp, buf, count)) < 0)
+        if((general_file_write(inode,fp, buf, count)) < 0)
             return -3;
         return 0;
+    }
+    else
+    {
+        printk("special file.");
     }
 
     return -4;	
@@ -64,5 +70,5 @@ int sys_write(int fd,char *buf,int count)
 
 int sys_lseek(int fd,off_t offset,int origin)
 {
-    return general_lseek(fd, offset, origin);
+    return general_file_lseek(fd, offset, origin);
 }

@@ -128,8 +128,8 @@ int init_fs()
 {
     int i;
 
-    INIT_LIST_HEAD(&file_lists);
-    INIT_LIST_HEAD(&inode_lists);
+    /*INIT_LIST_HEAD(&file_lists);*/
+    /*INIT_LIST_HEAD(&inode_lists);*/
 
     for(i = 0;i < NR_SUPER;i++)
     {

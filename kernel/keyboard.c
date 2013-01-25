@@ -58,21 +58,6 @@ void init_keyboard()
     enable_irq(KEYBOARD_IRQ);		
 }
 
-void keyboard_simple(TTY *p_tty)
-{
-    char scan_code;
-    char output[2];
-    int make;
-    if(kb_in.count > 0)
-    {
-        printk("keyboard_simple.");
-    }
-    else
-    {
-        printk("something is error.");
-    }
-}
-
 void keyboard_read(TTY* p_tty)
 {
     char scan_code;

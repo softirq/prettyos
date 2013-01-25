@@ -24,9 +24,12 @@ void read_super_block(int dev)
     sb = (struct super_block *)(bh->b_data);
     //	printk("========================%d\n",sb->s_nimap_sects);
     memcpy((void *)&super_block[i],(void *)sb,sizeof(struct super_block));
-    /*super_block[i] = *sb;*/
-    /*super_block[i].s_dev = dev;*/
-    /*super_block[i].s_magic = MAGIC_FS;	*/
+
+    INIT_LIST_HEAD(&(super_block[i].s_inodes));
+    INIT_LIST_HEAD(&(super_block[i].s_dirty));
+    INIT_LIST_HEAD(&(super_block[i].s_io));
+    INIT_LIST_HEAD(&(super_block[i].s_files));
+
     brelse(bh);
 }
 

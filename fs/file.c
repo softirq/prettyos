@@ -9,11 +9,11 @@
 #include "file.h"
 #include "printf.h"
 
-struct list_head file_lists;
+/*struct list_head file_lists;*/
 unsigned short nr_file_count = 0;
 
 //读文件
-int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
+int general_file_read(struct m_inode *inode,struct file *filp,char *buf,int count)
 {
     int i,c,m = 0;
     char *p;
@@ -74,7 +74,7 @@ int general_read(struct m_inode *inode,struct file *filp,char *buf,int count)
     return 0;
 }
 
-int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
+int general_file_write(struct m_inode *inode,struct file *filp,char *buf,int count)
 {
     int i = 0,block_nr,c;
     off_t pos = 0;
@@ -82,9 +82,12 @@ int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
     struct buffer_head *bh = NULL;
     int nr_start_sect = 0; 
 
-        printk("5");
+    printk("write 5");
     if(!inode || !filp || !buf || count < 0)
+    {
+        printk("write parameters error.");
         return -EINVAL;
+    }
 
     /*int nr_start_sect = inode->i_start_sect;*/
     if((nr_start_sect = get_first_block(inode)) == 0)
@@ -130,7 +133,7 @@ int general_write(struct m_inode *inode,struct file *filp,char *buf,int count)
     return 0;	
 }
 
-int general_lseek(int fd, off_t offset, int origin)
+int general_file_lseek(int fd, off_t offset, int origin)
 {
     struct file *fp;
     int tmp;
@@ -162,8 +165,8 @@ int general_lseek(int fd, off_t offset, int origin)
 }
 
 struct file_operations general_fop = {
-    .lseek = general_lseek,
-    .read = general_read,
-    .write = general_write,
+    .lseek = general_file_lseek,
+    .read = general_file_read,
+    .write = general_file_write,
     .open = open,
 };
