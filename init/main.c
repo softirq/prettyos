@@ -73,7 +73,7 @@ static void init_kernel_thread()
     eflags = 0x1202;
     prio = KERNEL_PRIOR;
 
-    printk("  PrettyOS SoftIRQ.\n");
+    printk("  PrettyOS SoftIRQ.");
     /*printk("  kangs.uestc@gmail.com .\n");*/
     /*printk("  UESTC.\n");*/
     /*disp_str("\t\tprocess init begins\n");*/
@@ -159,10 +159,15 @@ static void init_user_process()
     unsigned int k_base,k_limit;
     get_kernel_map(&k_base,&k_limit);
 
-    privilege = PRIVILEGE_USER;
-    rpl = RPL_USER;
+    /*privilege = PRIVILEGE_USER;*/
+    /*rpl = RPL_USER;*/
+    /*eflags = 0x1202;*/
+    /*prio = USER_PRIO;*/
+
+    privilege = PRIVILEGE_TASK;
+    rpl = RPL_TASK;
     eflags = 0x1202;
-    prio = USER_PRIO;
+    prio = KERNEL_PRIOR;
 
     /*for(i = 0;i < NR_USER_PROCS; ++i,++p_proc)*/
     for(i = 0;i < NR_USER_PROCS; ++i)
@@ -199,15 +204,10 @@ static void init_user_process()
         tsk->ldt_sel = selector_ldt;
 
         init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), tsk->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
-        /*init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), p_proc->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);*/
 
-        /*p_proc->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];*/
         tsk->ldts[INDEX_LDT_C] = gdt[SELECTOR_KERNEL_CS >> 3];
-        /*p_proc->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL*/
         tsk->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
-        /*p_proc->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];*/
         tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
-        /*p_proc->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL*/
         tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
 
         char *stack = (char *)thread_union->stack;
@@ -265,12 +265,11 @@ static void start_kernel()
     /* scheduler init */
     init_sched(); 
 
-    init_task();
-
     init_hd(); //hard disk init
 
     init_fs(); //filesystem init
 
+    init_task();
 
     /*init_sock();*/
 
@@ -281,10 +280,7 @@ int pretty_main()
 {
     start_kernel();
 
-    while(1)
-    {
-    }
-    /*move_to_user_mode();*/
+    move_to_user_mode();
 
     /* from kernel mode to user mode and scheduler process */
     return 0;

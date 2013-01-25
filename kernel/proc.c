@@ -36,25 +36,43 @@ void init_p()
 void TestA()
 {
     /*printk("-----------------------------------------\n");*/
-    /*int fd = open("/",0,0);*/
-    /*if(fd < 0)*/
-    /*{*/
-        /*printk("open error. fd = %d.", fd);*/
-    /*}*/
-    /*[>close(fd);<]*/
+    int fd = open("/",0,0);
+    if(fd < 0)
+    {
+        printk("open error. fd = %d.", fd);
+    }
+    close(fd);
 
-    /*struct m_inode *inode;*/
-    /*fd = open("/sunkang",0,O_CREAT);*/
-    /*if(fd < 0)*/
-    /*{*/
-        /*printk("open error. fd = %d.", fd);*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("sunkang inode num = %d",inode->i_num);*/
+    struct m_inode *inode;
+    fd = open("/sunkang",0,O_CREAT);
+    if(fd < 0)
+    {
+        printk("open error. fd = %d.", fd);
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("sunkang inode num = %d",inode->i_num);
+        close(fd);
+    }
+
+    if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)
+    {
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);
         /*close(fd);*/
-    /*}*/
+    }
+
+    /*printk("---------------------------------------\n");*/
+    char buf[] = "wo shi sunkang";
+    sys_write(fd,buf, sizeof(buf));
+    char abc[15] = {0};
+    sys_read(fd,abc,sizeof(abc));
+    printk("abc = %s\n",abc);
+    close(fd);
 
     printk("[kangsun@sunkang-develop prettyos]$ ");
     while(1)

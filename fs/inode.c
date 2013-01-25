@@ -30,6 +30,7 @@ int write_inode(struct m_inode *inode)
     int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects + sb->s_nzmap_sects + \
                  (num -1)/(SECTOR_SIZE/INODE_SIZE);
 
+    printk("write inode blk_nr = %d.", blk_nr);
     bh = getblk(dev,blk_nr);
     if(bh == NULL)
         return -2;
@@ -65,6 +66,8 @@ static int read_inode(struct m_inode* inode)
 
     int blk_nr = 1 + NR_SUPER_BLOCK_SECTS + sb->s_nimap_sects + sb->s_nzmap_sects + \
                  (num -1)/(SECTOR_SIZE / INODE_SIZE);
+
+    printk("read inode blk_nr = %d.", blk_nr);
     bh = getblk(dev,blk_nr);
     if(bh == NULL)
         return -3;
@@ -74,7 +77,7 @@ static int read_inode(struct m_inode* inode)
         return -4;
 
     //gcc 3.4.3之后不支持左值强制类型转换
-    *((struct d_inode *)inode) = *((struct d_inode *)(bh->b_data+ ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE));
+    *((struct d_inode *)inode) = *((struct d_inode *)(bh->b_data + ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE));
     brelse(bh);
 
     return 0;
@@ -229,7 +232,7 @@ void iput(struct m_inode *inode)
     }
     if(inode->i_dirt)
     {
-        printk("----");
+        /*printk("----");*/
         write_inode(inode);		
     }
     return;

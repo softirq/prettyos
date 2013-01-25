@@ -169,7 +169,7 @@ int lookup(struct m_inode *base, char *name, int namelen, struct m_inode **res_i
     if(base == NULL || name == NULL || namelen <= 0 || res_inode == NULL)
         return -1;
 
-    /*printk("lookup name = %s.len = %d.",name, namelen );*/
+    printk("lookup name = %s.len = %d.",name, namelen );
     printk("base inode num=%d.",base->i_num);
     if((ret = do_entry(base ,name,namelen,&de,DE_MATCH)) < 0)
     {
@@ -247,7 +247,7 @@ int open_namei(char *pathname,int mode,int flags,struct m_inode **res_inode)
         /*printk("dir_namei.ret = %x.",ret);*/
         return -1;
     }
-    /*printk("name=%s.namelen=%d.",name,namelen);*/
+    printk("name=%s.namelen=%d.",name,namelen);
     /* is a directory */
     if(!namelen || !dir)
     {

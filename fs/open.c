@@ -14,15 +14,17 @@
 struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen, int mode, int flags)
 {
     int ret;
-    int inode_nr = get_imap_bit(dir->i_dev);
+    struct m_inode *inode = NULL;
+    int inode_nr = 0;
+    inode_nr = get_imap_bit(dir->i_dev);
     printk("new inode_nr = %d.",inode_nr);
-    /*printk("create_file:inode_nr = %d\n",inode_nr);*/
+    printk("create_file:inode_nr = %d\n",inode_nr);
     if(inode_nr <= 0)
     {
         printk("there is no free inode \n");
         return NULL;
     }
-    struct m_inode *inode = iget(dir->i_dev,inode_nr);
+    inode = iget(dir->i_dev,inode_nr);
     if(!inode)
     {
         printk("there is no free inode 2 \n");
@@ -40,7 +42,10 @@ struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen, int mo
     inode->i_dirt = 1;
 
     if((write_inode(dir)) < 0)
+    {
+        printk("write error.");
         return NULL;
+    }
 
     printk("create file successful \n");
     return inode;

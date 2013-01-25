@@ -20,6 +20,7 @@ void mk_fs()
     struct super_block sb;
     struct buffer_head *bh;
 
+    printk("Initialize PFS.");
     sb.s_dev = ROOT_DEV;
     sb.s_magic = MAGIC_FS;
     sb.s_ninodes = NR_INODES;
@@ -151,39 +152,36 @@ int init_fs()
     /*printk("bh->b_blocknr = %d\n",bh->b_blocknr);*/
     /*printk("bh->b_data= %s\n",bh->b_data);*/
 
-    printk("-----------------------------------------\n");
-    int fd = open("/",0,0);
-    if(fd < 0)
-    {
-        printk("open error. fd = %d.", fd);
-    }
-    close(fd);
-    /*printk("init_fs fd = 0x%x\n",fd);*/
-    /*struct m_inode *inode = current->filp[fd]->f_inode;*/
-    /*printk("inode num = %d\n",inode->i_num);*/
+    /*printk("-----------------------------------------\n");*/
+    /*int fd = open("/",0,0);*/
+    /*if(fd < 0)*/
+    /*{*/
+        /*printk("open error. fd = %d.", fd);*/
+    /*}*/
+    /*close(fd);*/
 
-    struct m_inode *inode;
-    fd = open("/sunkang",0,O_CREAT);
-    if(fd < 0)
-    {
-        printk("open error. fd = %d.", fd);
-    }
-    else
-    {
-        inode = current->filp[fd]->f_inode;
-        printk("sunkang inode num = %d",inode->i_num);
-        close(fd);
-    }
-
-    if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)
-    {
-    }
-    else
-    {
-        inode = current->filp[fd]->f_inode;
-        printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);
+    /*struct m_inode *inode;*/
+    /*fd = open("/sunkang",0,O_CREAT);*/
+    /*if(fd < 0)*/
+    /*{*/
+        /*printk("open error. fd = %d.", fd);*/
+    /*}*/
+    /*else*/
+    /*{*/
+        /*inode = current->filp[fd]->f_inode;*/
+        /*printk("sunkang inode num = %d",inode->i_num);*/
         /*close(fd);*/
-    }
+    /*}*/
+
+    /*if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)*/
+    /*{*/
+    /*}*/
+    /*else*/
+    /*{*/
+        /*inode = current->filp[fd]->f_inode;*/
+        /*printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);*/
+        /*[>close(fd);<]*/
+    /*}*/
 
     /*if((fd = open("/sunkang/hahaha",0,O_CREAT)) < 0)*/
     /*{*/
@@ -195,27 +193,13 @@ int init_fs()
         /*close(fd);*/
     /*}*/
 
-    printk("---------------------------------------\n");
-    char buf[] = "wo shi sunkang";
-    sys_write(fd,buf, sizeof(buf));
+    /*printk("---------------------------------------\n");*/
+    /*char buf[] = "wo shi sunkang";*/
+    /*sys_write(fd,buf, sizeof(buf));*/
+    /*char abc[15] = {0};*/
+    /*sys_read(fd,abc,sizeof(abc));*/
+    /*printk("abc = %s\n",abc);*/
     /*close(fd);*/
-    /*for(i = 0;i < 100;i++)*/
-    /*{*/
-    /*printk("%c",buf[i]);*/
-    /*}*/
-    char abc[15] = {0};
-    /*printk("fd = %d.",fd2);*/
-    sys_read(fd,abc,sizeof(abc));
-    /*printk("\n");*/
-    printk("abc = %s\n",abc);
-    close(fd);
-
-    /*fd2	= mkdir("/test",0,O_CREAT);*/
-    /*do_unlink("/sunkang");*/
-    /*fd2 = open("/sunkang",0,O_CREAT);*/
-    /*printk("init_fs fd2 = %d\n",fd2);*/
-    /*inode = current->filp[fd2]->f_inode;*/
-    /*printk("inode num = %d\n",inode->i_num);*/
 
     return 0;
 }
