@@ -92,7 +92,7 @@ void mk_fs()
     dinode->i_size = DENTRY_SIZE;
     /*inode->i_start_sect = sb.s_firstzone;*/
     /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
-    /*set_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);*/
+    set_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);
     /*nr_sectors = sb.s_firstzone;*/
     //	dinode->i_nlinks = 1;
     /*for(i = 0;i < NR_CONSOLES;i++)*/
@@ -158,10 +158,11 @@ int init_fs()
         printk("open error. fd = %d.", fd);
     }
     close(fd);
-    printk("init_fs fd = 0x%x\n",fd);
-    struct m_inode *inode = current->filp[fd]->f_inode;
-    printk("inode num = %d\n",inode->i_num);
+    /*printk("init_fs fd = 0x%x\n",fd);*/
+    /*struct m_inode *inode = current->filp[fd]->f_inode;*/
+    /*printk("inode num = %d\n",inode->i_num);*/
 
+    struct m_inode *inode;
     fd = open("/sunkang",0,O_CREAT);
     if(fd < 0)
     {
@@ -174,15 +175,15 @@ int init_fs()
         close(fd);
     }
 
-    /*if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)*/
-    /*{*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);*/
-        /*[>close(fd);<]*/
-    /*}*/
+    if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)
+    {
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);
+        /*close(fd);*/
+    }
 
     /*if((fd = open("/sunkang/hahaha",0,O_CREAT)) < 0)*/
     /*{*/
@@ -194,20 +195,20 @@ int init_fs()
         /*close(fd);*/
     /*}*/
 
-    /*printk("---------------------------------------\n");*/
-    /*char buf[] = "wo shi sunkang";*/
-    /*sys_write(fd,buf, sizeof(buf));*/
+    printk("---------------------------------------\n");
+    char buf[] = "wo shi sunkang";
+    sys_write(fd,buf, sizeof(buf));
     /*close(fd);*/
     /*for(i = 0;i < 100;i++)*/
     /*{*/
     /*printk("%c",buf[i]);*/
     /*}*/
-    /*char abc[15] = {0};*/
+    char abc[15] = {0};
     /*printk("fd = %d.",fd2);*/
-    /*sys_read(fd,abc,sizeof(abc));*/
+    sys_read(fd,abc,sizeof(abc));
     /*printk("\n");*/
-    /*printk("abc = %s\n",abc);*/
-    /*close(fd);*/
+    printk("abc = %s\n",abc);
+    close(fd);
 
     /*fd2	= mkdir("/test",0,O_CREAT);*/
     /*do_unlink("/sunkang");*/

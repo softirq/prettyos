@@ -8,6 +8,7 @@
 #include "keyboard.h"
 #include "sched.h"
 #include "proc.h"
+#include "fcntl.h"
 #include "kernel.h"
 #include "sys.h"
 #include "printf.h"
@@ -34,6 +35,27 @@ void init_p()
 
 void TestA()
 {
+    /*printk("-----------------------------------------\n");*/
+    /*int fd = open("/",0,0);*/
+    /*if(fd < 0)*/
+    /*{*/
+        /*printk("open error. fd = %d.", fd);*/
+    /*}*/
+    /*[>close(fd);<]*/
+
+    /*struct m_inode *inode;*/
+    /*fd = open("/sunkang",0,O_CREAT);*/
+    /*if(fd < 0)*/
+    /*{*/
+        /*printk("open error. fd = %d.", fd);*/
+    /*}*/
+    /*else*/
+    /*{*/
+        /*inode = current->filp[fd]->f_inode;*/
+        /*printk("sunkang inode num = %d",inode->i_num);*/
+        /*close(fd);*/
+    /*}*/
+
     printk("[kangsun@sunkang-develop prettyos]$ ");
     while(1)
     {

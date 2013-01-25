@@ -74,9 +74,8 @@ static void init_kernel_thread()
     prio = KERNEL_PRIOR;
 
     printk("  PrettyOS SoftIRQ.\n");
-    printk("  kangs.uestc@gmail.com .\n");
-    printk("  UESTC.\n\n\n\n");
-
+    /*printk("  kangs.uestc@gmail.com .\n");*/
+    /*printk("  UESTC.\n");*/
     /*disp_str("\t\tprocess init begins\n");*/
     /*for(i = 0;i < NR_SYSTEM_PROCS ;++i, ++p_proc)*/
     for(i = 0;i < NR_SYSTEM_PROCS ;++i)
@@ -241,16 +240,16 @@ static void init_task()
 {
     init_kernel_thread();
     init_user_process();
+
+    struct rb_root *root = &(cfs_runqueue.task_timeline);
+    struct sched_entity *se = ts_leftmost(root);
+    current = se_entry(se, struct task_struct, sched_entity);
 }
 
 /* choose a task and begin to run */
 static void run_task()
 {
-    struct rb_root *root = &(cfs_runqueue.task_timeline);
-    struct sched_entity *se = ts_leftmost(root);
-    current = se_entry(se, struct task_struct, sched_entity);
 
-    move_to_user_mode();
 }
 
 static void start_kernel()
@@ -266,11 +265,12 @@ static void start_kernel()
     /* scheduler init */
     init_sched(); 
 
+    init_task();
+
     init_hd(); //hard disk init
 
     init_fs(); //filesystem init
 
-    init_task();
 
     /*init_sock();*/
 
@@ -281,7 +281,10 @@ int pretty_main()
 {
     start_kernel();
 
-    run_task();
+    while(1)
+    {
+    }
+    /*move_to_user_mode();*/
 
     /* from kernel mode to user mode and scheduler process */
     return 0;

@@ -95,13 +95,10 @@ struct m_inode* get_empty_inode(int dev)
     {
         return NULL;
     }
-
     memset((char *)inode,0,sizeof(struct m_inode));
     inode->i_count = 1;
     inode->i_dev = dev;
-    inode->i_ops = &pfs;
     list_add(&(inode->list), &inode_lists);
-
     return inode;
 }
 
@@ -158,13 +155,13 @@ struct m_inode* iget(int dev,int num)
     }
 
     /*inode = empty;*/
+    inode->i_ops = &pfs;
     /*get_block_nums(dev, (struct d_inode *)inode, NR_DEFAULT_SECTS);*/
 
     if((read_inode(inode)) < 0)
         return NULL;
 
     inode->i_num = num;
-
     /*inode->i_start_sect = nr_sectors;*/
     /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
     /*nr_sectors = NR_DEFAULT_SECTS + 1;*/
