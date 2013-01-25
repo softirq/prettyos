@@ -31,6 +31,7 @@ int write_inode(struct m_inode *inode)
                  (num -1)/(SECTOR_SIZE/INODE_SIZE);
 
     printk("write inode blk_nr = %d.", blk_nr);
+    printk("write num = %d.",num);
     bh = getblk(dev,blk_nr);
     if(bh == NULL)
         return -2;
@@ -68,6 +69,7 @@ static int read_inode(struct m_inode* inode)
                  (num -1)/(SECTOR_SIZE / INODE_SIZE);
 
     printk("read inode blk_nr = %d.", blk_nr);
+    printk("read num = %d.",num);
     bh = getblk(dev,blk_nr);
     if(bh == NULL)
         return -3;
@@ -80,6 +82,7 @@ static int read_inode(struct m_inode* inode)
     *((struct d_inode *)inode) = *((struct d_inode *)(bh->b_data + ((num -1)%(SECTOR_SIZE/INODE_SIZE)) * INODE_SIZE));
     brelse(bh);
 
+    inode->i_num = num;
     return 0;
 }
 
@@ -159,12 +162,13 @@ struct m_inode* iget(int dev,int num)
 
     /*inode = empty;*/
     inode->i_ops = &pfs;
+    inode->i_num = num;
     /*get_block_nums(dev, (struct d_inode *)inode, NR_DEFAULT_SECTS);*/
 
     if((read_inode(inode)) < 0)
         return NULL;
 
-    inode->i_num = num;
+    /*inode->i_num = num;*/
     /*inode->i_start_sect = nr_sectors;*/
     /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
     /*nr_sectors = NR_DEFAULT_SECTS + 1;*/

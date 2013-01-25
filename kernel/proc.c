@@ -55,7 +55,6 @@ void TestA()
         printk("sunkang inode num = %d",inode->i_num);
         close(fd);
     }
-
     if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)
     {
     }
@@ -66,7 +65,7 @@ void TestA()
         /*close(fd);*/
     }
 
-    /*printk("---------------------------------------\n");*/
+    printk("---------------------------------------\n");
     char buf[] = "wo shi sunkang";
     sys_write(fd,buf, sizeof(buf));
     char abc[15] = {0};

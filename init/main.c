@@ -114,9 +114,6 @@ static void init_kernel_thread()
 
         init_descriptor(&gdt[selector_ldt>>3],vir2phys(seg2phys(SELECTOR_KERNEL_DS), tsk->ldts),LDT_SIZE * sizeof(DESCRIPTOR) - 1,DA_LDT);
 
-        /*init_descriptor(&p_proc->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);*/
-        /*init_descriptor(&p_proc->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);*/
-
         init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);
         init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);
         tsk->regs.esp	= (unsigned int)p_task_stack;
@@ -209,6 +206,9 @@ static void init_user_process()
         tsk->ldts[INDEX_LDT_C].attr1 = DA_C | privilege << 5;// change the DPL
         tsk->ldts[INDEX_LDT_D] = gdt[SELECTOR_KERNEL_DS >> 3];
         tsk->ldts[INDEX_LDT_D].attr1 = DA_DRW | privilege<< 5;// change the DPL
+
+        /*init_descriptor(&tsk->ldts[INDEX_LDT_C],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_C| privilege <<5);*/
+        /*init_descriptor(&tsk->ldts[INDEX_LDT_D],0,(k_base + k_limit) >> LIMIT_4K_SHIFT,DA_32 | DA_LIMIT_4K | DA_DRW | privilege << 5);*/
 
         char *stack = (char *)thread_union->stack;
         tsk->regs.esp = (unsigned int)(stack + sizeof(union thread_union));
