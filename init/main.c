@@ -237,6 +237,12 @@ static void init_user_process()
     ticks		= 0;
 }
 
+static void init_task()
+{
+    init_kernel_thread();
+    init_user_process();
+}
+
 /* choose a task and begin to run */
 static void run_task()
 {
@@ -258,14 +264,13 @@ static void start_kernel()
     init_mem(); //memeory management init
     buffer_init();
     /* scheduler init */
+    init_sched(); 
 
     init_hd(); //hard disk init
 
     init_fs(); //filesystem init
 
-    init_sched(); 
-    init_kernel_thread();
-    init_user_process();
+    init_task();
 
     /*init_sock();*/
 
@@ -275,6 +280,7 @@ static void start_kernel()
 int pretty_main()
 {
     start_kernel();
+
     run_task();
 
     /* from kernel mode to user mode and scheduler process */

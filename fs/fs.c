@@ -92,7 +92,7 @@ void mk_fs()
     dinode->i_size = DENTRY_SIZE;
     /*inode->i_start_sect = sb.s_firstzone;*/
     /*inode->i_nr_sects = NR_DEFAULT_SECTS;*/
-    set_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);
+    /*set_block_nums(ROOT_DEV,dinode, NR_DEFAULT_SECTS);*/
     /*nr_sectors = sb.s_firstzone;*/
     //	dinode->i_nlinks = 1;
     /*for(i = 0;i < NR_CONSOLES;i++)*/
@@ -151,29 +151,28 @@ int init_fs()
     /*printk("bh->b_blocknr = %d\n",bh->b_blocknr);*/
     /*printk("bh->b_data= %s\n",bh->b_data);*/
 
-    /*printk("-----------------------------------------\n");*/
-    /*int fd = open("/",0,0);*/
-    /*if(fd < 0)*/
-    /*{*/
-        /*printk("open error. fd = %d.", fd);*/
-    /*}*/
-    /*close(fd);*/
-    /*printk("init_fs fd = 0x%x\n",fd);*/
-    /*struct m_inode *inode = current->filp[fd]->f_inode;*/
-    /*printk("inode num = %d\n",inode->i_num);*/
+    printk("-----------------------------------------\n");
+    int fd = open("/",0,0);
+    if(fd < 0)
+    {
+        printk("open error. fd = %d.", fd);
+    }
+    close(fd);
+    printk("init_fs fd = 0x%x\n",fd);
+    struct m_inode *inode = current->filp[fd]->f_inode;
+    printk("inode num = %d\n",inode->i_num);
 
-    /*struct m_inode *inode;*/
-    /*fd = open("/sunkang",0,O_CREAT);*/
-    /*if(fd < 0)*/
-    /*{*/
-        /*printk("open error. fd = %d.", fd);*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("sunkang inode num = %d",inode->i_num);*/
-        /*close(fd);*/
-    /*}*/
+    fd = open("/sunkang",0,O_CREAT);
+    if(fd < 0)
+    {
+        printk("open error. fd = %d.", fd);
+    }
+    else
+    {
+        inode = current->filp[fd]->f_inode;
+        printk("sunkang inode num = %d",inode->i_num);
+        close(fd);
+    }
 
     /*if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)*/
     /*{*/
