@@ -1,7 +1,7 @@
 TOPDIR=..
 include $(TOPDIR)/Generic.mak
 
-LIBOBJS:=klibc.o stringa.o kliba.o string.o errno.o list.o math.o rbtree.o bitmap.o radix-tree.o
+LIBOBJS:=klibc.o stringa.o kliba.o string.o errno.o list.o math.o rbtree.o bitmap.o radix-tree.o vsprintf.o printf.o
 
 all:$(LIBOBJS)
 #	$(LD) -r -o $@ $(OBJS)

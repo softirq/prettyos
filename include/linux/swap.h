@@ -1,6 +1,8 @@
 #ifndef     _SWAP_H_
 #define     _SWAP_H_
 
+#include "page.h"
+
 #define  MAX_SWAPFILES 	8
 
 struct swap_info_struct
@@ -20,8 +22,6 @@ typedef struct
     unsigned long val;
 }swap_entry_t;
 
-extern void swap_free(swap_entry_t entry);
-
 #define SWAP_TYPE(x)    (((x).val >> 1) & 0x3f)
 #define SWAP_OFFSET(x)  ((x).val >> 8)
 #define SWAP_ENTRY(type,offset) ((swap_entry_t){(type << 1) | (offset << 8)})
@@ -36,5 +36,8 @@ extern void swap_free(swap_entry_t entry);
 
 #define read_swap_page(nr,buf) \
     rw_swap_page(READ,(nr),(buf))
+
+extern void swap_free(swap_entry_t entry);
+extern void lru_cache_add(struct page * page);
 
 #endif

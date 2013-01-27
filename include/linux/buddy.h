@@ -1,8 +1,7 @@
 #ifndef     _BUDDY_H_
 #define     _BUDDY_H_
 
-#include "list.h"
-#include "asm-i386/page.h"
+#include "page.h"
 
 #define NR_MEM_LISTS   10 
 

@@ -1,6 +1,10 @@
 #ifndef     _I386_PAGE_H_
 #define     _I386_PAGE_H_
 
+#include "list.h"
+#include "wait.h"
+#include "atomic.h"
+
 typedef unsigned int mem_map_t;
 
 typedef struct { unsigned long pte; } pte_t;
@@ -51,6 +55,8 @@ typedef struct { unsigned long pgprot; } pgprot_t;
 #define __pa(x) 	((unsigned long)(x) - PAGE_OFFSET)
 #define __va(x) 	((unsigned long)(x) + PAGE_OFFSET)
 
+struct address_space;
+
 typedef struct page
 {
     struct list_head list;
@@ -58,7 +64,8 @@ typedef struct page
     unsigned long address;
     unsigned long index;
     struct page *next_hash;
-    int count;
+    //int count;
+    atomic_t count;
     unsigned long flags;
     struct list_head lru;
     wait_queue_head_t wait;

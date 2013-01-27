@@ -3,13 +3,9 @@
 #include "const.h"
 #include "string.h"
 #include "stdlib.h"
-#include "list.h"
 #include "panic.h"
-#include "wait.h"
 #include "mm.h"
 #include "printf.h"
-#include "list.h"
-/*#include "pgtable.h"*/
 
 int nr_swap_pages = 0;
 
@@ -20,6 +16,7 @@ unsigned long low_mem_end = 0x1000000;
 /* number of the pages */
 struct page ** mem_map = NULL;
 
+struct list_head inactive_list;
 /*static int count = 0;*/
 
 #define  	copy_page(from, to) 	memcpy((void *)from, (void *)to, PAGE_SIZE)
@@ -193,6 +190,12 @@ no_memory:
     oom();
 }
 
+/* free area init */
+static void free_area_init()
+{
+    INIT_LIST_HEAD(&inactive_list);
+}
+
 int init_mem()
 {
     int k;
@@ -240,54 +243,7 @@ int init_mem()
     /* tidy the buddy list : merge and sort*/
     buddy_list_tidy();
     init_kmem_cache();
-
-    /*print_buddy_list();*/
-    /*unsigned long addr = get_free_pages(0);*/
-    /*printk("addr = %x.", addr);*/
-    /*print_buddy_list();*/
-    /*addr = get_free_pages(2);*/
-    /*printk("addr = %x.", addr);*/
-    /*print_buddy_list();*/
-    /*addr = get_free_pages(0);*/
-    /*printk("addr = %x.", addr);*/
-    /*print_buddy_list();*/
-    /*addr = get_free_pages(2);*/
-    /*printk("addr = %x.", addr);*/
-    /*print_buddy_list();*/
-    /*[>get_free_pages(1);<]*/
-    /*get_free_pages(0);*/
-    /*printk("page->address = %x.\n", addr);*/
-
-    /*struct kmem_cache *cachep = NULL;*/
-    /*struct slab *slabp = NULL;*/
-    /*void *objp = NULL;*/
-    /*struct task_struct *tsk = NULL;*/
-
-    /*print_kmem_info(tsk_cachep);
-      slabp = kmem_get_slab(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      print_slab_info(slabp);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);
-      objp = kmem_get_obj(tsk_cachep);*/
-    /*objp = kmem_get_obj(tsk_cachep);*/
-    /*objp = kmem_get_obj(tsk_cachep);*/
-    /*print_slab_info(slabp);*/
-
-    /*print_buddy_list();*/
+    free_area_init();
 
     return 0;
 }

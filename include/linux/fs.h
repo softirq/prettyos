@@ -1,6 +1,7 @@
 #ifndef     _FS_H_
 #define     _FS_H_
 
+#include "page.h"
 #include "inode.h"
 #include "buffer_head.h"
 #include "file.h"
@@ -9,6 +10,7 @@
 #include "link.h"
 #include "bitmap.h"
 #include "block.h"
+#include "radix-tree.h"
 
 // filesystem magic
 #define MAGIC_FS	0x0001
@@ -22,14 +24,14 @@
 #define NR_ZONES		BITS_SECTOR
 
 //inode 占32个字节
-#define INODE_SIZE 	32
+//#define INODE_SIZE 	32
+#define INODE_SIZE      64	
 
-//所有inode结构所占的扇区个数
+//all inode sector number
 #define INODE_SECTS 		(NR_INODE_MAP_SECTS * BITS_SECTOR)/(SECTOR_SIZE/INODE_SIZE)
 
-//超级块结构
-struct super_block
-{
+//super block 
+struct super_block {
     unsigned short s_magic;		//magic 
     unsigned short s_ninodes;		//inode numbER
     unsigned short s_nzones;		//文件系统的数据块数(数据块跟扇区大小一致)
@@ -50,6 +52,21 @@ struct file_system_type {
     char name[16];
     int requires_dev;
     struct file_system_type * next;
+};
+
+struct address_space_operations {
+    int (*writepage)(struct page *);
+    int (*readpage)(struct file *,struct page *);
+    int (*prepare_write)(struct file *, struct page *,unsigned, unsigned);
+    int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
+};
+
+struct address_space{
+    struct inode *host;
+    struct radix_tree_root page_tree;
+    struct list_head    clean_pages;
+    struct list_head    dirty_pages;
+    struct address_space_operations *a_ops;
 };
 
 #define NR_SUPER	2

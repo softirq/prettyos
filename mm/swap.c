@@ -22,8 +22,6 @@ static struct wait_queue *lock_queue = NULL;
 static int swap_cache_add_total = 0;
 
 struct swap_info_struct swap_files[MAX_SWAPFILES];
-/*struct page pages[];*/
-
 
 /*static inline void remove_mem_queue (struct mem_list *head, struct mem_list *entry)
 {
@@ -145,4 +143,14 @@ void swap_in(struct vm_area_struct * vma, pte_t * page_table,
         return;
     }
     return ;
+}
+
+void inline add_page_to_inactive_list(struct page *page)
+{
+    list_add(&page->lru, &inactive_list);
+}
+
+void lru_cache_add(struct page * page)
+{
+    add_page_to_inactive_list(page);
 }

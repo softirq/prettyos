@@ -42,7 +42,7 @@ static int new_block(int dev)
         return block_nr;
 }
 
-static int free_block(int dev,int nr)
+int free_block(int dev,int nr)
 {
     if(nr <= 0)
         return -1;

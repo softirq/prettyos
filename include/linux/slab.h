@@ -1,8 +1,7 @@
 #ifndef     _SLAB_H_
 #define     _SLAB_H_
 
-#include "list.h"
-#include "asm-i386/page.h"
+#include "page.h"
 
 #define     BYTES_PER_WORD      sizeof(void *)
 #define     DEFAULT_SLAB_PAGES   4

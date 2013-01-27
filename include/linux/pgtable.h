@@ -1,7 +1,7 @@
 #ifndef     _PGTABLE_H_
 #define     _PGTABLE_H_
 
-#include "asm-i386/page.h"
+#include "page.h"
 #include "asm-i386/pgtable.h"
 
 #define     HIGH_MEM_ENTRY     0x300 

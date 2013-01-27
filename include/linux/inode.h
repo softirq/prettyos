@@ -13,7 +13,7 @@ struct inode_operations
 {
     struct m_inode * (*lookup)(int dev, int num);
     int (*write)(struct m_inode *inode);
-    void (*release)(struct m_inode *inode);
+    int (*release)(struct m_inode *inode);
 };
 
 //memory inode接点结构
@@ -49,7 +49,6 @@ struct d_inode
 	unsigned short	i_nr_sects;		//文件数据块数
     unsigned int    i_flags;
     unsigned int    i_data[13];
-	
 };
 
 extern unsigned short nr_inodes_count;

@@ -1,10 +1,8 @@
 #ifndef     _MM_H_
 #define     _MM_H_
 
-#include "asm-i386/page.h"
+#include "page.h"
 #include "pgtable.h"
-#include "wait.h"
-#include "list.h"
 #include "buddy.h"
 #include "slab.h"
 
@@ -110,5 +108,10 @@ struct vm_operation_struct
 
 #define 	VM_EXECUTABLE  	0X1000
 #define 	VM_STACK_FLAGS 	0x0177
+
+#define     get_page(p)     atomic_inc(&(p)->count)
+
+/* inactive page list*/
+extern struct list_head inactive_list;
 
 #endif
