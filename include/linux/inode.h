@@ -28,10 +28,10 @@ struct m_inode
     unsigned int    i_data[13];
 
 	unsigned short	i_dev;
-	unsigned short	i_count;		//当前被使用的次数
+	short	i_count;		//当前被使用的次数
 	unsigned short	i_num;			//文件的inode号
 	unsigned short	i_lock;			//文件的琐标记
-	unsigned short i_dirt;			//脏标记
+	unsigned short i_dirty;			//脏标记
 	struct vm_area_struct *i_mmap;  /* for shm areas,  the list of attaches, otherwise unused. */
     struct list_head i_list;
     struct inode_operations *i_ops;
@@ -58,7 +58,7 @@ extern unsigned short nr_inodes_count;
 extern struct inode_operations pfs;
 
 extern struct m_inode * iget(int dev,int num);
-extern void iput(struct m_inode *inode);
+extern int iput(struct m_inode *inode);
 extern int  write_inode(struct m_inode *inode);
 extern int  create_block(struct m_inode *inode,int block);
 

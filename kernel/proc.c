@@ -63,7 +63,6 @@ void TestA()
     {
         inode = current->filp[fd]->f_inode;
         printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);
-        close(fd);
     }
 
     printk("---------------------------------------\n");

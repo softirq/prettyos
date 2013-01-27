@@ -141,7 +141,7 @@ int add_entry(struct m_inode *dir,int inode_num,char *name)
 
     new_de->inode_num = inode_num;
     dir->i_size += DENTRY_SIZE;
-    dir->i_dirt = 1;
+    dir->i_dirty = 1;
 
     /*printk("add entry name=%s.",name);*/
     strncpy(new_de->file_name,name, strlen(name));

@@ -27,7 +27,7 @@ NETOBJS:=net/net.o
 
 #NETLIB:=net/net.a
 
-LIBOBJS:=lib/string.o lib/kliba.o lib/stringa.o lib/klibc.o lib/errno.o lib/list.o lib/math.o lib/rbtree.o lib/bitmap.o
+LIBOBJS:=lib/string.o lib/kliba.o lib/stringa.o lib/klibc.o lib/errno.o lib/list.o lib/math.o lib/rbtree.o lib/radix-tree.o lib/bitmap.o
 
 #OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS) $(NETLIB) 
 OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS) 

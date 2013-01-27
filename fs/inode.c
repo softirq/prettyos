@@ -19,7 +19,7 @@ void sync_dev(int dev)
 /*write inode to disk*/
 int write_inode(struct m_inode *inode)
 {
-    if(inode == NULL || !inode->i_dirt || !inode->i_dev)
+    if(inode == NULL || !inode->i_dirty || !inode->i_dev)
         return -1;
 
     unsigned short dev = inode->i_dev;
@@ -46,7 +46,7 @@ int write_inode(struct m_inode *inode)
 
     brelse(bh);
 
-    inode->i_dirt = 0;
+    inode->i_dirty = 0;
 
     return 0;
 }
@@ -197,45 +197,43 @@ static int free_inode(struct m_inode *inode)
 }
 
 /*free the inode*/
-void iput(struct m_inode *inode)
+int iput(struct m_inode *inode)
 {
     if(!inode)
-        return;
+        return -1;
     if(!inode->i_count)
     {
-        //		panic("iput;trying to free free inode");
-        return;
+        return -2;
     }
     if(inode == root_inode)
     {
-        return;
+        return -3;
     }
     if(!inode->i_dev)
     {
-        inode->i_count--;
-        return;
+        return -4;
     }
-    printk("iput num = %d.mode = %x.", inode->i_num, inode->i_mode);
     if(S_ISBLK(inode->i_mode) || S_ISCHR(inode->i_mode))
     {
-        //		sync_dev(inode->i_start_sect);
+        return -5;
     }
 
     if((--inode->i_count) > 0)
     {
-        return;
+        return 0;
     }
     else
     {
-        if(inode->i_dirt)
+        if(inode->i_dirty)
         {
             write_inode(inode);		
         }
+
         list_del(&inode->i_list);
         free_inode(inode);	
     }
 
-    return;
+    return 0;
 }
 
 struct inode_operations pfs = {

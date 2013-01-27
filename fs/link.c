@@ -48,7 +48,7 @@ int do_unlink(char *name)
         return -EMLINK;
     }
     de->inode_num = 0;
-    inode->i_dirt = 1;
+    inode->i_dirty = 1;
     iput(inode);
     iput(dir);
     printk("delete file successful\n");	

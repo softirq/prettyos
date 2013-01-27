@@ -138,68 +138,12 @@ int init_fs()
 
     read_super_block(ROOT_DEV);
     struct super_block *sb = get_super_block(ROOT_DEV);
-    /*printk("magic=%x.",sb->s_magic);*/
     if(sb->s_magic != MAGIC_FS)
     {
         mk_fs();	
     }
 
-    /*assert(sb->s_magic == MAGIC_FS);*/
     root_inode = iget(ROOT_DEV,ROOT_INODE);
-
-    /*struct buffer_head* bh = getblk(ROOT_DEV,100);*/
-    /*printk("bh->b_dev = %d\n",bh->b_dev);*/
-    /*printk("bh->b_blocknr = %d\n",bh->b_blocknr);*/
-    /*printk("bh->b_data= %s\n",bh->b_data);*/
-
-    /*printk("-----------------------------------------\n");*/
-    /*int fd = open("/",0,0);*/
-    /*if(fd < 0)*/
-    /*{*/
-        /*printk("open error. fd = %d.", fd);*/
-    /*}*/
-    /*close(fd);*/
-
-    /*struct m_inode *inode;*/
-    /*fd = open("/sunkang",0,O_CREAT);*/
-    /*if(fd < 0)*/
-    /*{*/
-        /*printk("open error. fd = %d.", fd);*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("sunkang inode num = %d",inode->i_num);*/
-        /*close(fd);*/
-    /*}*/
-
-    /*if((fd = open("/sunkang/kamus",I_REGULAR,O_CREAT)) < 0)*/
-    /*{*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("kamus inode num = %d mode = %x.",inode->i_num, inode->i_mode);*/
-        /*[>close(fd);<]*/
-    /*}*/
-
-    /*if((fd = open("/sunkang/hahaha",0,O_CREAT)) < 0)*/
-    /*{*/
-    /*}*/
-    /*else*/
-    /*{*/
-        /*inode = current->filp[fd]->f_inode;*/
-        /*printk("haha inode num = %d",inode->i_num);*/
-        /*close(fd);*/
-    /*}*/
-
-    /*printk("---------------------------------------\n");*/
-    /*char buf[] = "wo shi sunkang";*/
-    /*sys_write(fd,buf, sizeof(buf));*/
-    /*char abc[15] = {0};*/
-    /*sys_read(fd,abc,sizeof(abc));*/
-    /*printk("abc = %s\n",abc);*/
-    /*close(fd);*/
 
     return 0;
 }

@@ -27,7 +27,7 @@ int general_file_read(struct m_inode *inode,struct file *filp,char *buf,int coun
     if(!buf || count <= 0)
         return 0;
     int nr_start_sect = get_first_block(inode); 
-    printk("read start_sect = %d.",nr_start_sect);
+    printk("read num = %d.start_sect = %d.",inode->i_num, nr_start_sect);
     //	printk("inode->i_dev = %d inode->i_num = %d inode->i_start_sect = %d\n",inode->i_dev,inode->i_num,inode->i_start_sect);
     //文件所占的磁盘块总数
     off_t pos = filp->f_pos;			
@@ -96,7 +96,7 @@ int general_file_write(struct m_inode *inode,struct file *filp,char *buf,int cou
         if((nr_start_sect = get_first_block(inode)) == 0)
             return -3;
     }
-    printk("write start_sect = %d.",nr_start_sect);
+    printk("write num = %d.start_sect = %d.",inode->i_num, nr_start_sect);
     if(filp->f_flag & O_APPEND)
         pos = inode->i_size;
     else 
@@ -121,7 +121,6 @@ int general_file_write(struct m_inode *inode,struct file *filp,char *buf,int cou
         if(pos > inode->i_size)
         {
             inode->i_size = pos;
-            inode->i_dirt = 1;
         }
         while(c-- > 0)
             *(p++) = *(buf++);
@@ -129,6 +128,8 @@ int general_file_write(struct m_inode *inode,struct file *filp,char *buf,int cou
         hd_rw(inode->i_dev,block_nr,1,ATA_WRITE,bh);		
         brelse(bh);
     }
+
+    inode->i_dirty = 1;
 
     return 0;	
 }

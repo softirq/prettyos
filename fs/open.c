@@ -39,7 +39,7 @@ struct m_inode * new_file(struct m_inode *dir,char *basename,int namelen, int mo
 
     inode->i_mode = mode;
     inode->i_flags = flags;
-    inode->i_dirt = 1;
+    inode->i_dirty = 1;
 
     if((write_inode(dir)) < 0)
     {
@@ -177,7 +177,8 @@ int close(int fd)
         panic("Close:file count is 0");
 
     /*printk("4 count=%d", filp->f_count);*/
-    iput(fp->f_inode);
+    int ret = iput(fp->f_inode);
+    printk("iput ret = %d.",ret);
     if(--fp->f_count)
         return 0;
     current->filp[fd] = NULL;
