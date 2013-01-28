@@ -10,6 +10,7 @@
 #include "swap.h"
 #include "bitmap.h"
 #include "mm.h"
+#include "page_alloc.h"
 
 /*
  * buddy system

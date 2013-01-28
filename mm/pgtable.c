@@ -16,6 +16,7 @@
 #include "page.h"
 #include "swap.h"
 #include "mm.h"
+#include "page_alloc.h"
 
 pgd_t *swapper_pg_dir = NULL;
 

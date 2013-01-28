@@ -8,6 +8,7 @@
 #include "list.h"
 #include "math.h"
 #include "mm.h"
+#include "page_alloc.h"
 
 /*static int count = 0;*/
 int nr_free_pages = 0;
@@ -178,6 +179,7 @@ int buddy_list_tidy()
     return 0;
 }
 
+#if 0
 static inline int free_pages_ok(struct page *page, const int order)
 {
     if(page == NULL || order >= NR_MEM_LISTS)
@@ -272,3 +274,4 @@ unsigned long alloc_mem(const size_t size)
     int order = power(size>>PAGE_SHIFT);
     return get_free_pages(order);
 }
+#endif

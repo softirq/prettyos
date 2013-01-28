@@ -2,9 +2,12 @@
 #define     _MM_H_
 
 #include "page.h"
+#include "file.h"
+#include "inode.h"
 #include "pgtable.h"
 #include "buddy.h"
 #include "slab.h"
+#include "radix-tree.h"
 
 #define     SYS_RESERVED    0x1
 #define     SYS_ROM         0x2
@@ -89,6 +92,21 @@ struct vm_operation_struct
     void (*close) (struct vm_area_struct *vma);
     void (*map)(struct vm_area_struct *area, unsigned long, size_t);
     void (*unmap)(struct vm_area_struct *area, unsigned long, size_t);
+};
+
+struct address_space_operations {
+    int (*writepage)(struct page *);
+    int (*readpage)(struct file *,struct page *);
+    int (*prepare_write)(struct file *, struct page *,unsigned, unsigned);
+    int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
+};
+
+struct address_space {
+    struct inode *host;
+    struct radix_tree_root page_tree;
+    struct list_head    clean_pages;
+    struct list_head    dirty_pages;
+    struct address_space_operations *a_ops;
 };
 
 #define 	VM_READ 		0x0001

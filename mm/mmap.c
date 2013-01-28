@@ -4,6 +4,7 @@
 #include "fork.h"
 #include "wait.h"
 #include "mm.h"
+#include "page_alloc.h"
 #include "fs.h"
 #include "sched.h"
 #include "mmap.h"

@@ -5,6 +5,7 @@
 #include "stdlib.h"
 #include "panic.h"
 #include "mm.h"
+#include "page_alloc.h"
 #include "printf.h"
 
 int nr_swap_pages = 0;

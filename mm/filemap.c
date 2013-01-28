@@ -3,7 +3,6 @@
 #include "string.h"
 #include "stdlib.h"
 #include "panic.h"
-#include "fs.h"
 #include "mm.h"
 #include "swap.h"
 #include "atomic.h"
@@ -29,7 +28,7 @@ static int _add_to_page_cache(struct page *page, struct address_space *mapping, 
     return 0;
 }
 
-/* add page to address_space*/
+/*add page to address_space*/
 int add_to_page_cache(struct page *page, struct address_space *mapping, unsigned int offset)
 {
     if((_add_to_page_cache(page, mapping, offset)) < 0)

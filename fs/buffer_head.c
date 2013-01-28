@@ -3,6 +3,7 @@
 #include "irq.h"
 #include "wait.h"
 #include "mm.h"
+#include "page_alloc.h"
 #include "panic.h"
 #include "stdlib.h"
 #include "hd.h"

@@ -21,7 +21,7 @@ KERNELOBJS:=kernel/core.o kernel/start.o kernel/i8259.o kernel/global.o kernel/t
 FSOBJS:=fs/bitmap.o fs/super.o fs/inode.o fs/stat.o fs/fcntl.o fs/fs.o fs/namei.o fs/open.o fs/file.o \
 	fs/read_write.o  fs/buffer_head.o fs/link.o fs/binfmt_elf.o fs/block.o
 
-MMOBJS:=mm/memory.o mm/swap.o mm/pgtable.o mm/mmap.o mm/kmalloc.o mm/buddy.o mm/slab.o
+MMOBJS:=mm/memory.o mm/buddy.o mm/slab.o mm/swap.o mm/pgtable.o mm/mmap.o mm/kmalloc.o mm/page_alloc.o 
 
 NETOBJS:=net/net.o
 

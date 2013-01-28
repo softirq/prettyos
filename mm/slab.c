@@ -4,6 +4,7 @@
 #include "stdlib.h"
 #include "printf.h"
 #include "mm.h"
+#include "page_alloc.h"
 #include "math.h"
 #include "stddef.h"
 #include "fs.h"

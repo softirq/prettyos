@@ -10,7 +10,6 @@
 #include "link.h"
 #include "bitmap.h"
 #include "block.h"
-#include "radix-tree.h"
 
 // filesystem magic
 #define MAGIC_FS	0x0001
@@ -52,21 +51,6 @@ struct file_system_type {
     char name[16];
     int requires_dev;
     struct file_system_type * next;
-};
-
-struct address_space_operations {
-    int (*writepage)(struct page *);
-    int (*readpage)(struct file *,struct page *);
-    int (*prepare_write)(struct file *, struct page *,unsigned, unsigned);
-    int (*commit_write)(struct file *, struct page *, unsigned, unsigned);
-};
-
-struct address_space{
-    struct inode *host;
-    struct radix_tree_root page_tree;
-    struct list_head    clean_pages;
-    struct list_head    dirty_pages;
-    struct address_space_operations *a_ops;
 };
 
 #define NR_SUPER	2
