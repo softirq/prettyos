@@ -16,15 +16,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-#ifndef _LINUX_RADIX_TREE_H
-#define _LINUX_RADIX_TREE_H
+#ifndef _RADIX_TREE_H_
+#define _RADIX_TREE_H_
 
 #define RADIX_TREE_SLOT_RESERVED ((void *)~0UL)
 
-#define RADIX_TREE_MAP_SHIFT  7
-#define RADIX_TREE_MAP_SIZE  (1UL << RADIX_TREE_MAP_SHIFT)
+#define RADIX_TREE_MAP_SHIFT  4
+#define RADIX_TREE_MAP_SIZE  (1U << RADIX_TREE_MAP_SHIFT)
 #define RADIX_TREE_MAP_MASK  (RADIX_TREE_MAP_SIZE-1)
-#define RADIX_TREE_INDEX_BITS  (8 /* CHAR_BIT */ * sizeof(unsigned long))
+#define RADIX_TREE_INDEX_BITS  (8 * sizeof(unsigned long))
 
 struct radix_tree_node {
 	unsigned int	count;

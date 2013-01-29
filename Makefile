@@ -21,13 +21,14 @@ KERNELOBJS:=kernel/core.o kernel/start.o kernel/i8259.o kernel/global.o kernel/t
 FSOBJS:=fs/bitmap.o fs/super.o fs/inode.o fs/stat.o fs/fcntl.o fs/fs.o fs/namei.o fs/open.o fs/file.o \
 	fs/read_write.o  fs/buffer_head.o fs/link.o fs/binfmt_elf.o fs/block.o
 
-MMOBJS:=mm/memory.o mm/buddy.o mm/slab.o mm/swap.o mm/pgtable.o mm/mmap.o mm/kmalloc.o mm/page_alloc.o 
+MMOBJS:=mm/memory.o mm/buddy.o mm/slab.o mm/swap.o mm/pgtable.o mm/mmap.o mm/kmalloc.o mm/page_alloc.o  mm/filemap.o
 
 NETOBJS:=net/net.o
 
 #NETLIB:=net/net.a
 
 LIBOBJS:=lib/string.o lib/kliba.o lib/stringa.o lib/klibc.o lib/errno.o lib/list.o lib/math.o lib/rbtree.o lib/radix-tree.o lib/bitmap.o lib/vsprintf.o lib/printf.o
+#LIBOBJS:=lib/string.o lib/kliba.o lib/stringa.o lib/klibc.o lib/errno.o lib/list.o lib/math.o lib/rbtree.o lib/bitmap.o lib/vsprintf.o lib/printf.o
 
 #OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS) $(NETLIB) 
 OBJS:=$(KERNELOBJS) $(INITOBJS) $(FSOBJS) $(MMOBJS) $(LIBOBJS) 

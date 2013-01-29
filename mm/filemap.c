@@ -1,3 +1,5 @@
+/* address_space -- page cache
+ * */
 #include "type.h"
 #include "const.h"
 #include "string.h"
@@ -40,7 +42,7 @@ int add_to_page_cache(struct page *page, struct address_space *mapping, unsigned
 
 static int page_cache_read(struct file * file, unsigned long offset)  
 {
-    /*struct address_space *mapping = NULL;;*/
-    /*mapping = file->f_inode->i_mapping;*/
+    struct address_space *mapping = NULL;;
+    mapping = file->f_inode->i_mapping;
     return 0;
 }

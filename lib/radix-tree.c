@@ -68,7 +68,6 @@ static inline unsigned long radix_tree_maxindex(unsigned int height)
 	return index;
 }
 
-
 /*
  *	Extend a radix tree so it can store key @index.
  */
@@ -114,7 +113,7 @@ int radix_tree_reserve(struct radix_tree_root *root, unsigned long index, void *
 	unsigned int height, shift;
 	int error;
 
-	/* Make sure the tree is high enough.  */
+    /* Make sure the tree is high enough.  */
 	if (index > radix_tree_maxindex(root->height)) {
 		error = radix_tree_extend(root, index);
 		if (error)
@@ -127,7 +126,7 @@ int radix_tree_reserve(struct radix_tree_root *root, unsigned long index, void *
 
 	while (height > 0) {
 		if (*slot == NULL) {
-			/* Have to add a child node.  */
+            /* Have to add a child node.  */
 			if (!(tmp = radix_tree_node_alloc(root)))
 				return -2;
 			*slot = tmp;
@@ -135,7 +134,7 @@ int radix_tree_reserve(struct radix_tree_root *root, unsigned long index, void *
 				node->count++;
 		}
 
-		/* Go a level down.  */
+        /* Go a level down.  */
 		node = *slot;
 		slot = (struct radix_tree_node **)
 			(node->slots + ((index >> shift) & RADIX_TREE_MAP_MASK));
@@ -163,13 +162,13 @@ int radix_tree_reserve(struct radix_tree_root *root, unsigned long index, void *
  */
 int radix_tree_insert(struct radix_tree_root *root, unsigned long index, void *item)
 {
-	void **slot;
-	int error;
+    void **slot;
+    int error;
 
-	error = radix_tree_reserve(root, index, &slot);
-	if (!error)
-		*slot = item;
-	return error;
+    error = radix_tree_reserve(root, index, &slot);
+    if (!error)
+        *slot = item;
+    return error;
 }
 
 /**
@@ -181,27 +180,26 @@ int radix_tree_insert(struct radix_tree_root *root, unsigned long index, void *i
  */
 void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
 {
-	unsigned int height, shift;
-	struct radix_tree_node **slot;
+    unsigned int height, shift;
+    struct radix_tree_node **slot;
+    height = root->height;
+    if (index > radix_tree_maxindex(height))
+        return NULL;
 
-	height = root->height;
-	if (index > radix_tree_maxindex(height))
-		return NULL;
+    shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+    slot = &root->rnode;
 
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
-	slot = &root->rnode;
+    while (height > 0) {
+        if (*slot == NULL)
+            return NULL;
 
-	while (height > 0) {
-		if (*slot == NULL)
-			return NULL;
+        slot = (struct radix_tree_node **)
+            ((*slot)->slots + ((index >> shift) & RADIX_TREE_MAP_MASK));
+        shift -= RADIX_TREE_MAP_SHIFT;
+        height--;
+    }
 
-		slot = (struct radix_tree_node **)
-			((*slot)->slots + ((index >> shift) & RADIX_TREE_MAP_MASK));
-		shift -= RADIX_TREE_MAP_SHIFT;
-		height--;
-	}
-
-	return (void *) *slot;
+    return (void *) *slot;
 }
 
 /**
@@ -213,40 +211,43 @@ void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
  */
 int radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 {
-	struct radix_tree_path path[RADIX_TREE_INDEX_BITS/RADIX_TREE_MAP_SHIFT + 2], *pathp = path;
-	unsigned int height, shift;
+#if 0
+    struct radix_tree_path path[RADIX_TREE_INDEX_BITS/RADIX_TREE_MAP_SHIFT + 2];
+    struct radix_tree_path *pathp = path;
+    unsigned int height, shift;
 
-	height = root->height;
-	if (index > radix_tree_maxindex(height))
-		return -1;
+    height = root->height;
+    if (index > radix_tree_maxindex(height))
+        return -1;
 
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
-	pathp->node = NULL;
-	pathp->slot = &root->rnode;
+    shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+    pathp->node = NULL;
+    pathp->slot = &(root->rnode);
 
-	while (height > 0) {
-		if (*pathp->slot == NULL)
-			return -2;
+    while (height > 0) {
+        if (*pathp->slot == NULL)
+            return -2;
 
-		pathp[1].node = *pathp[0].slot;
-		pathp[1].slot = (struct radix_tree_node **)
-		    (pathp[1].node->slots + ((index >> shift) & RADIX_TREE_MAP_MASK));
-		pathp++;
-		shift -= RADIX_TREE_MAP_SHIFT;
-		height--;
-	}
+        pathp[1].node = *(pathp[0].slot);
+        pathp[1].slot = (struct radix_tree_node **)(pathp[1].node->slots + ((index >> shift) & RADIX_TREE_MAP_MASK));
 
-	if (*pathp[0].slot == NULL)
-		return -3;
+        pathp++;
+        shift -= RADIX_TREE_MAP_SHIFT;
+        height--;
+    }
 
-	*pathp[0].slot = NULL;
-	while (pathp[0].node && --pathp[0].node->count == 0) {
-		pathp--;
-		*pathp[0].slot = NULL;
-		radix_tree_node_free(pathp[1].node);
-	}
+    if (*pathp[0].slot == NULL)
+        return -3;
 
-	return 0;
+    *pathp[0].slot = NULL;
+    while (pathp[0].node && --pathp[0].node->count == 0) {
+        pathp--;
+        *pathp[0].slot = NULL;
+        radix_tree_node_free(pathp[1].node);
+    }
+
+#endif
+    return 0;
 }
 
 /*
@@ -256,7 +257,7 @@ int radix_tree_delete(struct radix_tree_root *root, unsigned long index)
  */
 void radix_tree_init(void)
 {
-    /*radix_tree_node_cachep = kmem_cache_create("radix tree node", sizeof(struct radix_tree_node), 0); */
-    /*if (!radix_tree_node_cachep)*/
-        /*panic ("Failed to create radix_tree_node cache\n");*/
+    radix_tree_node_cachep = kmem_cache_create("radix tree node", sizeof(struct radix_tree_node), 0);
+    if (!radix_tree_node_cachep)
+        panic ("Failed to create radix_tree_node cache\n");
 }

@@ -35,6 +35,7 @@ struct m_inode
 	struct vm_area_struct *i_mmap;  /* for shm areas,  the list of attaches, otherwise unused. */
     struct list_head i_list;
     struct inode_operations *i_ops;
+    struct address_space *i_mapping;
 };
 
 //disk inode节点结构	

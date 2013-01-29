@@ -6,6 +6,7 @@ AR:=ar
 MAKE:=make
 
 CFLAGS=-g -fno-builtin -Wall -ggdb
+
 INCLUDE=-I$(TOPDIR)/include/ -I$(TOPDIR)/include/linux/ -I$(TOPDIR)/include/asm-i386/
 ASMINCLUDE=-I $(TOPDIR)/boot/include/
 ARFLAGS=-r
